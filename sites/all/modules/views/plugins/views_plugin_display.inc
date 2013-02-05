@@ -1,11 +1,12 @@
 <?php
+
 /**
  * @file
  * Contains the base display plugin.
  */
 
 /**
- * @defgroup views_display_plugins Views' display plugins
+ * @defgroup views_display_plugins Views display plugins
  * @{
  * Display plugins control how Views interact with the rest of Drupal.
  *
@@ -14,14 +15,12 @@
  * handle creating Views from an external module source, such as
  * a Panels pane, or an insert view, or a CCK field type.
  *
- * @see hook_views_plugins
+ * @see hook_views_plugins()
  */
 
 /**
  * The default display plugin handler. Display plugins handle options and
  * basic mechanisms for different output methods.
- *
- * @ingroup views_display_plugins
  */
 class views_plugin_display extends views_plugin {
   /**
@@ -34,7 +33,7 @@ class views_plugin_display extends views_plugin {
   var $handlers = array();
 
   /**
-   * Stores all availible display extenders.
+   * Stores all available display extenders.
    */
   var $extender = array();
 
@@ -42,8 +41,28 @@ class views_plugin_display extends views_plugin {
     $this->view = &$view;
     $this->display = &$display;
 
+    // Load extenders as soon as possible.
+    $this->extender = array();
+    $extenders = views_get_enabled_display_extenders();
+    // If you update to the dev version the registry might not be loaded yet.
+    if (!empty($extenders) && class_exists('views_plugin_display_extender')) {
+      foreach ($extenders as $extender) {
+        $plugin = views_get_plugin('display_extender', $extender);
+        if ($plugin) {
+          $plugin->init($this->view, $this);
+          $this->extender[$extender] = $plugin;
+        }
+        else {
+          vpr('Invalid display extender @extender', array('@handler' => $extender));
+        }
+      }
+    }
+
+    // Track changes that the user should know about.
+    $changed = FALSE;
+
     // Make some modifications:
-    if (!isset($options)) {
+    if (!isset($options) && isset($display->display_options)) {
       $options = $display->display_options;
     }
 
@@ -123,7 +142,9 @@ class views_plugin_display extends views_plugin {
       $this->set_option('offset', NULL);
       $this->set_option('use_pager', NULL);
       $this->set_option('pager', $pager);
+      $changed = TRUE;
     }
+
 
     // Plugable headers, footer and empty texts are
     // not compatible with previous version of views
@@ -143,7 +164,7 @@ class views_plugin_display extends views_plugin {
               'relationship' => 'none',
               'group_type' => 'group',
               'content' => $content,
-              'format' => !empty($format) ? $format : variable_get('filter_default_format', 1),
+              'format' => !empty($format) ? $format : filter_default_format(),
             );
 
             if ($area != 'empty' && $empty = $this->get_option($area . '_empty')) {
@@ -151,6 +172,7 @@ class views_plugin_display extends views_plugin {
             }
             $this->set_option($area, array('text' => $options));
             $converted = TRUE;
+            $changed = TRUE;
           }
         }
         // Ensure that options are at least an empty array
@@ -168,18 +190,67 @@ class views_plugin_display extends views_plugin {
       $this->set_option('query', $query_settings);
       // Clear the values
       $this->set_option('distinct', NULL);
+      $changed = TRUE;
     }
-  }
 
-  function construct() {
-    // Load extenders as soon as possible
-    $this->extender = array();
-    foreach (array_filter(variable_get('views_display_extenders', array())) as $extender) {
-      $data = views_fetch_plugin_data('display_extender', $extender);
-      views_include_handler($data['handler'], $data, 'display_extender');
-      $this->extender[$extender] = new $data['handler']($this->view, $this);
+    // Convert field language settings.
+    $query_options = $this->get_option('query');
+    if (isset($query_options['options']['field_language'])) {
+      $this->set_option('field_language', $query_options['options']['field_language']);
+      unset($query_options['options']['field_language']);
+      $changed = TRUE;
     }
-    parent::construct();
+    if (isset($query_options['options']['field_language_add_to_query'])) {
+      $this->set_option('field_language_add_to_query', $query_options['options']['field_language_add_to_query']);
+      unset($query_options['options']['field_language_add_to_query']);
+      $changed = TRUE;
+    }
+    $this->set_option('query', $query_options);
+
+    // Convert filter groups.
+    $filter_groups = $this->get_option('filter_groups');
+    // Only convert if it wasn't converted yet, which is the case if there is a 0 group.
+    if (isset($filter_groups['groups'][0])) {
+      // Update filter groups.
+      $filter_groups ['groups'] = views_array_key_plus($filter_groups['groups']);
+      $this->set_option('filter_groups', $filter_groups);
+      // Update the filter group on each filter.
+      $filters = $this->get_option('filters');
+      foreach ($filters as &$filter) {
+        if (isset($filter['group'])) {
+          $filter['group']++;
+        }
+        else {
+          $filter['group'] = 1;
+        }
+      }
+      $this->set_option('filters', $filters);
+      $changed = TRUE;
+    }
+
+    // Filter groups were allowed to be rewritten without its filters, so
+    // before this update the view was using the default values. To be sure that
+    // the existing view isn't broken, don't use this overridden values but copy
+    // them from the default display. Only do this if the filters are overridden
+    // but the filter_groups are not marked as so.
+    if (!$this->is_default_display() && !$this->options['defaults']['filters'] && $this->options['defaults']['filter_groups']) {
+      // Set filter_groups to be overridden and save the value in the
+      // display_options as well.
+      $this->options['defaults']['filter_groups'] = FALSE;
+      $this->display->display_options['defaults']['filter_groups'] = $this->options['defaults']['filter_groups'];
+      // Copy the filter_groups from the default, and add them to the
+      // display_options as well. $this->default_display is not initialized at
+      // this point.
+      $this->options['filter_groups'] = $this->view->display['default']->handler->options['filter_groups'];
+      $this->display->display_options['filter_groups'] = $this->options['filter_groups'];
+
+      $changed = TRUE;
+    }
+
+    // Mark the view as changed so the user has a chance to save it.
+    if ($changed) {
+      $this->view->changed = TRUE;
+    }
   }
 
   function destroy() {
@@ -340,9 +411,12 @@ class views_plugin_display extends views_plugin {
       'css_class' => array('css_class'),
       'use_ajax' => array('use_ajax'),
       'hide_attachment_summary' => array('hide_attachment_summary'),
+      'hide_admin_links' => array('hide_admin_links'),
       'group_by' => array('group_by'),
       'query' => array('query'),
       'use_more' => array('use_more', 'use_more_always', 'use_more_text'),
+      'use_more_always' => array('use_more', 'use_more_always', 'use_more_text'),
+      'use_more_text' => array('use_more', 'use_more_always', 'use_more_text'),
       'link_display' => array('link_display', 'link_url'),
 
       // Force these to cascade properly.
@@ -366,6 +440,7 @@ class views_plugin_display extends views_plugin {
       'sorts' => array('sorts'),
       'arguments' => array('arguments'),
       'filters' => array('filters', 'filter_groups'),
+      'filter_groups' => array('filters', 'filter_groups'),
     );
 
     // If the display cannot use a pager, then we cannot default it.
@@ -401,6 +476,7 @@ class views_plugin_display extends views_plugin {
           'display_description' => FALSE,
           'use_ajax' => TRUE,
           'hide_attachment_summary' => TRUE,
+          'hide_admin_links' => FALSE,
           'pager' => TRUE,
           'pager_options' => TRUE,
           'use_more' => TRUE,
@@ -460,6 +536,10 @@ class views_plugin_display extends views_plugin {
         'default' => FALSE,
         'bool' => TRUE,
       ),
+      'hide_admin_links' => array(
+        'default' => FALSE,
+        'bool' => TRUE,
+      ),
       // This is legacy code:
       // Items_per/offset/use_pager is moved to the pager plugin
       // but the automatic update path needs this items defined, so don't remove it.
@@ -480,7 +560,8 @@ class views_plugin_display extends views_plugin {
       ),
       'use_more_always' => array(
         'default' => FALSE,
-        'bool' => FALSE,
+        'bool' => TRUE,
+        'export' => 'export_option_always',
       ),
       'use_more_text' => array(
         'default' => 'more',
@@ -495,6 +576,12 @@ class views_plugin_display extends views_plugin {
       'group_by' => array(
         'default' => FALSE,
         'bool' => TRUE,
+      ),
+      'field_language' => array(
+        'default' => '***CURRENT_LANGUAGE***',
+      ),
+      'field_language_add_to_query' => array(
+        'default' => 1,
       ),
 
       // These types are all plugins that can have individual settings
@@ -602,7 +689,7 @@ class views_plugin_display extends views_plugin {
       'filter_groups' => array(
         'contains' => array(
           'operator' => array('default' => 'AND'),
-          'groups' => array('default' => array(0 => 'AND')),
+          'groups' => array('default' => array(1 => 'AND')),
         ),
       ),
       'filters' => array(
@@ -625,7 +712,7 @@ class views_plugin_display extends views_plugin {
     }
 
     foreach ($this->extender as $extender) {
-      $extender->option_definition($options);
+      $extender->options_definition_alter($options);
     }
 
     return $options;
@@ -698,6 +785,10 @@ class views_plugin_display extends views_plugin {
     }
   }
 
+  function get_url() {
+    return $this->view->get_url();
+  }
+
   /**
    * Check to see if the display needs a breadcrumb
    *
@@ -741,7 +832,14 @@ class views_plugin_display extends views_plugin {
   }
 
   /**
-   * Get the display or row plugin, if it exists.
+   * Get the instance of a plugin, for example style or row.
+   *
+   * @param string $type
+   *   The type of the plugin.
+   * @param string $name
+   *   The name of the plugin defined in hook_views_plugins.
+   *
+   * @return views_plugin|FALSE
    */
   function get_plugin($type = 'style', $name = NULL) {
     static $cache = array();
@@ -786,7 +884,7 @@ class views_plugin_display extends views_plugin {
 
         if (!isset($this->base_field)) {
           $views_data = views_fetch_data($this->view->base_table);
-          $this->view->base_field = $views_data['table']['base']['field'];
+          $this->view->base_field = !empty($views_data['table']['base']['field']) ? $views_data['table']['base']['field'] : '';
         }
         $plugin->init($this->view->base_table, $this->view->base_field, $options);
       }
@@ -821,7 +919,15 @@ class views_plugin_display extends views_plugin {
       $this->handlers[$type] = array();
       $types = views_object_types();
       $plural = $types[$type]['plural'];
+
       foreach ($this->get_option($plural) as $id => $info) {
+        // If this is during form submission and there are temporary options
+        // which can only appear if the view is in the edit cache, use those
+        // options instead. This is used for AJAX multi-step stuff.
+        if (isset($_POST['form_id']) && isset($this->view->temporary_options[$type][$id])) {
+          $info = $this->view->temporary_options[$type][$id];
+        }
+
         if ($info['id'] != $id) {
           $info['id'] = $id;
         }
@@ -868,9 +974,19 @@ class views_plugin_display extends views_plugin {
 
   /**
    * Retrieve a list of fields for the current display with the
-   *  relationship associated if it exists.
+   * relationship associated if it exists.
+   *
+   * @param $groupable_only
+   *  Return only an array of field labels from handler that return TRUE
+   *  from use_string_group_by method.
    */
   function get_field_labels() {
+    // Use func_get_arg so the function signature isn't amended
+    // but we can still pass TRUE into the function to filter
+    // by groupable handlers.
+    $args = func_get_args();
+    $groupable_only = isset($args[0]) ? $args[0] : FALSE;
+
     $options = array();
     foreach ($this->get_handlers('relationship') as $relationship => $handler) {
       if ($label = $handler->label()) {
@@ -882,6 +998,10 @@ class views_plugin_display extends views_plugin {
     }
 
     foreach ($this->get_handlers('field') as $id => $handler) {
+      if ($groupable_only && !$handler->use_string_group_by()) {
+        // Continue to next handler if it's not groupable.
+        continue;
+      }
       if ($label = $handler->label()) {
         $options[$id] = $label;
       }
@@ -893,33 +1013,6 @@ class views_plugin_display extends views_plugin {
       }
     }
     return $options;
-  }
-
-  /**
-   * Returns to tokens for arguments.
-   *
-   * This function is similar to views_handler_field::get_render_tokens()
-   * but without fields tokens.
-   */
-  function get_arguments_tokens() {
-    $tokens = array();
-    if (!empty($this->view->build_info['substitutions'])) {
-      $tokens = $this->view->build_info['substitutions'];
-    }
-    $count = 0;
-    foreach ($this->view->display_handler->get_handlers('argument') as $arg => $handler) {
-      $token = '%' . ++$count;
-      if (!isset($tokens[$token])) {
-        $tokens[$token] = '';
-      }
-
-      // Use strip tags as there should never be HTML in the path.
-      // However, we need to preserve special characters like " that
-      // were removed by check_plain().
-      $tokens['!' . $count] = isset($this->view->args[$count - 1]) ? strip_tags(html_entity_decode($this->view->args[$count - 1])) : '';
-    }
-
-    return $tokens;
   }
 
   /**
@@ -951,6 +1044,7 @@ class views_plugin_display extends views_plugin {
    * an easy URL to exactly the right section. Don't override this.
    */
   function option_link($text, $section, $class = '', $title = '') {
+    views_add_js('ajax');
     if (!empty($class)) {
       $text = '<span>' . $text . '</span>';
     }
@@ -963,7 +1057,34 @@ class views_plugin_display extends views_plugin {
       $title = $text;
     }
 
-    return l($text, 'admin/build/views/nojs/display/' . $this->view->name . '/' . $this->display->id . '/' . $section, array('attributes' => array('class' => 'views-ajax-link ' . $class, 'title' => $title), 'html' => TRUE));
+    return l($text, 'admin/structure/views/nojs/display/' . $this->view->name . '/' . $this->display->id . '/' . $section, array('attributes' => array('class' => 'views-ajax-link ' . $class, 'title' => $title, 'id' => drupal_html_id('views-' . $this->display->id . '-' . $section)), 'html' => TRUE));
+  }
+
+  /**
+   * Returns to tokens for arguments.
+   *
+   * This function is similar to views_handler_field::get_render_tokens()
+   * but without fields tokens.
+   */
+  function get_arguments_tokens() {
+    $tokens = array();
+    if (!empty($this->view->build_info['substitutions'])) {
+      $tokens = $this->view->build_info['substitutions'];
+    }
+    $count = 0;
+    foreach ($this->view->display_handler->get_handlers('argument') as $arg => $handler) {
+      $token = '%' . ++$count;
+      if (!isset($tokens[$token])) {
+        $tokens[$token] = '';
+      }
+
+      // Use strip tags as there should never be HTML in the path.
+      // However, we need to preserve special characters like " that
+      // were removed by check_plain().
+      $tokens['!' . $count] = isset($this->view->args[$count - 1]) ? strip_tags(decode_entities($this->view->args[$count - 1])) : '';
+    }
+
+    return $tokens;
   }
 
   /**
@@ -973,39 +1094,61 @@ class views_plugin_display extends views_plugin {
    */
   function options_summary(&$categories, &$options) {
     $categories = array(
-      'basic' => array(
-        'title' => t('Basic settings'),
+      'title' => array(
+        'title' => t('Title'),
+        'column' => 'first',
       ),
-      'advanced' => array(
-        'title' => t('Advanced settings'),
+      'format' => array(
+        'title' => t('Format'),
+        'column' => 'first',
       ),
-      'style' => array(
-        'title' => t('Style settings'),
+      'filters' => array(
+        'title' => t('Filters'),
+        'column' => 'first',
+      ),
+      'fields' => array(
+        'title' => t('Fields'),
+        'column' => 'first',
+      ),
+      'pager' => array(
+        'title' => t('Pager'),
+        'column' => 'second',
       ),
       'exposed' => array(
         'title' => t('Exposed form'),
+        'column' => 'third',
+        'build' => array(
+          '#weight' => 1,
+        ),
+      ),
+      'access' => array(
+        'title' => '',
+        'column' => 'second',
+        'build' => array(
+          '#weight' => -5,
+        ),
+      ),
+      'other' => array(
+        'title' => t('Other'),
+        'column' => 'third',
+        'build' => array(
+          '#weight' => 2,
+        ),
       ),
     );
 
     if ($this->display->id != 'default') {
       $options['display_id'] = array(
-        'category' => 'basic',
+        'category' => 'other',
         'title' => t('Machine Name'),
         'value' => !empty($this->display->new_id) ? check_plain($this->display->new_id) : check_plain($this->display->id),
         'desc' => t('Change the machine name of this display.'),
       );
     }
 
-    $options['display_title'] = array(
-      'category' => 'basic',
-      'title' => t('Name'),
-      'value' => check_plain($this->display->display_title),
-      'desc' => t('Change the name of this display.'),
-    );
-
-    $display_comment = drupal_substr($this->get_option('display_comment'), 0, 10);
+    $display_comment = check_plain(drupal_substr($this->get_option('display_comment'), 0, 10));
     $options['display_comment'] = array(
-      'category' => 'basic',
+      'category' => 'other',
       'title' => t('Comment'),
       'value' => !empty($display_comment) ? $display_comment : t('No comment'),
       'desc' => t('Comment or document this display.'),
@@ -1017,45 +1160,44 @@ class views_plugin_display extends views_plugin {
     }
 
     $options['title'] = array(
-      'category' => 'basic',
+      'category' => 'title',
       'title' => t('Title'),
       'value' => $title,
       'desc' => t('Change the title that this display will use.'),
     );
 
-    $options['enabled'] = array(
-      'category' => 'basic',
-      'title' => t('Display status'),
-      'value' => $this->get_option('enabled') ? t('Enabled') : t('Disabled'),
-      'desc' => t('Define if this display is or is not enabled.'),
-    );
-
     $style_plugin = views_fetch_plugin_data('style', $this->get_option('style_plugin'));
-    $style_title = empty($style_plugin['title']) ? t('Missing style plugin') : $style_plugin['title'];
+    $style_plugin_instance = $this->get_plugin('style');
+    $style_summary = empty($style_plugin['title']) ? t('Missing style plugin') : $style_plugin_instance->summary_title();
+    $style_title = empty($style_plugin['title']) ? t('Missing style plugin') : $style_plugin_instance->plugin_title();
 
     $style = '';
 
     $options['style_plugin'] = array(
-      'category' => 'style',
-      'title' => t('Style'),
+      'category' => 'format',
+      'title' => t('Format'),
       'value' => $style_title,
-      'desc' => t('Change the style plugin.'),
+      'setting' => $style_summary,
+      'desc' => t('Change the way content is formatted.'),
     );
 
     // This adds a 'Settings' link to the style_options setting if the style has options.
     if (!empty($style_plugin['uses options'])) {
-      $options['style_plugin']['links']['style_options'] = t('Change settings for this style');
+      $options['style_plugin']['links']['style_options'] = t('Change settings for this format');
     }
 
     if (!empty($style_plugin['uses row plugin'])) {
       $row_plugin = views_fetch_plugin_data('row', $this->get_option('row_plugin'));
-      $row_title = empty($row_plugin['title']) ? t('Missing style plugin') : $row_plugin['title'];
+      $row_plugin_instance = $this->get_plugin('row');
+      $row_summary = empty($row_plugin['title']) ? t('Missing style plugin') : $row_plugin_instance->summary_title();
+      $row_title = empty($row_plugin['title']) ? t('Missing style plugin') : $row_plugin_instance->plugin_title();
 
       $options['row_plugin'] = array(
-        'category' => 'style',
-        'title' => t('Row style'),
+        'category' => 'format',
+        'title' => t('Show'),
         'value' => $row_title,
-        'desc' => t('Change the row plugin.'),
+        'setting' => $row_summary,
+        'desc' => t('Change the way each row in the view is styled.'),
       );
       // This adds a 'Settings' link to the row_options setting if the row style has options.
       if (!empty($row_plugin['uses options'])) {
@@ -1064,7 +1206,7 @@ class views_plugin_display extends views_plugin {
     }
     if (!empty($this->definition['use ajax'])) {
       $options['use_ajax'] = array(
-        'category' => 'advanced',
+        'category' => 'other',
         'title' => t('Use AJAX'),
         'value' => $this->get_option('use_ajax') ? t('Yes') : t('No'),
         'desc' => t('Change whether or not this display will use AJAX.'),
@@ -1072,10 +1214,18 @@ class views_plugin_display extends views_plugin {
     }
     if (!empty($this->definition['accept attachments'])) {
       $options['hide_attachment_summary'] = array(
-        'category' => 'advanced',
+        'category' => 'other',
         'title' => t('Hide attachments in summary'),
         'value' => $this->get_option('hide_attachment_summary') ? t('Yes') : t('No'),
-        'desc' => t('Change whether or not to display attachments when displaying an argument summary.'),
+        'desc' => t('Change whether or not to display attachments when displaying a contextual filter summary.'),
+      );
+    }
+    if (!isset($this->definition['contextual links locations']) || !empty($this->definition['contextual links locations'])) {
+      $options['hide_admin_links'] = array(
+        'category' => 'other',
+        'title' => t('Hide contextual links'),
+        'value' => $this->get_option('hide_admin_links') ? t('Yes') : t('No'),
+        'desc' => t('Change whether or not to display contextual links for this view.'),
       );
     }
 
@@ -1088,9 +1238,10 @@ class views_plugin_display extends views_plugin {
     $pager_str = $pager_plugin->summary_title();
 
     $options['pager'] = array(
-      'category' => 'basic',
+      'category' => 'pager',
       'title' => t('Use pager'),
-      'value' => $pager_str,
+      'value' => $pager_plugin->plugin_title(),
+      'setting' => $pager_str,
       'desc' => t("Change this display's pager setting."),
     );
 
@@ -1105,7 +1256,7 @@ class views_plugin_display extends views_plugin {
 
     if (!empty($this->definition['use more'])) {
       $options['use_more'] = array(
-        'category' => 'basic',
+        'category' => 'pager',
         'title' => t('More link'),
         'value' => $this->get_option('use_more') ? t('Yes') : t('No'),
         'desc' => t('Specify whether this display will provide a "more" link.'),
@@ -1115,18 +1266,34 @@ class views_plugin_display extends views_plugin {
     $this->view->init_query();
     if ($this->view->query->get_aggregation_info()) {
       $options['group_by'] = array(
-        'category' => 'advanced',
-        'title' => t('Use grouping'),
+        'category' => 'other',
+        'title' => t('Use aggregation'),
         'value' => $this->get_option('group_by') ? t('Yes') : t('No'),
         'desc' => t('Allow grouping and aggregation (calculation) of fields.'),
       );
     }
 
     $options['query'] = array(
-      'category' => 'advanced',
+      'category' => 'other',
       'title' => t('Query settings'),
       'value' => t('Settings'),
       'desc' => t('Allow to set some advanced settings for the query plugin'),
+    );
+
+    $languages = array(
+        '***CURRENT_LANGUAGE***' => t("Current user's language"),
+        '***DEFAULT_LANGUAGE***' => t("Default site language"),
+        LANGUAGE_NONE => t('Language neutral'),
+    );
+    if (module_exists('locale')) {
+      $languages = array_merge($languages, locale_language_list());
+    }
+    $field_language = array();
+    $options['field_language'] = array(
+      'category' => 'other',
+      'title' => t('Field Language'),
+      'value' => $languages[$this->get_option('field_language')],
+      'desc' => t('All fields which support translations will be displayed in the selected language.'),
     );
 
     $access_plugin = $this->get_plugin('access');
@@ -1138,9 +1305,10 @@ class views_plugin_display extends views_plugin {
     $access_str = $access_plugin->summary_title();
 
     $options['access'] = array(
-      'category' => 'basic',
+      'category' => 'access',
       'title' => t('Access'),
-      'value' => $access_str,
+      'value' => $access_plugin->plugin_title(),
+      'setting' => $access_str,
       'desc' => t('Specify access control type for this display.'),
     );
 
@@ -1157,9 +1325,10 @@ class views_plugin_display extends views_plugin {
     $cache_str = $cache_plugin->summary_title();
 
     $options['cache'] = array(
-      'category' => 'advanced',
+      'category' => 'other',
       'title' => t('Caching'),
-      'value' => $cache_str,
+      'value' => $cache_plugin->plugin_title(),
+      'setting' => $cache_str,
       'desc' => t('Specify caching type for this display.'),
     );
 
@@ -1176,7 +1345,7 @@ class views_plugin_display extends views_plugin {
       $link_display = empty($this->view->display[$display_id]) ? t('None') : check_plain($this->view->display[$display_id]->display_title);
       $link_display =  $this->get_option('link_display') == 'custom_url' ? t('Custom URL') : $link_display;
       $options['link_display'] = array(
-        'category' => 'basic',
+        'category' => 'other',
         'title' => t('Link display'),
         'value' => $link_display,
         'desc' => t('Specify which display or custom url this display will link to.'),
@@ -1203,7 +1372,8 @@ class views_plugin_display extends views_plugin {
     $options['exposed_form'] = array(
       'category' => 'exposed',
       'title' => t('Exposed form style'),
-      'value' => $exposed_form_str,
+      'value' => $exposed_form_plugin->plugin_title(),
+      'setting' => $exposed_form_str,
       'desc' => t('Select the kind of exposed filter to use.'),
     );
 
@@ -1217,14 +1387,14 @@ class views_plugin_display extends views_plugin {
     }
 
     $options['css_class'] = array(
-      'category' => 'style',
+      'category' => 'other',
       'title' => t('CSS class'),
       'value' => $css_class,
       'desc' => t('Change the CSS class name(s) that will be added to this display.'),
     );
 
     $options['analyze-theme'] = array(
-      'category' => 'style',
+      'category' => 'other',
       'title' => t('Theme'),
       'value' => t('Information'),
       'desc' => t('Get information on how to theme this display'),
@@ -1239,8 +1409,9 @@ class views_plugin_display extends views_plugin {
    * Provide the default form for setting options.
    */
   function options_form(&$form, &$form_state) {
+    parent::options_form($form, $form_state);
     if ($this->defaultable_sections($form_state['section'])) {
-      $this->add_override_button($form, $form_state, $form_state['section']);
+      views_ui_standard_display_dropdown($form, $form_state, $form_state['section']);
     }
     $form['#title'] = check_plain($this->display->display_title) . ': ';
 
@@ -1260,7 +1431,7 @@ class views_plugin_display extends views_plugin {
         $form['#title'] .= t('The machine name of this display');
         $form['display_id'] = array(
           '#type' => 'textfield',
-          '#description' => t('This is machine name of the display. It should contain only letters, numbers, and underscores. This name must be unique.'),
+          '#description' => t('This is machine name of the display.'),
           '#default_value' => !empty($this->display->new_id) ? $this->display->new_id : $this->display->id,
           '#required' => TRUE,
           '#size' => 64,
@@ -1297,15 +1468,6 @@ class views_plugin_display extends views_plugin {
           '#default_value' => $this->get_option('title'),
         );
         break;
-      case 'enabled':
-        $form['#title'] .= t('Status of this display');
-        $form['enabled'] = array(
-          '#type' => 'checkbox',
-          '#title' => t('Enable display'),
-          '#description' => t('If unchecked, this display will not be available in the site.'),
-          '#default_value' => $this->get_option('enabled'),
-        );
-        break;
       case 'css_class':
         $form['#title'] .= t('CSS class');
         $form['css_class'] = array(
@@ -1317,9 +1479,7 @@ class views_plugin_display extends views_plugin {
       case 'use_ajax':
         $form['#title'] .= t('Use AJAX when available to load this view');
         $form['description'] = array(
-          '#prefix' => '<div class="description form-item">',
-          '#suffix' => '</div>',
-          '#value' => t('If set, this view will use an AJAX mechanism for paging, table sorting and exposed filters. This means the entire page will not refresh. It is not recommended that you use this if this view is the main content of the page as it will prevent deep linking to specific pages, but it is very useful for side content.'),
+          '#markup' => '<div class="description form-item">' . t('If set, this view will use an AJAX mechanism for paging, table sorting and exposed filters. This means the entire page will not refresh. It is not recommended that you use this if this view is the main content of the page as it will prevent deep linking to specific pages, but it is very useful for side content.') . '</div>',
         );
         $form['use_ajax'] = array(
           '#type' => 'radios',
@@ -1328,30 +1488,37 @@ class views_plugin_display extends views_plugin {
         );
         break;
       case 'hide_attachment_summary':
-        $form['#title'] .= t('Hide attachments when displaying argument summary');
+        $form['#title'] .= t('Hide attachments when displaying a contextual filter summary');
         $form['hide_attachment_summary'] = array(
           '#type' => 'radios',
           '#options' => array(1 => t('Yes'), 0 => t('No')),
           '#default_value' => $this->get_option('hide_attachment_summary') ? 1 : 0,
         );
         break;
+      case 'hide_admin_links':
+        $form['#title'] .= t('Hide contextual links on this view.');
+        $form['hide_admin_links'] = array(
+          '#type' => 'radios',
+          '#options' => array(1 => t('Yes'), 0 => t('No')),
+          '#default_value' => $this->get_option('hide_admin_links') ? 1 : 0,
+        );
+      break;
       case 'use_more':
         $form['#title'] .= t('Add a more link to the bottom of the display.');
         $form['use_more'] = array(
           '#type' => 'checkbox',
           '#title' => t('Create more link'),
-          '#description' => t("This will add a more link to the bottom of this view, which will link to the page view. If you have more than one page view, the link will point to the display specified in 'Link display' above. You can override the url at the link display setting."),
+          '#description' => t("This will add a more link to the bottom of this view, which will link to the page view. If you have more than one page view, the link will point to the display specified in 'Link display' section under advanced. You can override the url at the link display setting."),
           '#default_value' => $this->get_option('use_more'),
         );
         $form['use_more_always'] = array(
           '#type' => 'checkbox',
-          '#title' => t('Do not display more link unless there is more content'),
-          '#description' => t("This will display the more link even if there are no more items to display."),
+          '#title' => t("Display 'more' link only if there is more content"),
+          '#description' => t("Leave this unchecked to display the 'more' link even if there are no more items to display."),
           '#default_value' => !$this->get_option('use_more_always'),
             '#dependency' => array(
               'edit-use-more' => array(TRUE),
             ),
-          '#process' => array('views_process_dependency'),
         );
         $form['use_more_text'] = array(
           '#type' => 'textfield',
@@ -1361,14 +1528,13 @@ class views_plugin_display extends views_plugin {
           '#dependency' => array(
             'edit-use-more' => array(TRUE),
           ),
-          '#process' => array('views_process_dependency'),
         );
         break;
       case 'group_by':
         $form['#title'] .= t('Allow grouping and aggregation (calculation) of fields.');
         $form['group_by'] = array(
           '#type' => 'checkbox',
-          '#title' => t('Group by'),
+          '#title' => t('Aggregate'),
           '#description' => t('If enabled, some fields may become unavailable. All fields that are selected for grouping will be collapsed to one record per distinct value. Other fields which are selected for aggregation will have the function run on them. For example, you can group nodes on title and count the number of nids in order to get a list of duplicate titles.'),
           '#default_value' => $this->get_option('group_by'),
         );
@@ -1376,7 +1542,7 @@ class views_plugin_display extends views_plugin {
       case 'access':
         $form['#title'] .= t('Access restrictions');
         $form['access'] = array(
-          '#prefix' => '<div class="clear-block">',
+          '#prefix' => '<div class="clearfix">',
           '#suffix' => '</div>',
           '#tree' => TRUE,
         );
@@ -1384,7 +1550,7 @@ class views_plugin_display extends views_plugin {
         $access = $this->get_option('access');
         $form['access']['type'] =  array(
           '#type' => 'radios',
-          '#options' => views_fetch_plugin_names('access'),
+          '#options' => views_fetch_plugin_names('access', NULL, array($this->view->base_table)),
           '#default_value' => $access['type'],
         );
 
@@ -1392,8 +1558,8 @@ class views_plugin_display extends views_plugin {
         if (!empty($access_plugin['uses options'])) {
           $form['markup'] = array(
             '#prefix' => '<div class="form-item description">',
+            '#markup' => t('You may also adjust the !settings for the currently selected access restriction.', array('!settings' => $this->option_link(t('settings'), 'access_options'))),
             '#suffix' => '</div>',
-            '#value' => t('You may also adjust the !settings for the currently selected access restriction by clicking on the icon.', array('!settings' => $this->option_link(t('settings'), 'access_options'))),
           );
         }
 
@@ -1419,7 +1585,7 @@ class views_plugin_display extends views_plugin {
       case 'cache':
         $form['#title'] .= t('Caching');
         $form['cache'] = array(
-          '#prefix' => '<div class="clear-block">',
+          '#prefix' => '<div class="clearfix">',
           '#suffix' => '</div>',
           '#tree' => TRUE,
         );
@@ -1427,7 +1593,7 @@ class views_plugin_display extends views_plugin {
         $cache = $this->get_option('cache');
         $form['cache']['type'] =  array(
           '#type' => 'radios',
-          '#options' => views_fetch_plugin_names('cache'),
+          '#options' => views_fetch_plugin_names('cache', NULL, array($this->view->base_table)),
           '#default_value' => $cache['type'],
         );
 
@@ -1436,7 +1602,7 @@ class views_plugin_display extends views_plugin {
           $form['markup'] = array(
             '#prefix' => '<div class="form-item description">',
             '#suffix' => '</div>',
-            '#value' => t('You may also adjust the !settings for the currently selected cache mechanism by clicking on the icon.', array('!settings' => $this->option_link(t('settings'), 'cache_options'))),
+            '#markup' => t('You may also adjust the !settings for the currently selected cache mechanism.', array('!settings' => $this->option_link(t('settings'), 'cache_options'))),
           );
         }
         break;
@@ -1487,6 +1653,48 @@ class views_plugin_display extends views_plugin {
           $this->view->query->options_form($form['query']['options'], $form_state);
         }
         break;
+      case 'field_language':
+        $form['#title'] .= t('Field Language');
+
+        $entities = entity_get_info();
+        $entity_tables = array();
+        $has_translation_handlers = FALSE;
+        foreach ($entities as $type => $entity_info) {
+          $entity_tables[] = $entity_info['base table'];
+
+          if (!empty($entity_info['translation'])) {
+            $has_translation_handlers = TRUE;
+          }
+        }
+
+        // Doesn't make sense to show a field setting here if we aren't querying
+        // an entity base table. Also, we make sure that there's at least one
+        // entity type with a translation handler attached.
+        if (in_array($this->view->base_table, $entity_tables) && $has_translation_handlers) {
+          $languages = array(
+            '***CURRENT_LANGUAGE***' => t("Current user's language"),
+            '***DEFAULT_LANGUAGE***' => t("Default site language"),
+            LANGUAGE_NONE => t('Language neutral'),
+          );
+          $languages = array_merge($languages, views_language_list());
+
+          $form['field_language'] = array(
+            '#type' => 'select',
+            '#title' => t('Field Language'),
+            '#description' => t('All fields which support translations will be displayed in the selected language.'),
+            '#options' => $languages,
+            '#default_value' => $this->get_option('field_language'),
+          );
+          $form['field_language_add_to_query'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('When needed, add the field language condition to the query'),
+            '#default_value' => $this->get_option('field_language_add_to_query'),
+          );
+        }
+        else {
+          $form['field_language']['#markup'] = t("You don't have translatable entity types.");
+        }
+        break;
       case 'style_plugin':
         $form['#title'] .= t('How should this view be styled');
         $form['#help_topic'] = 'style';
@@ -1500,9 +1708,7 @@ class views_plugin_display extends views_plugin {
         $style_plugin = views_fetch_plugin_data('style', $this->get_option('style_plugin'));
         if (!empty($style_plugin['uses options'])) {
           $form['markup'] = array(
-            '#prefix' => '<div class="form-item description">',
-            '#suffix' => '</div>',
-            '#value' => t('You may also adjust the !settings for the currently selected style by clicking on the icon.', array('!settings' => $this->option_link(t('settings'), 'style_options'))),
+            '#markup' => '<div class="form-item description">' . t('You may also adjust the !settings for the currently selected style.', array('!settings' => $this->option_link(t('settings'), 'style_options'))) . '</div>',
           );
         }
 
@@ -1546,9 +1752,7 @@ class views_plugin_display extends views_plugin {
         $row_plugin = views_fetch_plugin_data('row', $this->get_option('row_plugin'));
         if (!empty($row_plugin['uses options'])) {
           $form['markup'] = array(
-            '#prefix' => '<div class="form-item description">',
-            '#suffix' => '</div>',
-            '#value' => t('You may also adjust the !settings for the currently selected row style by clicking on the icon.', array('!settings' => $this->option_link(t('settings'), 'row_options'))),
+            '#markup' => '<div class="form-item description">' . t('You may also adjust the !settings for the currently selected row style.', array('!settings' => $this->option_link(t('settings'), 'row_options'))) . '</div>',
           );
         }
 
@@ -1569,6 +1773,7 @@ class views_plugin_display extends views_plugin {
             '#default_value' => $this->get_option('link_display'),
           );
         }
+
         $options = array();
         $count = 0; // This lets us prepare the key as we want it printed.
         foreach ($this->view->display_handler->get_handlers('argument') as $arg => $handler) {
@@ -1578,6 +1783,7 @@ class views_plugin_display extends views_plugin {
 
         // Default text.
         // We have some options, so make a list.
+        $output = '';
         if (!empty($options)) {
           $output = t('<p>The following tokens are available for this link.</p>');
           foreach (array_keys($options) as $type) {
@@ -1586,7 +1792,11 @@ class views_plugin_display extends views_plugin {
               foreach ($options[$type] as $key => $value) {
                 $items[] = $key . ' == ' . $value;
               }
-              $output .= theme('item_list', $items, $type);
+              $output .= theme('item_list',
+                array(
+                  'items' => $items,
+                  'type' => $type
+                ));
             }
           }
         }
@@ -1596,7 +1806,6 @@ class views_plugin_display extends views_plugin {
           '#title' => t('Custom URL'),
           '#default_value' => $this->get_option('link_url'),
           '#description' => t('A Drupal path or external URL the more link will point to. Note that this will override the link display setting above.') . $output,
-          '#process' => array('views_process_dependency'),
           '#dependency' => array('radio:link_display' => array('custom_url')),
         );
         break;
@@ -1605,15 +1814,72 @@ class views_plugin_display extends views_plugin {
         $form['#help_topic'] = 'analyze-theme';
 
         if (isset($_POST['theme'])) {
-          $this->view->theme = $_POST['theme'];
+          $this->theme = $_POST['theme'];
         }
-        else if (empty($this->view->theme)) {
-          $this->view->theme = variable_get('theme_default', 'garland');
+        elseif (empty($this->theme)) {
+          $this->theme = variable_get('theme_default', 'bartik');
         }
 
-        global $custom_theme;
-        $custom_theme = $this->view->theme;
-        init_theme();
+        if (isset($GLOBALS['theme']) && $GLOBALS['theme'] == $this->theme) {
+          $this->theme_registry = theme_get_registry();
+          $theme_engine = $GLOBALS['theme_engine'];
+        }
+        else {
+          $themes = list_themes();
+          $theme = $themes[$this->theme];
+
+          // Find all our ancestor themes and put them in an array.
+          $base_theme = array();
+          $ancestor = $this->theme;
+          while ($ancestor && isset($themes[$ancestor]->base_theme)) {
+            $ancestor = $themes[$ancestor]->base_theme;
+            $base_theme[] = $themes[$ancestor];
+          }
+
+          // The base themes should be initialized in the right order.
+          $base_theme = array_reverse($base_theme);
+
+          // This code is copied directly from _drupal_theme_initialize()
+          $theme_engine = NULL;
+
+          // Initialize the theme.
+          if (isset($theme->engine)) {
+            // Include the engine.
+            include_once DRUPAL_ROOT . '/' . $theme->owner;
+
+            $theme_engine = $theme->engine;
+            if (function_exists($theme_engine . '_init')) {
+              foreach ($base_theme as $base) {
+                call_user_func($theme_engine . '_init', $base);
+              }
+              call_user_func($theme_engine . '_init', $theme);
+            }
+          }
+          else {
+            // include non-engine theme files
+            foreach ($base_theme as $base) {
+              // Include the theme file or the engine.
+              if (!empty($base->owner)) {
+                include_once DRUPAL_ROOT . '/' . $base->owner;
+              }
+            }
+            // and our theme gets one too.
+            if (!empty($theme->owner)) {
+              include_once DRUPAL_ROOT . '/' . $theme->owner;
+            }
+          }
+          $this->theme_registry = _theme_load_registry($theme, $base_theme, $theme_engine);
+        }
+
+        // If there's a theme engine involved, we also need to know its extension
+        // so we can give the proper filename.
+        $this->theme_extension = '.tpl.php';
+        if (isset($theme_engine)) {
+          $extension_function = $theme_engine . '_extension';
+          if (function_exists($extension_function)) {
+            $this->theme_extension = $extension_function();
+          }
+        }
 
         $funcs = array();
         // Get theme functions for the display. Note that some displays may
@@ -1660,9 +1926,7 @@ class views_plugin_display extends views_plugin {
         }
 
         $form['important'] = array(
-          '#prefix' => '<div class="form-item description">',
-          '#suffix' => '</div>',
-          '#value' => '<p>' . t('This section lists all possible templates for the display plugin and for the style plugins, ordered roughly from the least specific to the most specific. The active template for each plugin -- which is the most specific template found on the system -- is highlighted in bold.') . '</p>',
+          '#markup' => '<div class="form-item description"><p>' . t('This section lists all possible templates for the display plugin and for the style plugins, ordered roughly from the least specific to the most specific. The active template for each plugin -- which is the most specific template found on the system -- is highlighted in bold.') . '</p></div>',
         );
 
         if (isset($this->view->display[$this->view->current_display]->new_id)) {
@@ -1674,6 +1938,9 @@ class views_plugin_display extends views_plugin {
         }
 
         foreach (list_themes() as $key => $theme) {
+          if (!empty($theme->info['hidden'])) {
+            continue;
+          }
           $options[$key] = $theme->info['name'];
         }
 
@@ -1684,7 +1951,7 @@ class views_plugin_display extends views_plugin {
         $form['box']['theme'] = array(
           '#type' => 'select',
           '#options' => $options,
-          '#default_value' => $this->view->theme,
+          '#default_value' => $this->theme,
         );
 
         $form['box']['change'] = array(
@@ -1694,9 +1961,7 @@ class views_plugin_display extends views_plugin {
         );
 
         $form['analysis'] = array(
-          '#prefix' => '<div class="form-item">',
-          '#suffix' => '</div>',
-          '#value' => theme('item_list', $funcs),
+          '#markup' => '<div class="form-item">' . theme('item_list', array('items' => $funcs)) . '</div>',
         );
 
         $form['rescan_button'] = array(
@@ -1709,9 +1974,7 @@ class views_plugin_display extends views_plugin {
           '#submit' => array('views_ui_config_item_form_rescan'),
         );
         $form['rescan_button']['markup'] = array(
-          '#prefix' => '<div class="description">',
-          '#suffix' => '</div>',
-          '#value' => t("<strong>Important!</strong> When adding, removing, or renaming template files, it is necessary to make Drupal aware of the changes by making it rescan the files on your system. By clicking this button you clear Drupal's theme registry and thereby trigger this rescanning process. The highlighted templates above will then reflect the new state of your system."),
+          '#markup' => '<div class="description">' . t("<strong>Important!</strong> When adding, removing, or renaming template files, it is necessary to make Drupal aware of the changes by making it rescan the files on your system. By clicking this button you clear Drupal's theme registry and thereby trigger this rescanning process. The highlighted templates above will then reflect the new state of your system.") . '</div>',
         );
 
         $form_state['ok_button'] = TRUE;
@@ -1736,9 +1999,7 @@ class views_plugin_display extends views_plugin {
         }
 
         $form['analysis'] = array(
-          '#prefix' => '<div class="form-item">',
-          '#suffix' => '</div>',
-          '#value' => $output,
+          '#markup' => '<div class="form-item">' . $output . '</div>',
         );
 
         $form_state['ok_button'] = TRUE;
@@ -1765,9 +2026,7 @@ class views_plugin_display extends views_plugin {
         }
 
         $form['analysis'] = array(
-          '#prefix' => '<div class="form-item">',
-          '#suffix' => '</div>',
-          '#value' => $output,
+          '#markup' => '<div class="form-item">' . $output . '</div>',
         );
 
         $form_state['ok_button'] = TRUE;
@@ -1794,9 +2053,7 @@ class views_plugin_display extends views_plugin {
         }
 
         $form['analysis'] = array(
-          '#prefix' => '<div class="form-item">',
-          '#suffix' => '</div>',
-          '#value' => $output,
+          '#markup' => '<div class="form-item">' . $output . '</div>',
         );
 
         $form_state['ok_button'] = TRUE;
@@ -1812,9 +2069,7 @@ class views_plugin_display extends views_plugin {
         $output .= '<pre>' . check_plain(file_get_contents(drupal_get_path('module', 'views') . '/theme/views-view-field.tpl.php')) . '</pre>';
 
         $form['analysis'] = array(
-          '#prefix' => '<div class="form-item">',
-          '#suffix' => '</div>',
-          '#value' => $output,
+          '#markup' => '<div class="form-item">' . $output . '</div>',
         );
         $form_state['ok_button'] = TRUE;
         break;
@@ -1822,9 +2077,7 @@ class views_plugin_display extends views_plugin {
       case 'exposed_block':
         $form['#title'] .= t('Put the exposed form in a block');
         $form['description'] = array(
-          '#prefix' => '<div class="description form-item">',
-          '#suffix' => '</div>',
-          '#value' => t('If set, any exposed widgets will not appear with this view. Instead, a block will be made available to the Drupal block administration system, and the exposed form will appear there. Note that this block must be enabled manually, Views will not enable it for you.'),
+          '#markup' => '<div class="description form-item">' . t('If set, any exposed widgets will not appear with this view. Instead, a block will be made available to the Drupal block administration system, and the exposed form will appear there. Note that this block must be enabled manually, Views will not enable it for you.') . '</div>',
         );
         $form['exposed_block'] = array(
           '#type' => 'radios',
@@ -1835,7 +2088,7 @@ class views_plugin_display extends views_plugin {
       case 'exposed_form':
         $form['#title'] .= t('Exposed Form');
         $form['exposed_form'] = array(
-          '#prefix' => '<div class="clear-block">',
+          '#prefix' => '<div class="clearfix">',
           '#suffix' => '</div>',
           '#tree' => TRUE,
         );
@@ -1843,7 +2096,7 @@ class views_plugin_display extends views_plugin {
         $exposed_form = $this->get_option('exposed_form');
         $form['exposed_form']['type'] =  array(
           '#type' => 'radios',
-          '#options' => views_fetch_plugin_names('exposed_form'),
+          '#options' => views_fetch_plugin_names('exposed_form', NULL, array($this->view->base_table)),
           '#default_value' => $exposed_form['type'],
         );
 
@@ -1852,7 +2105,7 @@ class views_plugin_display extends views_plugin {
           $form['markup'] = array(
             '#prefix' => '<div class="form-item description">',
             '#suffix' => '</div>',
-            '#value' => t('You may also adjust the !settings for the currently selected style by clicking on the icon.', array('!settings' => $this->option_link(t('settings'), 'exposed_form_options'))),
+            '#markup' => t('You may also adjust the !settings for the currently selected style.', array('!settings' => $this->option_link(t('settings'), 'exposed_form_options'))),
           );
         }
         break;
@@ -1871,7 +2124,7 @@ class views_plugin_display extends views_plugin {
       case 'pager':
         $form['#title'] .= t('Select which pager, if any, to use for this view');
         $form['pager'] = array(
-          '#prefix' => '<div class="clear-block">',
+          '#prefix' => '<div class="clearfix">',
           '#suffix' => '</div>',
           '#tree' => TRUE,
         );
@@ -1879,16 +2132,16 @@ class views_plugin_display extends views_plugin {
         $pager = $this->get_option('pager');
         $form['pager']['type'] =  array(
           '#type' => 'radios',
-          '#options' => views_fetch_plugin_names('pager', empty($this->definition['use pager']) ? 'basic' : NULL),
+          '#options' => views_fetch_plugin_names('pager', empty($this->definition['use pager']) ? 'basic' : NULL, array($this->view->base_table)),
           '#default_value' => $pager['type'],
         );
 
-        $pager_plugin = views_fetch_plugin_data('pager', $pager['type']);
+        $pager_plugin = views_fetch_plugin_data('pager', $pager['type'], array($this->view->base_table));
         if (!empty($pager_plugin['uses options'])) {
           $form['markup'] = array(
             '#prefix' => '<div class="form-item description">',
             '#suffix' => '</div>',
-            '#value' => t('You may also adjust the !settings for the currently selected pager by clicking on the icon.', array('!settings' => $this->option_link(t('settings'), 'pager_options'))),
+            '#markup' => t('You may also adjust the !settings for the currently selected pager.', array('!settings' => $this->option_link(t('settings'), 'pager_options'))),
           );
         }
 
@@ -1916,17 +2169,8 @@ class views_plugin_display extends views_plugin {
    * Format a list of theme templates for output by the theme info helper.
    */
   function format_themes($themes) {
-    $registry = theme_get_registry();
-
-    // Run through the theme engine variables, if necessary
-    global $theme_engine;
-    $extension = '.tpl.php';
-    if (isset($theme_engine)) {
-      $extension_function = $theme_engine . '_extension';
-      if (function_exists($extension_function)) {
-        $extension = $extension_function();
-      }
-    }
+    $registry = $this->theme_registry;
+    $extension = $this->theme_extension;
 
     $output = '';
     $picked = FALSE;
@@ -1961,7 +2205,7 @@ class views_plugin_display extends views_plugin {
         break;
       case 'css_class':
         $css_class = $form_state['values']['css_class'];
-        if (preg_match('/[^a-zA-Z0-9- _]/', $css_class)) {
+        if (preg_match('/[^a-zA-Z0-9-_ ]/', $css_class)) {
           form_error($form['css_class'], t('CSS classes must be alphanumeric or dashes only.'));
         }
       break;
@@ -1972,7 +2216,7 @@ class views_plugin_display extends views_plugin {
           }
 
           foreach ($this->view->display as $id => $display) {
-            if ($id != $this->view->current_display && ($form_state['values']['display_id'] == $id || $form_state['values']['display_id'] == $display->new_id)) {
+            if ($id != $this->view->current_display && ($form_state['values']['display_id'] == $id || (isset($display->new_id) && $form_state['values']['display_id'] == $display->new_id))) {
               form_error($form['display_id'], t('Display id should be unique.'));
             }
           }
@@ -2027,7 +2271,7 @@ class views_plugin_display extends views_plugin {
    * Perform any necessary changes to the form values prior to storage.
    * There is no need for this function to actually store the data.
    */
-  function options_submit($form, &$form_state) {
+  function options_submit(&$form, &$form_state) {
     // Not sure I like this being here, but it seems (?) like a logical place.
     $cache_plugin = $this->get_plugin('cache');
     if ($cache_plugin) {
@@ -2102,15 +2346,21 @@ class views_plugin_display extends views_plugin {
       case 'display_comment':
         $this->set_option($section, $form_state['values'][$section]);
         break;
-      case 'enabled':
+      case 'field_language':
+        $this->set_option('field_language', $form_state['values']['field_language']);
+        $this->set_option('field_language_add_to_query', $form_state['values']['field_language_add_to_query']);
+        break;
       case 'use_ajax':
       case 'hide_attachment_summary':
+      case 'hide_admin_links':
         $this->set_option($section, (bool)$form_state['values'][$section]);
         break;
       case 'use_more':
         $this->set_option($section, intval($form_state['values'][$section]));
         $this->set_option('use_more_always', !intval($form_state['values']['use_more_always']));
         $this->set_option('use_more_text', $form_state['values']['use_more_text']);
+      case 'distinct':
+        $this->set_option($section, $form_state['values'][$section]);
         break;
       case 'group_by':
         $this->set_option($section, $form_state['values'][$section]);
@@ -2152,7 +2402,7 @@ class views_plugin_display extends views_plugin {
         // if row, $style will be empty.
         $plugin = $this->get_plugin(empty($style) ? 'row' : 'style');
         if ($plugin) {
-          $plugin->options_submit($form[$section], $form_state);
+          $plugin->options_submit($form['options'][$section], $form_state);
         }
         $this->set_option($section, $form_state['values'][$section]);
         break;
@@ -2217,50 +2467,6 @@ class views_plugin_display extends views_plugin {
   }
 
   /**
-   * Add an override button for a given section, allowing the user to
-   * change whether this info is stored on the default display or on
-   * the current display.
-   */
-  function add_override_button(&$form, &$form_state, $section) {
-    if ($this->is_default_display()) {
-      return;
-    }
-
-    $form['override'] = array(
-      '#prefix' => '<div class="views-override clear-block">',
-      '#suffix' => '</div>',
-    );
-    if ($this->is_defaulted($section)) {
-      $form['override']['button'] = array(
-        '#type' => 'submit',
-        '#value' => t('Override'),
-        '#submit' => array('views_ui_edit_display_form_override'),
-      );
-      $form['override']['markup'] = array(
-        '#prefix' => '<div class="description">',
-        '#value' => theme('advanced_help_topic', 'views', 'overrides') . t('Status: using default values.'),
-        '#suffix' => '</div>',
-      );
-
-      $form_state['update_name'] = t('Update default display');
-    }
-    else {
-      $form['override']['button'] = array(
-        '#type' => 'submit',
-        '#value' => t('Use default'),
-        '#submit' => array('views_ui_edit_display_form_override'),
-      );
-      $form['override']['markup'] = array(
-        '#prefix' => '<div class="description">',
-        '#value' => theme('advanced_help_topic', 'views', 'overrides') . t('Status: using overridden values.'),
-        '#suffix' => '</div>',
-      );
-
-      $form_state['update_name'] = NULL;
-    }
-  }
-
-  /**
    * If override/revert was clicked, perform the proper toggle.
    */
   function options_override($form, &$form_state) {
@@ -2269,6 +2475,13 @@ class views_plugin_display extends views_plugin {
 
   /**
    * Flip the override setting for the given section.
+   *
+   * @param string $section
+   *   Which option should be marked as overridden, for example "filters".
+   * @param bool $new_state
+   *   Select the new state of the option.
+   *     - TRUE: Revert to default.
+   *     - FALSE: Mark it as overridden.
    */
   function set_override($section, $new_state = NULL) {
     $options = $this->defaultable_sections($section);
@@ -2331,7 +2544,7 @@ class views_plugin_display extends views_plugin {
       }
 
       if ($path) {
-        if (empty($override_path) || (strpos($override_path, '!') === FALSE && strpos($override_path, '%') === FALSE)) {
+        if (empty($override_path)) {
           $path = $this->view->get_url(NULL, $path);
         }
         $url_options = array();
@@ -2340,15 +2553,41 @@ class views_plugin_display extends views_plugin {
         }
         $theme = views_theme_functions('views_more', $this->view, $this->display);
         $path = check_url(url($path, $url_options));
-        return theme($theme, $path, check_plain($this->use_more_text()));
+
+        return theme($theme, array('more_url' => $path, 'link_text' => check_plain($this->use_more_text()), 'view' => $this->view));
       }
     }
+  }
+
+
+  /**
+   * Legacy functions.
+   */
+
+  /**
+   * Render the header of the view.
+   */
+  function render_header() {
+    $empty = !empty($this->view->result);
+    return $this->render_area('header', $empty);
+  }
+
+  /**
+   * Render the footer of the view.
+   */
+  function render_footer() {
+    $empty = !empty($this->view->result);
+    return $this->render_area('footer', $empty);
+  }
+
+  function render_empty() {
+    return $this->render_area('empty');
   }
 
   /**
    * If this display creates a block, implement one of these.
    */
-  function hook_block($op = 'list', $delta = 0, $edit = array()) { return array(); }
+  function hook_block_list($delta = 0, $edit = array()) { return array(); }
 
   /**
    * If this display creates a page with a menu item, implement it here.
@@ -2359,7 +2598,7 @@ class views_plugin_display extends views_plugin {
    * Render this display.
    */
   function render() {
-    return theme($this->theme_functions(), $this->view);
+    return theme($this->theme_functions(), array('view' => $this->view));
   }
 
   function render_area($area, $empty = FALSE) {
@@ -2370,22 +2609,6 @@ class views_plugin_display extends views_plugin {
     return $return;
   }
 
-  /**
-   * Legacy functions.
-   */
-  function render_header() {
-    $empty = !empty($this->view->result);
-    return $this->render_area('header', $empty);
-  }
-
-  function render_footer() {
-    $empty = !empty($this->view->result);
-    return $this->render_area('footer', $empty);
-  }
-
-  function render_empty() {
-    return $this->render_area('empty');
-  }
 
   /**
    * Determine if the user has access to this display of the view.
@@ -2428,6 +2651,10 @@ class views_plugin_display extends views_plugin {
 
     foreach ($this->extender as $extender) {
       $extender->pre_execute();
+    }
+
+    if ($this->get_option('hide_admin_links')) {
+      $this->view->hide_admin_links = TRUE;
     }
   }
 
@@ -2511,13 +2738,29 @@ class views_plugin_display extends views_plugin {
 
   /**
    * Check if the provided identifier is unique.
+   *
+   * @param string $id
+   *   The id of the handler which is checked.
+   * @param string $identifier
+   *   The actual get identifier configured in the exposed settings.
+   *
+   * @return bool
+   *   Returns whether the identifier is unique on all handlers.
+   *
    */
   function is_identifier_unique($id, $identifier) {
     foreach (views_object_types() as $type => $info) {
       foreach ($this->get_handlers($type) as $key => $handler) {
         if ($handler->can_expose() && $handler->is_exposed()) {
-          if ($id != $key && $identifier == $handler->options['expose']['identifier']) {
-            return FALSE;
+          if ($handler->is_a_group()) {
+            if ($id != $key && $identifier == $handler->options['group_info']['identifier']) {
+              return FALSE;
+            }
+          }
+          else {
+            if ($id != $key && $identifier == $handler->options['expose']['identifier']) {
+              return FALSE;
+            }
           }
         }
       }
@@ -2537,7 +2780,7 @@ class views_plugin_display extends views_plugin {
 
       $blocks[$delta] = array(
         'info' => $desc,
-        'cache' => BLOCK_NO_CACHE,
+        'cache' => DRUPAL_NO_CACHE,
       );
     }
 
@@ -2550,7 +2793,7 @@ class views_plugin_display extends views_plugin {
   function view_special_blocks($type) {
     if ($type == '-exp') {
       // avoid interfering with the admin forms.
-      if (arg(0) == 'admin' && arg(1) == 'build' && arg(2) == 'views') {
+      if (arg(0) == 'admin' && arg(1) == 'structure' && arg(2) == 'views') {
         return;
       }
       $this->view->init_handlers();
@@ -2618,7 +2861,20 @@ class views_plugin_display extends views_plugin {
       else {
         $handler_type = $type;
       }
-      $handler = views_get_handler($info['table'], $info['field'], $handler_type);
+      // If aggregation is on, the group type might override the actual
+      // handler that is in use. This piece of code checks that and,
+      // if necessary, sets the override handler.
+      $override = NULL;
+      if ($this->use_group_by() && !empty($info['group_type'])) {
+        if (empty($this->view->query)) {
+          $this->view->init_query();
+        }
+        $aggregate = $this->view->query->get_aggregation_info();
+        if (!empty($aggregate[$info['group_type']]['handler'][$type])) {
+          $override = $aggregate[$info['group_type']]['handler'][$type];
+        }
+      }
+      $handler = views_get_handler($info['table'], $info['field'], $handler_type, $override);
       if ($handler) {
         $handler->init($this->view, $info);
         $output .= $indent . '/* ' . $types[$type]['stitle'] . ': ' . $handler->ui_name() . " */\n";
@@ -2774,6 +3030,38 @@ class views_plugin_display extends views_plugin {
     }
 
     return $output;
+  }
+
+  /**
+   * Provide some helpful text for the arguments.
+   * The result should contain of an array with
+   *   - filter value present: The title of the fieldset in the argument
+   *     where you can configure what should be done with a given argument.
+   *   - filter value not present: The tiel of the fieldset in the argument
+   *     where you can configure what should be done if the argument does not
+   *     exist.
+   *   - description: A description about how arguments comes to the display.
+   *     For example blocks don't get it from url.
+   */
+  function get_argument_text() {
+    return array(
+      'filter value not present' => t('When the filter value is <em>NOT</em> available'),
+      'filter value present' => t('When the filter value <em>IS</em> available or a default is provided'),
+      'description' => t("This display does not have a source for contextual filters, so no contextual filter value will be available unless you select 'Provide default'."),
+    );
+  }
+
+  /**
+   * Provide some helpful text for pagers.
+   *
+   * The result should contain of an array within
+   *   - items per page title
+   */
+  function get_pager_text() {
+    return array(
+      'items per page title' => t('Items to display'),
+      'items per page description' => t('The number of items to display. Enter 0 for no limit.')
+    );
   }
 }
 

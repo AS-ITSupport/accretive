@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * @file
+ * Definition of views_handler_field_counter.
+ */
+
+/**
+ * Field handler to show a counter of the current row.
+ *
+ * @ingroup views_field_handlers
+ */
 class views_handler_field_counter extends views_handler_field {
   function option_definition() {
     $options = parent::option_definition();
@@ -8,16 +18,15 @@ class views_handler_field_counter extends views_handler_field {
   }
 
   function options_form(&$form, &$form_state) {
-    parent::options_form($form, $form_state);
-
     $form['counter_start'] = array(
       '#type' => 'textfield',
       '#title' => t('Starting value'),
       '#default_value' => $this->options['counter_start'],
       '#description' => t('Specify the number the counter should start at.'),
-      //'#process' => array('views_process_dependency'),
       '#size' => 2,
     );
+
+    parent::options_form($form, $form_state);
   }
 
   function query() {

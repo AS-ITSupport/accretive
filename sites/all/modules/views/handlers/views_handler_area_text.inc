@@ -1,21 +1,22 @@
 <?php
 
 /**
-* @file
-* Views area text handler.
-*/
+ * @file
+ * Definition of views_handler_area_text.
+ */
 
 /**
- * @ingroup views_area_handlers Views' area handlers
-*/
-
+ * Views area text handler.
+ *
+ * @ingroup views_area_handlers
+ */
 class views_handler_area_text extends views_handler_area {
 
   function option_definition() {
     $options = parent::option_definition();
     $options['content'] = array('default' => '', 'translatable' => TRUE, 'format_key' => 'format');
-    $options['format'] = array('default' => variable_get('filter_default_format', 1));
-    $options['tokenize'] = array('default' => FALSE);
+    $options['format'] = array('default' => NULL);
+    $options['tokenize'] = array('default' => FALSE, 'bool' => TRUE);
     return $options;
   }
 
@@ -23,13 +24,14 @@ class views_handler_area_text extends views_handler_area {
     parent::options_form($form, $form_state);
 
     $form['content'] = array(
-      '#type' => 'textarea',
+      '#type' => 'text_format',
       '#default_value' => $this->options['content'],
       '#rows' => 6,
+      '#format' => isset($this->options['format']) ? $this->options['format'] : filter_default_format(),
+      '#wysiwyg' => FALSE,
     );
 
-    $form['format'] = filter_form($this->options['format']);
-
+    // @TODO: Refactor token handling into a base class.
     $form['tokenize'] = array(
       '#type' => 'checkbox',
       '#title' => t('Use replacement tokens from the first row'),
@@ -49,7 +51,7 @@ class views_handler_area_text extends views_handler_area {
     }
 
     if (!empty($options)) {
-      $output = '<p>' . t('The following tokens are available. If you would like to have the characters %5B and %5D please use the html entity codes \'%5B\' or  \'%5D\' or they will get replaced with empty space.)' . '</p>');
+      $output = '<p>' . t('The following tokens are available. If you would like to have the characters \'[\' and \']\' please use the html entity codes \'%5B\' or  \'%5D\' or they will get replaced with empty space.' . '</p>');
       foreach (array_keys($options) as $type) {
         if (!empty($options[$type])) {
           $items = array();
@@ -81,12 +83,13 @@ class views_handler_area_text extends views_handler_area {
   }
 
   function options_submit(&$form, &$form_state) {
-    $form_state['values']['options']['format'] = $form_state['values']['format'];
+    $form_state['values']['options']['format'] = $form_state['values']['options']['content']['format'];
+    $form_state['values']['options']['content'] = $form_state['values']['options']['content']['value'];
     parent::options_submit($form, $form_state);
   }
 
   function render($empty = FALSE) {
-    $format = isset($this->options['format']) ? $this->options['format'] : FILTER_FORMAT_DEFAULT;
+    $format = isset($this->options['format']) ? $this->options['format'] : filter_default_format();
     if (!$empty || !empty($this->options['empty'])) {
       return $this->render_textarea($this->options['content'], $format);
     }
@@ -97,25 +100,11 @@ class views_handler_area_text extends views_handler_area {
    * Render a text area, using the proper format.
    */
   function render_textarea($value, $format) {
-    static $formats = array();
-
-    // Check to make sure the filter format exists; if not, we don't
-    // display anything.
-    $format = filter_resolve_format($format);
-
-    if (!array_key_exists($format, $formats)) {
-      $formats[$format] = db_result(db_query("SELECT name FROM {filter_formats} WHERE format = %d", $format));
-    }
-
-    if (!isset($formats[$format])) {
-      return;
-    }
-
     if ($value) {
       if ($this->options['tokenize']) {
         $value = $this->view->style_plugin->tokenize_value($value, 0);
       }
-      return check_markup($value, $format, FALSE);
+      return check_markup($value, $format, '', FALSE);
     }
   }
 }

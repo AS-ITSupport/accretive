@@ -1,11 +1,12 @@
 <?php
+
 /**
  * @file
  * Views' relationship handlers.
  */
 
 /**
- * @defgroup views_relationship_handlers Views' relationship handlers
+ * @defgroup views_relationship_handlers Views relationship handlers
  * @{
  * Handlers to tell Views how to create alternate relationships.
  */
@@ -31,13 +32,15 @@
  * - label: The default label to provide for this relationship, which is
  *   shown in parentheses next to any field/sort/filter/argument that uses
  *   the relationship.
+ *
+ * @ingroup views_relationship_handlers
  */
 class views_handler_relationship extends views_handler {
   /**
    * Init handler to let relationships live on tables other than
    * the table they operate on.
    */
-  function init(&$view, $options) {
+  function init(&$view, &$options) {
     parent::init($view, $options);
     if (isset($this->definition['relationship table'])) {
       $this->table = $this->definition['relationship table'];
@@ -72,7 +75,7 @@ class views_handler_relationship extends views_handler {
     }
 
     $options['label'] = array('default' => $label, 'translatable' => TRUE);
-    $options['required'] = array('default' => FALSE);
+    $options['required'] = array('default' => FALSE, 'bool' => TRUE);
 
     return $options;
   }
@@ -85,16 +88,16 @@ class views_handler_relationship extends views_handler {
     parent::options_form($form, $form_state);
     $form['label'] = array(
       '#type' => 'textfield',
-      '#title' => t('Label'),
+      '#title' => t('Identifier'),
       '#default_value' => isset($this->options['label']) ? $this->options['label'] : '',
-      '#description' => t('The label for this relationship that will be displayed only administratively.'),
+      '#description' => t('Edit the administrative label displayed when referencing this relationship from filters, etc.'),
       '#required' => TRUE,
     );
 
     $form['required'] = array(
       '#type' => 'checkbox',
       '#title' => t('Require this relationship'),
-      '#description' => t('If required, items that do not contain this relationship will not appear.'),
+      '#description' => t('Enable to hide items that do not contain this relationship'),
       '#default_value' => !empty($this->options['required']),
     );
   }
@@ -118,6 +121,10 @@ class views_handler_relationship extends views_handler {
       $def['type'] = 'INNER';
     }
 
+    if (!empty($this->definition['extra'])) {
+      $def['extra'] = $this->definition['extra'];
+    }
+
     if (!empty($def['join_handler']) && class_exists($def['join_handler'])) {
       $join = new $def['join_handler'];
     }
@@ -134,6 +141,12 @@ class views_handler_relationship extends views_handler {
     $alias = $def['table'] . '_' . $this->table;
 
     $this->alias = $this->query->add_relationship($alias, $join, $this->definition['base'], $this->relationship);
+
+    // Add access tags if the base table provide it.
+    if (empty($this->query->options['disable_sql_rewrite']) && isset($table_data['table']['base']['access query tag'])) {
+      $access_tag = $table_data['table']['base']['access query tag'];
+      $this->query->add_tag($access_tag);
+    }
   }
 
   /**
@@ -146,6 +159,8 @@ class views_handler_relationship extends views_handler {
 
 /**
  * A special handler to take the place of missing or broken handlers.
+ *
+ * @ingroup views_relationship_handlers
  */
 class views_handler_relationship_broken extends views_handler_relationship {
   function ui_name($short = FALSE) {
@@ -156,8 +171,7 @@ class views_handler_relationship_broken extends views_handler_relationship {
   function query() { /* No query to run */ }
   function options_form(&$form, &$form_state) {
     $form['markup'] = array(
-      '#prefix' => '<div class="form-item description">',
-      '#value' => t('The handler for this item is broken or missing and cannot be used. If a module provided the handler and was disabled, re-enabling the module may restore it. Otherwise, you should probably delete this item.'),
+      '#markup' => '<div class="form-item description">' . t('The handler for this item is broken or missing and cannot be used. If a module provided the handler and was disabled, re-enabling the module may restore it. Otherwise, you should probably delete this item.') . '</div>',
     );
   }
 

@@ -1,9 +1,20 @@
 <?php
 
 /**
- * The base plugin to handle pager.
+ * @file
+ * Definition of views_plugin_pager.
+ */
+
+/**
+ * @defgroup views_pager_plugins Views pager plugins
+ * @{
+ * @todo.
  *
- * @ingroup views_pager_plugins
+ * @see hook_views_plugins()
+ */
+
+/**
+ * The base plugin to handle pager.
  */
 class views_plugin_pager extends views_plugin {
   var $current_page = NULL;
@@ -77,6 +88,9 @@ class views_plugin_pager extends views_plugin {
    *   the page number will be set from the global page array.
    */
   function set_current_page($number = NULL) {
+    if (!is_numeric($number) || $number < 0) {
+      $number = 0;
+    }
     $this->current_page = $number;
   }
 
@@ -104,7 +118,7 @@ class views_plugin_pager extends views_plugin {
   /**
    * Provide the default form form for submitting options
    */
-  function options_submit($form, &$form_state) { }
+  function options_submit(&$form, &$form_state) { }
 
   /**
    * Return a string to display as the clickable title for the
@@ -136,9 +150,8 @@ class views_plugin_pager extends views_plugin {
    * Execute the count query, which will be done just prior to the query
    * itself being executed.
    */
-  function execute_count_query(&$count_query, $args) {
-    $query_plugin = $this->view->query;
-    $this->total_items = $query_plugin->db_result($query_plugin->db_query($count_query, $args));
+  function execute_count_query(&$count_query) {
+    $this->total_items = $count_query->execute()->fetchField();
     if (!empty($this->options['offset'])) {
       $this->total_items -= $this->options['offset'];
     }
@@ -165,12 +178,17 @@ class views_plugin_pager extends views_plugin {
   /**
    * Perform any needed actions just prior to the query executing.
    */
-  function pre_execute(&$query, &$args) { }
+  function pre_execute(&$query) { }
 
   /**
    * Perform any needed actions just after the query executing.
    */
   function post_execute(&$result) { }
+
+  /**
+   * Perform any needed actions just before rendering.
+   */
+  function pre_render(&$result) { }
 
   /**
    * Render the pager.
@@ -212,3 +230,7 @@ class views_plugin_pager extends views_plugin {
     return FALSE;
   }
 }
+
+/**
+ * @}
+ */

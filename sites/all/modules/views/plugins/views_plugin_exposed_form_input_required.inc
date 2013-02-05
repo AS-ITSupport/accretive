@@ -1,19 +1,22 @@
 <?php
 
 /**
- * Exposed form plugin that provides basic exposed form
+ * @file
+ * Definition of views_plugin_exposed_form_input_required.
+ */
+
+/**
+ * Exposed form plugin that provides an exposed form with required input.
+ *
+ * @ingroup views_exposed_form_plugins
  */
 class views_plugin_exposed_form_input_required extends views_plugin_exposed_form {
-
-  function summary_title() {
-    return t('Input required');
-  }
 
   function option_definition() {
     $options = parent::option_definition();
 
-    $options['text_input_required'] = array('default' => t('Select any filter and click on Apply to see results'), 'translatable' => TRUE);
-    $options['text_input_required_format'] = array('default' => FILTER_FORMAT_DEFAULT);
+    $options['text_input_required'] = array('default' => 'Select any filter and click on Apply to see results', 'translatable' => TRUE);
+    $options['text_input_required_format'] = array('default' => NULL);
     return $options;
   }
 
@@ -21,18 +24,18 @@ class views_plugin_exposed_form_input_required extends views_plugin_exposed_form
     parent::options_form($form, $form_state);
 
     $form['text_input_required'] = array(
-      '#type' => 'textarea',
+      '#type' => 'text_format',
       '#title' => t('Text on demand'),
       '#description' => t('Text to display instead of results until the user selects and applies an exposed filter.'),
       '#default_value' => $this->options['text_input_required'],
+      '#format' => isset($this->options['text_input_required_format']) ? $this->options['text_input_required_format'] : filter_default_format(),
+      '#wysiwyg' => FALSE,
     );
-
-    $form['text_input_required_format'] = filter_form($this->options['text_input_required_format'], NULL, array('text_input_required_format'));
   }
 
-  function options_submit($form, &$form_state) {
-    $form_state['values']['exposed_form_options']['text_input_required_format'] = $form_state['values']['text_input_required_format'];
-
+  function options_submit(&$form, &$form_state) {
+    $form_state['values']['exposed_form_options']['text_input_required_format'] = $form_state['values']['exposed_form_options']['text_input_required']['format'];
+    $form_state['values']['exposed_form_options']['text_input_required'] = $form_state['values']['exposed_form_options']['text_input_required']['value'];
     parent::options_submit($form, $form_state);
   }
 
@@ -57,7 +60,7 @@ class views_plugin_exposed_form_input_required extends views_plugin_exposed_form
     return $cache;
   }
 
-  function pre_render(&$values) {
+  function pre_render($values) {
     if (!$this->exposed_filter_applied()) {
       $options = array(
         'id' => 'area',

@@ -1,15 +1,13 @@
 name = Views Test
 description = Test module for Views.
 package = Views
-core = 6.x
+core = 7.x
 dependencies[] = views
 hidden = TRUE
-files[] = views_test.module
-files[] = views_test.install
 
-; Information added by drupal.org packaging script on 2012-01-04
-version = "6.x-3.0"
-core = "6.x"
+; Information added by drupal.org packaging script on 2012-08-24
+version = "7.x-3.5"
+core = "7.x"
 project = "views"
-datestamp = "1325638545"
+datestamp = "1345829394"
 

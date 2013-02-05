@@ -1,16 +1,27 @@
 <?php
+
 /**
- * Argument handler to accept a file id.
+ * @file
+ * Definition of views_handler_argument_file_fid.
+ */
+
+/**
+ * Argument handler to accept multiple file ids.
+ *
+ * @ingroup views_argument_handlers
  */
 class views_handler_argument_file_fid extends views_handler_argument_numeric {
   /**
-   * Override the behavior of title(). Get the title of the file.
+   * Override the behavior of title_query(). Get the filenames.
    */
   function title_query() {
-    $titles = array();
-    $result = db_query(db_rewrite_sql('SELECT f.fid, f.filename FROM {files} f WHERE f.fid IN (' . db_placeholders($this->value, 'int') . ')', 'f', 'fid'), $this->value);
-    while ($file = db_fetch_object($result)) {
-      $titles[] = check_plain($file->filename);
+    $titles = db_select('file_managed', 'f')
+      ->fields('f', array('filename'))
+      ->condition('fid', $this->value)
+      ->execute()
+      ->fetchCol();
+    foreach ($titles as &$title) {
+      $title = check_plain($title);
     }
     return $titles;
   }

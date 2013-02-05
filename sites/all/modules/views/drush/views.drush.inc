@@ -4,8 +4,8 @@
  * @file
  * Drush integration of views.
  *
- * * drush cache-clear views - Clears the views specific caches.
- * * views-revert - Drush command to revert views overridden in the system.
+ * drush cache-clear views - Clears the views specific caches.
+ * views-revert - Drush command to revert views overridden in the system.
  */
 
 /**
@@ -34,7 +34,7 @@ function views_drush_command() {
   $items = array();
 
   $items['views-revert'] = array(
-    'callback' => 'views_drush_revert_views',
+    'callback' => 'views_revert_views',
     'drupal dependencies' => array('views'),
     'description' => 'Revert overridden views to their default state. Make sure to backup first.',
     'arguments' => array(
@@ -47,6 +47,13 @@ function views_drush_command() {
       'drush rln archive frontpage' => 'Reverts the "archive" and "frontpage" view.',
       'drush vr' => 'Will present you with a list of overridden views to choose from, and an option to revert all overridden views.',
     ),
+  );
+  $items['views-dev'] = array(
+    'callback' => 'views_development_settings',
+    'drupal dependencies' => array('views'),
+    'description' => 'Set the Views settings to more developer-oriented values.',
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
+    'aliases' => array('vd'),
   );
 
   $items['views-list'] = array(
@@ -103,7 +110,7 @@ function views_drush_command() {
 /**
  * Callback function for views-revert command.
  */
-function views_drush_revert_views() {
+function views_revert_views() {
   $views = views_get_all_views();
   $i = 0;
   // The provided views names specified in the command.
@@ -138,7 +145,7 @@ function views_drush_revert_views() {
       }
       // If the view is overriden, revert it.
       elseif ($is_overridden){
-        views_drush_revert_view($views[$viewname]);
+        views_revert_view($views[$viewname]);
         $i++;
       }
       // We should never get here but well...
@@ -157,11 +164,11 @@ function views_drush_revert_views() {
     if ($choice !== FALSE) {
       // revert all views option
       if ($choice == 'all') {
-        $i = views_drush_revert_allviews($views);
+        $i = views_revert_allviews($views);
       }
       // else the user specified a single view
       else {
-        views_drush_revert_view($views[$choice]);
+        views_revert_view($views[$choice]);
         $i++;
       }
     }
@@ -182,7 +189,7 @@ function views_drush_revert_views() {
  * @param $views
  * All views in the system as provided by views_get_all_views().
  */
-function views_drush_revert_allviews($views) {
+function views_revert_allviews($views) {
   $i = 0;
   foreach ($views as $view) {
     if ($view->disabled) {
@@ -190,7 +197,7 @@ function views_drush_revert_allviews($views) {
     }
 
     if ($view->type == t('Overridden')) {
-      views_drush_revert_view($view);
+      views_revert_view($view);
       $i++;
     }
   }
@@ -198,20 +205,21 @@ function views_drush_revert_allviews($views) {
 }
 
 /**
- * Reverts a specified view
+ * Revert a specified view
  * @param $view
  * The view object to be reverted
  *
  * Checks on wether or not the view is overridden is handled in views_revert_views_revert()
  * We perform a check here anyway in case someone somehow calls this function on their own...
  */
-function views_drush_revert_view($view) {
+function views_revert_view($view) {
   // check anyway just in case
   if ($view->type == t('Overridden')) {
     // Revert the view.
     $view->delete();
     // Clear its cache.
-    views_object_cache_clear('view', $view->name);
+    ctools_include('object-cache');
+    ctools_object_cache_clear('view', $view->name);
     // Give feedback.
     $message = dt("Reverted the view '@viewname'", array('@viewname' => $view->name));
     drush_log($message, 'success');
@@ -221,6 +229,27 @@ function views_drush_revert_view($view) {
     drush_set_error(dt("The view '@viewname' is not overridden.", array('@viewname' => $view->name)));
   }
 }
+
+/**
+ * Change the settings to a more developer oriented value.
+ */
+function views_development_settings() {
+  variable_set('views_ui_show_listing_filters', TRUE);
+  variable_set('views_ui_show_master_display', TRUE);
+  variable_set('views_ui_show_advanced_column', TRUE);
+  variable_set('views_ui_always_live_preview', FALSE);
+  variable_set('views_ui_always_live_preview_button', TRUE);
+  variable_set('views_ui_show_preview_information', TRUE);
+  variable_set('views_ui_show_sql_query', TRUE);
+  variable_set('views_ui_show_performance_statistics', TRUE);
+  variable_set('views_show_additional_queries', TRUE);
+  variable_set('views_devel_output', TRUE);
+  variable_set('views_devel_region', 'message');
+  variable_set('views_ui_display_embed', TRUE);
+  $message = dt("Setup the new views settings.");
+  drush_log($message, 'success');
+}
+
 
 /**
  * Callback function for views-list command.
@@ -311,7 +340,7 @@ function drush_views_list() {
     // so we can have disabled views at the bottom
     if($view->disabled) {
       $disabled_views[] = $row;
-    }
+      }
     else{
       $enabled_views[] = $row;
     }
@@ -428,8 +457,8 @@ function drush_views_disable() {
   _views_drush_changestatus($viewnames, TRUE);
 }
 
-/*
-* Helper function to enable / disable views
+/**
+ * Helper function to enable / disable views
  * @param $viewnames: array of viewnames to process
  * @param $status: TRUE to disable or FALSE to enable the view
  */
@@ -454,8 +483,7 @@ function _views_drush_changestatus($viewnames = array(), $status = NULL) {
       variable_set('views_defaults', $views_status);
       views_invalidate_cache();
       drush_log(dt("Views cache was cleared"), 'ok');
-      menu_rebuild();
-      drush_log(dt("Menu cache was cleared"), 'ok');
+      drush_log(dt("Menu cache is set to be rebuilt on the next request."), 'ok');
     }
   }
 }

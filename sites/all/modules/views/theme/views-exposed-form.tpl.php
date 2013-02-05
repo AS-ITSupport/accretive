@@ -1,7 +1,7 @@
 <?php
+
 /**
- * @file views-exposed-form.tpl.php
- *
+ * @file
  * This template handles the layout of the views exposed filter form.
  *
  * Variables available:
@@ -27,9 +27,9 @@
   ?>
 <?php endif; ?>
 <div class="views-exposed-form">
-  <div class="views-exposed-widgets clear-block">
+  <div class="views-exposed-widgets clearfix">
     <?php foreach ($widgets as $id => $widget): ?>
-      <div class="views-exposed-widget views-widget-<?php print $id; ?>">
+      <div id="<?php print $widget->id; ?>-wrapper" class="views-exposed-widget views-widget-<?php print $id; ?>">
         <?php if (!empty($widget->label)): ?>
           <label for="<?php print $widget->id; ?>">
             <?php print $widget->label; ?>
@@ -43,6 +43,11 @@
         <div class="views-widget">
           <?php print $widget->widget; ?>
         </div>
+        <?php if (!empty($widget->description)): ?>
+          <div class="description">
+            <?php print $widget->description; ?>
+          </div>
+        <?php endif; ?>
       </div>
     <?php endforeach; ?>
     <?php if (!empty($sort_by)): ?>

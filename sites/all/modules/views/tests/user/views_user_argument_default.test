@@ -1,12 +1,14 @@
 <?php
+
 /**
  * @file
- * Tests views user argument default plugin.
+ * Definition of ViewsUserArgumentDefault.
  */
 
-module_load_include('test', 'views', 'tests/views_query');
-
-class viewsUserArgumentDefault extends ViewsSqlTest {
+/**
+ * Tests views user argument default plugin.
+ */
+class ViewsUserArgumentDefault extends ViewsSqlTest {
   public static function getInfo() {
     return array(
       'name' => 'Tests user argument default plugin',
@@ -23,7 +25,7 @@ class viewsUserArgumentDefault extends ViewsSqlTest {
     $this->drupalLogin($account);
     global $user;
     $admin = $user;
-    session_save_session(FALSE);
+    drupal_save_session(FALSE);
     $user = $account;
 
     $view = $this->view_plugin_argument_default_current_user();
@@ -35,7 +37,7 @@ class viewsUserArgumentDefault extends ViewsSqlTest {
     $this->assertEqual($view->argument['null']->get_default_argument(), $account->uid, 'Uid of the current user is used.');
     // Switch back.
     $user = $admin;
-    session_save_session(TRUE);
+    drupal_save_session(TRUE);
   }
 
   function view_plugin_argument_default_current_user() {
@@ -46,11 +48,11 @@ class viewsUserArgumentDefault extends ViewsSqlTest {
     $view->view_php = '';
     $view->base_table = 'node';
     $view->is_cacheable = FALSE;
-    $view->api_version = 3.0-alpha1;
+    $view->api_version = '3.0-alpha1';
     $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
-    /* Display: Defaults */
-    $handler = $view->new_display('default', 'Defaults', 'default');
+    /* Display: Master */
+    $handler = $view->new_display('default', 'Master', 'default');
     $handler->display->display_options['access']['type'] = 'none';
     $handler->display->display_options['cache']['type'] = 'none';
     $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -60,7 +62,7 @@ class viewsUserArgumentDefault extends ViewsSqlTest {
     $handler->display->display_options['pager']['options']['id'] = '0';
     $handler->display->display_options['style_plugin'] = 'default';
     $handler->display->display_options['row_plugin'] = 'fields';
-    /* Field: Node: Title */
+    /* Field: Content: Title */
     $handler->display->display_options['fields']['title']['id'] = 'title';
     $handler->display->display_options['fields']['title']['table'] = 'node';
     $handler->display->display_options['fields']['title']['field'] = 'title';

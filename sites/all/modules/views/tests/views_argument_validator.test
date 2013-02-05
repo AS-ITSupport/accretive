@@ -1,12 +1,19 @@
 <?php
-module_load_include('test', 'views', 'tests/views_query');
 
-class viewsArgumentValidatorTest extends ViewsSqlTest {
+/**
+ * @file
+ * Definition of ViewsArgumentValidatorTest.
+ */
+
+/**
+ * Tests Views argument validators.
+ */
+class ViewsArgumentValidatorTest extends ViewsSqlTest {
   public static function getInfo() {
     return array(
-      'name' => t('Argument validator tests.'),
-      'group' => t('Views'),
-      'description' => t('Test argument validator tests.'),
+      'name' => 'Argument validator',
+      'group' => 'Views Plugins',
+      'description' => 'Test argument validator tests.',
     );
   }
 
@@ -45,8 +52,8 @@ class viewsArgumentValidatorTest extends ViewsSqlTest {
     $view->api_version = 2;
     $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
-    /* Display: Defaults */
-    $handler = $view->new_display('default', 'Defaults', 'default');
+    /* Display: Master */
+    $handler = $view->new_display('default', 'Master', 'default');
     $handler->display->display_options['access']['type'] = 'none';
     $handler->display->display_options['cache']['type'] = 'none';
     $handler->display->display_options['exposed_form']['type'] = 'basic';
@@ -77,8 +84,8 @@ class viewsArgumentValidatorTest extends ViewsSqlTest {
     $view->api_version = 2;
     $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
 
-    /* Display: Defaults */
-    $handler = $view->new_display('default', 'Defaults', 'default');
+    /* Display: Master */
+    $handler = $view->new_display('default', 'Master', 'default');
     $handler->display->display_options['access']['type'] = 'none';
     $handler->display->display_options['cache']['type'] = 'none';
     $handler->display->display_options['exposed_form']['type'] = 'basic';

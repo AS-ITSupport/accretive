@@ -1,25 +1,28 @@
 We assume that you have a properly configured view at this point. You should have a page or block display with fields/node to be displayed in it.
 
 <ol>
-<li>In the views administration screen add a new <i>'argument'</i> using <i>'+'</i>.  You will see a configuration screen appear at the bottom of the views screen.</li>
+<li>In the views administration screen add a new 'contextual filter' using 'add'.  You will see a configuration screen appear as a modal.</li>
 
-<li>In the <i>'Groups'</i> jump menu that you now see select <i>'Node'</i>. A list will appear below the jump menu.</li>
+<li>In the 'Filter' jump menu that you now see select 'Content'. A list will appear below the jump menu.</li>
 
-<li>In the list look for <i>'Node: Nid'</i>, and check it. </li>
+<li>In the list look for 'Content: Nid', and check it. </li>
 
-<li>Press the <i>'Add'</i> button.  You will now get the configuration screen for <i>'Node: Nid'</i>.</li>
+<li>Press the 'Add and configure contextual filters' button.  You will now get the configuration screen for 'Content: Nid'.</li>
 
-<li>Under <i>'Action to take if argument is not present'</i> select <i>'Provide default argument'</i>, and leave it set at <i>'Fixed Entry'</i>.</li>
+<li>Under 'When the filter value is NOT in the URL' select 'Provide default argument', and leave it set at 'Fixed value'.</li>
 
-<li>In the field <i>'Default argument'</i> add the Nids of the nodes separated by a '+' that you want to show by default.</li>
+<li>In the field 'Fixed value' add the Nids of the nodes separated by a '+' that you want to show by default.</li>
 
-<li>In <i>'Validator Options'</i> at <i>'Validator'</i> choose <i>'Node'</i>. Now select the node types you want, or leave blank for all nodes.</li>
+<li>In 'When the filter value IS in the URL or a default is provided' choose 'Specify validation criteria'. Now select the content types you want, or leave blank for all nodes.</li>
 
-<li>Check the <i>'Validate user has access to the node'</i>. This will check if a user has permission to view nodes, that are going to be displayed</li>
+<li>Check the 'Validate user has access to the node'. This will check if a user has permission to view nodes, that are going to be displayed</li>
 
-<li>For the <i>'Argument Type'</i> select <i>'Node IDs separated by , or +'</i>.</li>
+<li>For the 'Filter value format' select 'Node IDs separated by , or +'.</li>
 
-<li>Check <i>'Allow Multiple Terms per Argument'</i> and press <i>'Update Default Display'</i>. </li>
+<li>Select the MORE link.</li>
+
+<li>Check 'Allow Multiple Terms per Argument' and press 'Apply (all displays
+)' (or choose a particular display in the dropdown at the top and Apply (this display)). </li>
 </ol>
 
 Preview should now show nodes, that you selected as "default argument". You can now pass arguments to your view, to select custom node IDs. If you provide no argument, default will be used. Save the view when ready.

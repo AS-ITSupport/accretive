@@ -1,31 +1,32 @@
 /**
- * @file base.js
- *
+ * @file
  * Some basic behaviors and utility functions for Views.
  */
+(function ($) {
 
 Drupal.Views = {};
 
 /**
  * jQuery UI tabs, Views integration component
  */
-Drupal.behaviors.viewsTabs = function (context) {
-  $('#views-tabset:not(.views-processed)').addClass('views-processed').each(function() {
-    new Drupal.Views.Tabs($(this), {selectedClass: 'active'});
-  });
+Drupal.behaviors.viewsTabs = {
+  attach: function (context) {
+    if ($.viewsUi && $.viewsUi.tabs) {
+      $('#views-tabset').once('views-processed').viewsTabs({
+        selectedClass: 'active'
+      });
+    }
 
-  $('a.views-remove-link')
-    .addClass('views-processed')
-    .click(function() {
+    $('a.views-remove-link').once('views-processed').click(function(event) {
       var id = $(this).attr('id').replace('views-remove-link-', '');
       $('#views-row-' + id).hide();
       $('#views-removed-' + id).attr('checked', true);
-      return false;
-    });
+      event.preventDefault();
+   });
   /**
-   * Here is to handle display deletion
-   * (checking in the hidden checkbox and hiding out the row)
-   */
+    * Here is to handle display deletion
+    * (checking in the hidden checkbox and hiding out the row)
+    */
   $('a.display-remove-link')
     .addClass('display-processed')
     .click(function() {
@@ -33,36 +34,9 @@ Drupal.behaviors.viewsTabs = function (context) {
       $('#display-row-' + id).hide();
       $('#display-removed-' + id).attr('checked', true);
       return false;
-    });
-}
-
-/**
- * For IE, attach some javascript so that our hovers do what they're supposed
- * to do.
- */
-Drupal.behaviors.viewsHoverlinks = function() {
-  if ($.browser.msie) {
-    // If IE, attach a hover event so we can see our admin links.
-    $("div.view:not(.views-hover-processed)").addClass('views-hover-processed').hover(
-      function() {
-        $('div.views-hide', this).addClass("views-hide-hover"); return true;
-      },
-      function(){
-        $('div.views-hide', this).removeClass("views-hide-hover"); return true;
-      }
-    );
-    $("div.views-admin-links:not(.views-hover-processed)")
-      .addClass('views-hover-processed')
-      .hover(
-        function() {
-          $(this).addClass("views-admin-links-hover"); return true;
-        },
-        function(){
-          $(this).removeClass("views-admin-links-hover"); return true;
-        }
-      );
+  });
   }
-}
+};
 
 /**
  * Helper function to parse a querystring.
@@ -132,3 +106,5 @@ Drupal.Views.getPath = function (href) {
   }
   return href;
 };
+
+})(jQuery);

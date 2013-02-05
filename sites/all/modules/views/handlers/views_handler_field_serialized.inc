@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * @file
+ * Definition of views_handler_field_serialized.
+ */
+
+/**
+ * Field handler to show data of serialized fields.
+ *
+ * @ingroup views_field_handlers
+ */
 class views_handler_field_serialized extends views_handler_field {
 
   function option_definition() {
@@ -28,7 +38,6 @@ class views_handler_field_serialized extends views_handler_field {
       '#type' => 'textfield',
       '#title' => t('Which key should be displayed'),
       '#default_value' => $this->options['key'],
-      '#process' => array('views_process_dependency'),
       '#dependency' => array('edit-options-format' => array('key')),
     );
   }

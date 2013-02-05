@@ -47,11 +47,12 @@ function views_analyze_format_result($view, $messages) {
 
   $output = '';
   foreach ($types as $type => $messages) {
+    $type .= ' messages';
     $message = '';
     if (count($messages) > 1) {
-      $message = theme('item_list', $messages);
+      $message = theme('item_list', array('items' => $messages));
     }
-    else if ($messages) {
+    elseif ($messages) {
       $message = array_shift($messages);
     }
 
@@ -90,7 +91,7 @@ function views_ui_analysis($message, $type = 'error') {
 }
 
 /**
- * Implementation of hook_views_analyze().
+ * Implements hook_views_analyze().
  *
  * This is the basic views analysis that checks for very minimal problems.
  * There are other analysis tools in core specific sections, such as
@@ -102,41 +103,17 @@ function views_ui_views_analyze($view) {
   if (count($view->display) < 2) {
     $ret[] = views_ui_analysis(t('This view has only a default display and therefore will not be placed anywhere on your site; perhaps you want to add a page or a block display.'), 'warning');
   }
-  foreach ($view->display as $display_id => $display) {
-    if (empty($display->handler) || !empty($display->handler->broken)) {
-      $ret[] = views_ui_analysis(t('Display plugin @plugin is not available.', array('@plugin' => $display->display_plugin)), 'error');
+  // You can give a page display the same path as an alias existing in the
+  // system, so the alias will not work anymore. Report this to the user,
+  // because he probably wanted something else.
+  foreach ($view->display as $id => $display) {
+    if (empty($display->handler)) {
+      continue;
     }
-
-    $plugin = $display->handler->get_plugin('style');
-    if ($plugin) {
-      $plugin->init($view, $display);
-      if ($validate_messages = $plugin->validate()) {
-        foreach ($validate_messages as $validate_message) {
-          $ret[] = views_ui_analysis(t('Style plugin @plugin: @message', array('@plugin' => $plugin_name, '@message' => $validate_message)));
-        }
-      }
-    }
-    else {
-      $ret[] = views_ui_analysis(t('Style plugin @plugin is not available.', array('@plugin' => $plugin_name)), 'error');
-    }
-
-    foreach (views_object_types() as $type => $info) {
-      $handlers = $display->handler->get_handlers($type);
-      if ($handlers) {
-        foreach ($handlers as $id => $handler) {
-          if ($validate_messages = $handler->validate()) {
-            foreach ($validate_messages as $message) {
-              $ret[] = views_ui_analysis("$display_id: $id: $message", 'error');
-            }
-          }
-          if ($handler->broken()) {
-            $ret[] = views_ui_analysis(t('@type handler @table.@field is not available.', array(
-              '@type' => $info['stitle'],
-              '@table' => $handler->table,
-                '@field' => $handler->field,
-            )), 'error');
-          }
-        }
+    if ($display->handler->has_path() && $path = $display->handler->get_option('path')) {
+      $normal_path = drupal_get_normal_path($path);
+      if ($path != $normal_path) {
+        $ret[] = views_ui_analysis(t('You have configured display %display with a path which is an path alias as well. This might lead to unwanted effects so better use an internal path.', array('%display' => $display->display_title)), 'warning');
       }
     }
   }

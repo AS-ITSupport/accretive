@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Definition of views_handler_field_boolean.
+ */
+
+/**
  * A handler to provide proper displays for booleans.
  *
  * Allows for display of true/false, yes/no, on/off, enabled/disabled.
@@ -25,7 +30,7 @@ class views_handler_field_boolean extends views_handler_field {
     return $options;
   }
 
-  function init(&$view, $options) {
+  function init(&$view, &$options) {
     parent::init($view, $options);
 
     $default_formats = array(
@@ -33,13 +38,13 @@ class views_handler_field_boolean extends views_handler_field {
       'true-false' => array(t('True'), t('False')),
       'on-off' => array(t('On'), t('Off')),
       'enabled-disabled' => array(t('Enabled'), t('Disabled')),
+      'unicode-yes-no' => array('✔', '✖'),
     );
     $output_formats = isset($this->definition['output formats']) ? $this->definition['output formats'] : array();
     $this->formats = array_merge($default_formats, $output_formats);
   }
 
   function options_form(&$form, &$form_state) {
-    parent::options_form($form, $form_state);
     foreach ($this->formats as $key => $item) {
       $options[$key] = implode('/', $item);
     }
@@ -56,6 +61,7 @@ class views_handler_field_boolean extends views_handler_field {
       '#description' => t('If checked, true will be displayed as false.'),
       '#default_value' => $this->options['not'],
     );
+    parent::options_form($form, $form_state);
   }
 
   function render($values) {

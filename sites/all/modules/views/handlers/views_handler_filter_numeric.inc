@@ -1,10 +1,17 @@
 <?php
 
 /**
+ * @file
+ * Definition of views_handler_filter_numeric.
+ */
+
+/**
  * Simple filter to handle greater than/less than filters
+ *
+ * @ingroup views_filter_handlers
  */
 class views_handler_filter_numeric extends views_handler_filter {
-  var $no_single = TRUE;
+  var $always_multiple = TRUE;
   function option_definition() {
     $options = parent::option_definition();
 
@@ -15,8 +22,6 @@ class views_handler_filter_numeric extends views_handler_filter {
         'value' => array('default' => ''),
       ),
     );
-
-    $options['allow_null'] = array('default' => TRUE);
 
     return $options;
   }
@@ -91,6 +96,18 @@ class views_handler_filter_numeric extends views_handler_filter {
       );
     }
 
+    // Add regexp support for MySQL.
+    if (Database::getConnection()->databaseType() == 'mysql') {
+      $operators += array(
+        'regular_expression' => array(
+          'title' => t('Regular expression'),
+          'short' => t('regex'),
+          'method' => 'op_regex',
+          'values' => 1,
+        ),
+      );
+    }
+
     return $operators;
   }
 
@@ -116,18 +133,6 @@ class views_handler_filter_numeric extends views_handler_filter {
 
     return $options;
   }
-
-  function options_form(&$form, &$form_state) {
-    parent::options_form($form, $form_state);
-    $form['allow_null'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Include NULL rows'),
-      '#default_value' => $this->options['allow_null'],
-      '#description' => t('Treats NULL as zero (0).'),
-    );
-  }
-
-
   /**
    * Provide a simple textfield for equality
    */
@@ -139,65 +144,35 @@ class views_handler_filter_numeric extends views_handler_filter {
     // not rendered, we can't render dependencies; instead we only
     // render the form items we need.
     $which = 'all';
-    $limit_operators = !empty($this->options['expose']['limit_operators']) && (count($this->options['expose']['available_operators']) > 0);
-    $use_value = FALSE;
-    $use_minmax = FALSE;
     if (!empty($form['operator'])) {
       $source = ($form['operator']['#type'] == 'radios') ? 'radio:options[operator]' : 'edit-options-operator';
     }
 
     if (!empty($form_state['exposed'])) {
-      $operator_values_with_1_value = $this->operator_values(1);
-      $operator_values_with_2_values = $this->operator_values(2);
-      if ($limit_operators) {
-        // If limit operators is enabled, check that at least one operator
-        // with two values is enabled to display the min max widgets
-        foreach ($operator_values_with_2_values as $operator) {
-          if (isset($this->options['expose']['available_operators'][$operator])) {
-            $use_minmax = TRUE;
-            break;
-          }
-        }
-        // the same for operators with one value
-        foreach ($operator_values_with_1_value as $operator) {
-          if (isset($this->options['expose']['available_operators'][$operator])) {
-            $use_value = TRUE;
-            break;
-          }
-        }
-      }
-      else {
-        $use_minmax = $use_value = TRUE;
-      }
-
       $identifier = $this->options['expose']['identifier'];
 
-      if (empty($this->options['expose']['use_operator']) || empty($this->options['expose']['operator'])) {
+      if (empty($this->options['expose']['use_operator']) || empty($this->options['expose']['operator_id'])) {
         // exposed and locked.
-        $which = in_array($this->operator, $operator_values_with_2_values) ? 'minmax' : 'value';
+        $which = in_array($this->operator, $this->operator_values(2)) ? 'minmax' : 'value';
       }
       else {
-        $source = 'edit-' . form_clean_id($this->options['expose']['operator']);
+        $source = 'edit-' . drupal_html_id($this->options['expose']['operator_id']);
       }
     }
-    else {
-      $use_minmax = $use_value = TRUE;
-    }
 
-    if ($which == 'all' && $use_value) {
+    if ($which == 'all') {
       $form['value']['value'] = array(
         '#type' => 'textfield',
         '#title' => empty($form_state['exposed']) ? t('Value') : '',
         '#size' => 30,
         '#default_value' => $this->value['value'],
-        '#process' => array('views_process_dependency'),
         '#dependency' => array($source => $this->operator_values(1)),
       );
       if (!empty($form_state['exposed']) && !isset($form_state['input'][$identifier]['value'])) {
         $form_state['input'][$identifier]['value'] = $this->value['value'];
       }
     }
-    else if ($which == 'value' && $use_value) {
+    elseif ($which == 'value') {
       // When exposed we drop the value-value and just do value if
       // the operator is locked.
       $form['value'] = array(
@@ -212,34 +187,29 @@ class views_handler_filter_numeric extends views_handler_filter {
     }
 
     if ($which == 'all' || $which == 'minmax') {
-      if ($use_minmax) {
-        $form['value']['min'] = array(
-          '#type' => 'textfield',
-          '#title' => empty($form_state['exposed']) ? t('Min') : '',
-          '#size' => 30,
-          '#default_value' => $this->value['min'],
-        );
-        $form['value']['max'] = array(
-          '#type' => 'textfield',
-          '#title' => empty($form_state['exposed']) ? t('And max') : t('And'),
-          '#size' => 30,
-          '#default_value' => $this->value['max'],
-        );
-      }
+      $form['value']['min'] = array(
+        '#type' => 'textfield',
+        '#title' => empty($form_state['exposed']) ? t('Min') : '',
+        '#size' => 30,
+        '#default_value' => $this->value['min'],
+      );
+      $form['value']['max'] = array(
+        '#type' => 'textfield',
+        '#title' => empty($form_state['exposed']) ? t('And max') : t('And'),
+        '#size' => 30,
+        '#default_value' => $this->value['max'],
+      );
       if ($which == 'all') {
         $dependency = array(
-          '#process' => array('views_process_dependency'),
           '#dependency' => array($source => $this->operator_values(2)),
         );
-        if ($use_minmax) {
-          $form['value']['min'] += $dependency;
-          $form['value']['max'] += $dependency;
-        }
+        $form['value']['min'] += $dependency;
+        $form['value']['max'] += $dependency;
       }
-      if (!empty($form_state['exposed']) && !isset($form_state['input'][$identifier]['min']) && $use_minmax) {
+      if (!empty($form_state['exposed']) && !isset($form_state['input'][$identifier]['min'])) {
         $form_state['input'][$identifier]['min'] = $this->value['min'];
       }
-      if (!empty($form_state['exposed']) && !isset($form_state['input'][$identifier]['max']) && $use_minmax) {
+      if (!empty($form_state['exposed']) && !isset($form_state['input'][$identifier]['max'])) {
         $form_state['input'][$identifier]['max'] = $this->value['max'];
       }
 
@@ -264,34 +234,16 @@ class views_handler_filter_numeric extends views_handler_filter {
   }
 
   function op_between($field) {
-    $is_null = $this->check_for_null($field);
     if ($this->operator == 'between') {
-      $this->query->add_where($this->options['group'], "$field >= %d $is_null", $this->value['min']);
-      $this->query->add_where($this->options['group'], "$field <= %d $is_null", $this->value['max']);
+      $this->query->add_where($this->options['group'], $field, array($this->value['min'], $this->value['max']), 'BETWEEN');
     }
     else {
-      $this->query->add_where($this->options['group'], "$field <= %d OR $field >= %d $is_null", $this->value['min'], $this->value['max']);
+      $this->query->add_where($this->options['group'], db_or()->condition($field, $this->value['min'], '<=')->condition($field, $this->value['max'], '>='));
     }
-  }
-
-  function check_for_null($field) {
-    $is_null = $this->options['allow_null'] ? "OR $field IS NULL" : FALSE;
-    switch ($this->operator) {
-      case '>':
-        $is_null = FALSE;
-      case '>=':
-      case '=':
-        if ($this->value['value'] > 0) {
-          $is_null = FALSE;
-        }
-    }
-
-    return $is_null;
   }
 
   function op_simple($field) {
-    $is_null = $this->check_for_null($field);
-    $this->query->add_where($this->options['group'], "$field $this->operator %d $is_null", $this->value['value'] );
+    $this->query->add_where($this->options['group'], $field, $this->value['value'], $this->operator);
   }
 
   function op_empty($field) {
@@ -302,10 +254,17 @@ class views_handler_filter_numeric extends views_handler_filter {
       $operator = "IS NOT NULL";
     }
 
-    $this->query->add_where($this->options['group'], "$field $operator");
+    $this->query->add_where($this->options['group'], $field, NULL, $operator);
+  }
+
+  function op_regex($field) {
+    $this->query->add_where($this->options['group'], $field, $this->value, 'RLIKE');
   }
 
   function admin_summary() {
+    if ($this->is_a_group()) {
+      return t('grouped');
+    }
     if (!empty($this->options['exposed'])) {
       return t('exposed');
     }
@@ -342,8 +301,8 @@ class views_handler_filter_numeric extends views_handler_filter {
 
     $rc = parent::accept_exposed_input($input);
 
-    if (!empty($this->options['expose']['optional'])) {
-      // We have to do some of our own optional checking.
+    if (empty($this->options['expose']['required'])) {
+      // We have to do some of our own checking for non-required filters.
       $info = $this->operators();
       if (!empty($info[$this->operator]['values'])) {
         switch ($info[$this->operator]['values']) {

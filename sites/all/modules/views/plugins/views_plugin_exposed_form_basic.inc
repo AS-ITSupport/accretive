@@ -1,12 +1,13 @@
 <?php
 
 /**
- * Exposed form plugin that provides basic exposed form
+ * @file
+ * Definition of views_plugin_exposed_form_basic.
  */
-class views_plugin_exposed_form_basic extends views_plugin_exposed_form {
 
-  function summary_title() {
-    return t('Basic');
-  }
-
-}
+/**
+ * Exposed form plugin that provides a basic exposed form.
+ *
+ * @ingroup views_exposed_form_plugins
+ */
+class views_plugin_exposed_form_basic extends views_plugin_exposed_form { }
