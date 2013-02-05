@@ -1,16 +1,24 @@
-; $Id: calendar.info,v 1.8 2008/04/23 23:42:53 karens Exp $
 name = Calendar
 description = Views plugin to display views containing dates as Calendars.
 dependencies[] = views
 dependencies[] = date_api
-dependencies[] = date_timezone
+dependencies[] = date_views
 package = Date/Time
-core = 6.x
+core = 7.x
+stylesheets[all][] = css/calendar_multiday.css
 
+files[] = calendar.install
+files[] = calendar.module
+files[] = includes/calendar.views.inc
+files[] = includes/calendar_plugin_style.inc
+files[] = includes/calendar_plugin_row.inc
+files[] = includes/calendar.views_template.inc
+files[] = theme/theme.inc
+files[] = theme/calendar-style.tpl.php
 
-; Information added by drupal.org packaging script on 2011-01-03
-version = "6.x-2.4"
-core = "6.x"
+; Information added by drupal.org packaging script on 2012-05-19
+version = "7.x-3.4"
+core = "7.x"
 project = "calendar"
-datestamp = "1294072550"
+datestamp = "1337429753"
 

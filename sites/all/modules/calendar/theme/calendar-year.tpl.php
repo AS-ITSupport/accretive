@@ -1,5 +1,4 @@
 <?php
-// $Id: calendar-year.tpl.php,v 1.6.2.1 2008/06/14 11:38:34 karens Exp $
 /**
  * @file
  * Template to display a view as a calendar year.
