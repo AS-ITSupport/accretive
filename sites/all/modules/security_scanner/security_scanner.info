@@ -1,0 +1,11 @@
+; $id$
+name = Security Scanner
+description = Allows users to find vulnerability into their website.
+core = 6.x
+
+; Information added by drupal.org packaging script on 2008-06-27
+version = "6.x-1.0-alpha1"
+core = "6.x"
+project = "security_scanner"
+datestamp = "1214561414"
+

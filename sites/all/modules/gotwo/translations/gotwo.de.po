@@ -1,0 +1,194 @@
+# $Id: gotwo.de.po,v 1.1.2.2 2009/08/26 06:58:25 hass Exp $
+#
+# LANGUAGE translation of Drupal (gotwo.module)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  gotwo.module,v 1.7 2007/05/05 13:51:40 jredding
+#  gotwo.info,v 1.2 2007/05/03 21:19:42 jredding
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gotwo 5.x\n"
+"POT-Creation-Date: 2009-08-26 08:49+0200\n"
+"PO-Revision-Date: 2009-08-26 08:53+0100\n"
+"Last-Translator: Alexander Haß\n"
+"Language-Team: Alexander Hass\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"X-Poedit-Language: German\n"
+"X-Poedit-Country: GERMANY\n"
+
+#: gotwo.admin.inc:15
+msgid "Numerical urls"
+msgstr "Numerische URLs"
+
+#: gotwo.admin.inc:16
+msgid "Use numbers instead of a more friendlier url. \"go/1234\" instead of \"go/some/location\"."
+msgstr "Zahlen anstatt einer lesbaren URL verwenden. \"go/1234\" anstatt \"go/ein/ziel\"."
+
+#: gotwo.admin.inc:21
+msgid "Maximum length of target labels"
+msgstr "Maximallänge der Zielbeschriftung"
+
+#: gotwo.admin.inc:22
+msgid "Target labels are the parts after the \"go/\" part of the shown url. The absolute maximum is 128."
+msgstr "Zielbeschriftungen sind die Teile nach dem \"go/\" Teil einer angezeigten URL. Die absolute Maximallänge beträgt 128."
+
+#: gotwo.admin.inc:28
+msgid "Disclaimer"
+msgstr "Haftungsausschluss"
+
+#: gotwo.admin.inc:29
+msgid "Check to add a disclaimer before redirecting to the Gotwo links"
+msgstr "Aktivieren, um vor der Umleitung zu einem Gotwo-Link einen Haftungsausschluss anzuzeigen."
+
+#: gotwo.admin.inc:34
+msgid "# of seconds until refresh"
+msgstr "Sekunden bis zur Aktualisierung"
+
+#: gotwo.admin.inc:36
+msgid "Number of seconds until the page will be redirected to the requested URL, 0 means no refresh"
+msgstr "Anzahl der Sekunden bis die Seite zu der aufgerufenen URL umgeleitet wird, bei 0 findet keine Aktualisierung statt."
+
+#: gotwo.admin.inc:41
+msgid "Disclaimer Text"
+msgstr "Haftungsausschlusstext"
+
+#: gotwo.admin.inc:42
+msgid "The disclaimer that will be presented to the user before they are redirected<br /><strong>Variables available:</strong><br /> %url = url to be redirected to <br />%seconds = # of seconds until page redirects"
+msgstr "Der Haftungsausschluss, welcher dem Benutzer angezeigt wird bevor er umgeleitet wird<br /><strong>Verfügbare Variablen:</strong><br /> %url = Ziel-URL auf die umgeleitet wird <br />%seconds = Anzahl der Sekunden bis die Seite umleitet"
+
+#: gotwo.admin.inc:56
+msgid "ID"
+msgstr "ID"
+
+#: gotwo.admin.inc:57;150
+msgid "Label"
+msgstr "Beschriftung"
+
+#: gotwo.admin.inc:58;156
+msgid "Destination"
+msgstr "Zieladresse"
+
+#: gotwo.admin.inc:59
+msgid "Counter"
+msgstr "Zähler"
+
+#: gotwo.admin.inc:62
+msgid "Operations"
+msgstr "Operationen"
+
+#: gotwo.admin.inc:81;106
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: gotwo.admin.inc:81
+msgid "Reset the counter"
+msgstr "Zähler zurücksetzen"
+
+#: gotwo.admin.inc:81;130
+msgid "Delete"
+msgstr "Löschen"
+
+#: gotwo.admin.inc:86
+msgid "No redirects available."
+msgstr "Keine Umleitungen vorhanden."
+
+#: gotwo.admin.inc:103
+msgid "Reset the counter for %label"
+msgstr "Den Zähler für %label zurücksetzen"
+
+#: gotwo.admin.inc:105
+msgid "Are you sure you want to reset the click counter for %label? This action cannot be undone."
+msgstr "Soll der Klickzähler für %label wirklich zurückgesetzt werden? Diese Aktion kann nicht rückgängig gemacht werden."
+
+#: gotwo.admin.inc:107;131
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: gotwo.admin.inc:127
+msgid "Delete go redirect %label"
+msgstr "Go-Umleitung %label löschen"
+
+#: gotwo.admin.inc:129
+msgid "Are you sure you want to delete the go redirect %label? This action cannot be undone. The link will become broken, a new one might be automatically created when a node linking to it is edited."
+msgstr "Soll die Go-Umleitung %label wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden. Dieser Verweis wird zerstört, ein neuer kann automatisch erstellt werden, wenn ein auf ihn verweisender Beitrag bearbeitet wird."
+
+#: gotwo.admin.inc:151
+msgid "The label used in the go url, this will automatically be made suitable."
+msgstr "Die in der Go-URL zu verwendende Beschriftung, diese wird gegebenfalls automatisch angepasst."
+
+#: gotwo.admin.inc:157
+msgid "The target url. Can be a relative drupal url or an absolute url."
+msgstr "Die Ziel-URL. Dies kann eine relative Drupal URL oder absolute URL sein."
+
+#: gotwo.admin.inc:163
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: gotwo.module:42;63
+msgid "You can use the &lt;go&gt; tags just like the &lt;a&gt; for nicer urls."
+msgstr "Es können &lt;go&gt;-Tags genau wie &lt;a&gt; für einfachere URLs verwendet werden."
+
+#: gotwo.module:45
+msgid "You can use the &lt;go&gt; tags just like the &lt;a&gt;. The url will be rewritten to in internal URL that will eventually redirect the user to the given url. Depending on the settings the url will contain an identifying label constructed from the provided url. Alternatively you can provide a label by means of the \"title\" argument."
+msgstr "Es können &lt;go&gt;-Tags genau wie &lt;a&gt;-Tags verwendet werden. Die URL wird zu einer internen URL umgeschrieben, welche schließlich den Benutzer zu der angegebenen URL umleitet. In Abhängigkeit von den Einstellungen, enthält diese URL eine identifizierende Beschriftung die aus der angegebenen URL erstellt wird. Alternativ kann eine Beschriftung mittels „Titel“-Argument übergeben werden."
+
+#: gotwo.module:45
+msgid "For example: <pre>&lt;go href=\"http://example.org/some/page\"&gt;Some page example&lt;/go&gt;</pre> produces: <pre>&lt;a href=\"go/example.com/some/page\"&gt;Some page example&lt;/a&gt;</pre>Or like this:<pre>&lt;go href=\"http://example.com/some/page\" title=\"Some page\"&gt;Some page example&lt;/go&gt;</pre> produces: <pre>&lt;a href=\"go/some_page\" title=\"Some page\"&gt;Some page example&lt;/a&gt;</pre>"
+msgstr "Beispielsweise: <pre>&lt;go href=\"http://example.com/eine/seite\"&gt;Beispiel einer Seite&lt;/go&gt;</pre> ergibt: <pre>&lt;a href=\"go/example.com/eine/seite\"&gt;Beispiel einer Seite&lt;/a&gt;</pre>oder etwa dies:<pre>&lt;go href=\"http://example.com/eine/seite\" title=\"Eine Seite\"&gt;Beispiel einer Seite&lt;/go&gt;</pre> ergibt: <pre>&lt;a href=\"go/eine_seite\" title=\"Eine Seite\"&gt;Beispiel einer Seite&lt;/a&gt;</pre>"
+
+#: gotwo.module:172
+msgid "\"Go\" redirection filter"
+msgstr "„Go“-Umleitungsfilter"
+
+#: gotwo.module:175
+msgid "Automatically creates redirection urls. &lt;go href=\"\"&gt;&lt;/go&gt; tags are nicely translated to &lt;a href=\"\"&gt;&lt;/a&gt; tags."
+msgstr "Erstellt automatisch Umleitung-URLs. &lt;go href=\"\"&gt;&lt;/go&gt;-Tags werden umgewandelt in &lt;a href=\"\"&gt;&lt;/a&gt;-Tags."
+
+#: gotwo.module:21
+msgid "view gotwo redirects"
+msgstr "Go-Umleitungen anzeigen"
+
+#: gotwo.module:21
+msgid "edit gotwo redirects"
+msgstr "Go-Umleitungen bearbeiten"
+
+#: gotwo.module:21
+msgid "administer gotwo"
+msgstr "Gotwo verwalten"
+
+#: gotwo.module:62
+msgid "Go redirects"
+msgstr "Go-Umleitungen"
+
+#: gotwo.module:69
+msgid "List"
+msgstr "Alle anzeigen"
+
+#: gotwo.module:76
+msgid "Add redirect"
+msgstr "Umleitung hinzufügen"
+
+#: gotwo.module:77
+msgid "Add a new Go redirect"
+msgstr "Eine neue Go-Umleitung hinzufügen"
+
+#: gotwo.module:99
+msgid "Go settings"
+msgstr "Go-Einstellungen"
+
+#: gotwo.module:100
+msgid "Configure URL parameters and disclaimer options"
+msgstr "URL-Parameter und Optionen für den Haftungsausschluss konfigurieren"
+
+#: gotwo.info:0
+msgid "Gotwo"
+msgstr "Gotwo"
+
+#: gotwo.info:0
+msgid "Go URLs redirect to outside websites and tracks the visit. A disclaimer can also be added before a redirect occurs"
+msgstr "Go URLs leiten auf externe Websites um und protokollieren die Besuche. Ein Haftungsausschluss kann vor der Umleitung eingefügt werden"
+

@@ -1,0 +1,315 @@
+/* Utility Navigation ------------------*/
+
+
+
+#navutil {
+  padding: 9px 0 15px 0;
+  text-align: right;
+  color: #666;}
+
+#navutil ul li {
+    border-right: 1px solid #666;}
+
+#navutil ul li.last {
+    border-right: none;}
+
+#navutil a {
+  padding: 0 6px 0 6px;
+  text-decoration: none;
+  color: #008530;}
+
+#navutil a:hover {
+  color: #24298a;  }
+
+#navutil a.active {  color: #24298a;}
+
+#navutil a.lastItem {  padding-right: 0;}
+
+/* Main Navigation------------------*/
+
+.sf-sub-indicator {
+	display: none;}
+
+#navMain {
+  width: 916px;  height: 58px;}
+
+ul.nice-menu {
+	margin: 0;
+	padding: 0;
+	width: 916px;
+	height: 58px;
+	background: transparent url("../../images/navmain.png") left top no-repeat;
+	position: relative;
+	list-style: none;
+	font-size:12px;}
+
+ul.nice-menu li.level0 {
+	position: absolute;
+	top: 19px;
+	height: 37px;
+	border: none;
+	padding: 0;
+	margin: 0;
+	background: none;}
+
+ul.nice-menu-down li.menuparent:hover a.level0,ul.nice-menu-down li.over a.level0,ul.nice-menu-down li.selected a.level0,#header-region ul.nice-menu-down li.menuparent:hover a.level0,#header-region ul.nice-menu-down li.over a.level0 {	color: #153692;}ul.nice-menu li.level0:hover,ul.nice-menu a.level0:hover {
+	background: none;
+	text-decoration: none;
+	color: #153692;}
+
+ul.nice-menu a.level0 {
+	border: none;
+	background: none;
+	display: block;	color: #fff;
+	padding: 13px 0 12px 12px;}
+
+
+
+
+
+/* ------------Consulting Solutions---------*/
+
+
+
+
+
+#navConsultingSolutions {
+	left: 198px;
+	width: 150px;}
+
+ul.nice-menu-down li#navConsultingSolutions.menuparent:hover a.level0,ul.nice-menu-down li#navConsultingSolutions.over a.level0,#header-region ul.nice-menu-down li#navConsultingSolutions.menuparent:hover a.level0,#header-region ul.nice-menu-down li#navConsultingSolutions.over a.level0,#navConsultingSolutions a.level0:hover,#navConsultingSolutions.selected a.level0{
+	background: transparent url("../../images/navmain.png") -198px -77px no-repeat;}
+
+
+
+
+/* ------------Exec Search---------*/
+
+
+
+
+#navExecutiveSearch {
+	left: 348px;
+	width: 130px;}
+
+ul.nice-menu-down li#navExecutiveSearch.menuparent:hover a.level0,ul.nice-menu-down li#navExecutiveSearch.over a.level0,#header-region ul.nice-menu-down li#navExecutiveSearch.menuparent:hover a.level0,#header-region ul.nice-menu-down li#navExecutiveSearch.over a.level0,#navExecutiveSearch a.level0:hover,#navExecutiveSearch.selected a.level0 {
+	background: transparent url("../../images/navmain.png") -348px -77px no-repeat;}
+
+
+
+
+
+/* ------------AS Capital Partners---------*/
+
+
+
+
+
+#navASCapitalPartners {
+	left: 478px;
+	width: 144px;}
+
+#navASCapitalPartners a.level0:hover,#navASCapitalPartners.selected a.level0{
+	background: transparent url("../../images/navmain.png") -478px -77px no-repeat;}
+
+
+
+
+/* ------------Offices---------*/
+
+
+
+
+#navOffices {
+	left: 622px;
+	width: 67px;}
+
+ul.nice-menu-down li#navOffices.menuparent:hover a.level0,ul.nice-menu-down li#navOffices.over a.level0,#header-region ul.nice-menu-down li#navOffices.menuparent:hover a.level0,#header-region ul.nice-menu-down li#navOffices.over a.level0,#navOffices a.level0:hover,#navOffices.selected a.level0{
+	background: transparent url("../../images/navmain.png") -622px -77px no-repeat;}
+
+
+
+
+/* ------------About AS---------*/
+
+
+
+
+#navAboutAS {
+	left: 689px;
+	width: 82px;}
+
+ul.nice-menu-down li#navAboutAS.menuparent:hover a.level0,ul.nice-menu-down li#navAboutAS.over a.level0,#header-region ul.nice-menu-down li#navAboutAS.menuparent:hover a.level0,#header-region ul.nice-menu-down li#navAboutAS.over a.level0,#navAboutAS a.level0:hover,#navAboutAS.selected a.level0{
+	background: transparent url("../../images/navmain.png") -689px -77px no-repeat;}
+
+
+
+
+
+
+
+
+
+/* ------------Careers---------*/
+
+
+
+
+#navCareers {
+	left: 771px;
+	width: 115px;}
+
+ul.nice-menu-down li#navCareers.menuparent:hover a.level0,ul.nice-menu-down li#navCareers.over a.level0,#header-region ul.nice-menu-down li#navCareers.menuparent:hover a.level0,#header-region ul.nice-menu-down li#navCareers.over a.level0,#navCareers a.level0:hover,#navCareers.selected a.level0{
+	background: transparent url("../../images/navmain.png") -771px -77px no-repeat;}
+
+
+
+
+
+ul.nice-menu li.level1 span,ul.nice-menu li.level2 span,ul.nice-menu li.level1.last li.level2 span {
+	display: block;
+	border-bottom: 1px solid #e2e2e2;
+	margin: 0 22px 0 12px;
+	padding: 1px 0 1px 0;}
+
+ul.nice-menu li.level1.last span,ul.nice-menu li.level2.last span,ul.nice-menu li.level1.last li.level2.last span {
+	border: none;}
+
+
+
+/* Dropdown Level 1------------------*/
+
+ul.nice-menu ul.level1 {
+	position: absolute;
+	top: 37px;
+	border: none;
+	margin: 0;
+	padding: 0;
+	width: 214px;
+	z-index: 1000;}
+
+ul.nice-menu li.level1 {
+	background: transparent url("../../images/dropdown-item-bg.png") left top repeat-y !important;
+	margin: 0;
+	padding: 0;
+	border: none;
+	width: 214px;
+	font-size: 11px;
+	position: static;}
+
+ul.nice-menu li.level1.first{
+	background: transparent url("../../images/dropdown-first-item-bg.png") left top no-repeat !important;	}
+
+ul.nice-menu li.level1.last {
+	background: transparent url("../../images/dropdown-last-item-bg.png") left bottom no-repeat !important;
+	padding-bottom: 9px;}
+
+ul.nice-menu a.level1 {
+	padding: 7px 20px 9px 0;
+	margin: 0;
+	line-height: 13px;
+	display: block;	color: #008530;}
+
+ul.nice-menu a.level1.unlink {
+	color: #333;}
+
+ul.nice-menu a.level1:hover {
+	text-decoration: none;
+	color: #153692;
+	background-color: #e1e4f0 !important;}
+
+ul.nice-menu li.menuparent.level1 a.level1 {
+	background: transparent url("../../images/dropdown-arrow.gif") right center no-repeat !important;}
+
+ul.nice-menu-down li.menuparent.level1:hover a.level1,ul.nice-menu-down li.menuparent.level1.over a.level1,ul.nice-menu-down li.menuparent.level1 a.level1:hover{
+	color: #153692 !important;
+	background: #e1e4f0 url("../../images/dropdown-arrow-hover.gif") right center no-repeat !important;	}
+
+ul.nice-menu-down li.menuparent.level1:hover a.level1.unlink,ul.nice-menu-down li.menuparent.level1.over a.level1.unlink,ul.nice-menu-down li.menuparent.level1 a.level1.unlink:hover{
+	color: #333 !important;	background: #e1e4f0 url("../../images/dropdown-arrow-hover.gif") right center no-repeat !important;	}
+
+ul.nice-menu li.menuparent.level1 a.level1.reverse {
+	background: transparent url("../../images/dropdown-reverse-arrow.gif") right center no-repeat !important;}
+
+ul.nice-menu-down li.menuparent.level1:hover a.level1.reverse,ul.nice-menu-down li.menuparent.level1.over a.level1.reverse,ul.nice-menu-down li.menuparent.level1 a.level1.reverse:hover{
+	color: #153692 !important;
+	background: #e1e4f0 url("../../images/dropdown-reverse-arrow-hover.gif") right center no-repeat !important;	}
+ul.nice-menu-down li.menuparent.level1:hover a.level1.unlink.reverse,ul.nice-menu-down li.menuparent.level1.over a.level1.unlink.reverse,ul.nice-menu-down li.menuparent.level1 a.level1.unlink.reverse:hover{
+	color: #333 !important;	background: #e1e4f0 url("../../images/dropdown-reverse-arrow-hover.gif") right center no-repeat !important;	}
+
+/* Dropdown Level2 ------------------*/
+
+ul.nice-menu ul.level2.ddRight, ul.nice-menu ul.level2{
+	top: auto;
+	left: 193px;
+	z-index: 10000;}
+
+ul.nice-menu ul.level2.ddLeft {
+	top: auto;
+	left: -202px;
+	z-index: 10000;}
+
+ul.nice-menu ul.level2 {
+	position: absolute;
+	top:auto;
+	border: none;
+	margin: 0;
+	padding: 0;
+	width: 214px;
+	z-index: 1000;}
+
+ul.nice-menu li.level2, ul.nice-menu li.level2:hover  {
+	background: transparent url("../../images/dropdown-item-bg.png") left top repeat-y !important;
+	margin: 0;
+	padding: 0;
+	border: none;
+	width: 214px;
+	font-size: 11px;
+	position: static;}
+
+ul.nice-menu li.level2.first{
+	background: transparent url("../../images/dropdown-first-item-bg.png") left top no-repeat !important;	}
+
+ul.nice-menu li.level2.last {
+	background: transparent url("../../images/dropdown-last-item-bg.png") left bottom no-repeat !important;
+	padding-bottom: 9px;}
+
+ul.nice-menu a.level2 {
+	padding: 7px 10px 9px 0;
+	margin: 0;
+	line-height: 13px;
+	display: block;
+	color: #008530;}
+
+ul.nice-menu a.level2:hover {
+	text-decoration: none;
+	color: #153692;
+	background: #e1e4f0;}
+
+/* Breadcrumbs Navigation ------------------*/
+
+.breadcrumb {
+  padding: 15px 0 8px 10px;
+  margin: 0;
+  float: left;}
+
+.breadcrumb li{
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: inline;}
+
+.breadcrumb a {
+  text-decoration: underline;
+  color: #008530;
+  font-weight: bold;}
+
+.breadcrumb a.active {
+  text-decoration: none;}
+
+.breadcrumb a:hover {
+  color: #24298a;  text-decoration: none;}
+
+/* Secondary Navigation------------------*/
+
+#navSecondary {  padding: 12px 10px 0 10px;}#navSecondary h1 {  margin: 0 0 5px 0;  padding: 0 0 10px 0;  font-size: 10px;  letter-spacing: 1px;  border-bottom: 3px solid #e2e2e2;  text-transform: uppercase;  color: #494955;	line-height: 17px;}#navSecondary a{  color: #008530;  text-decoration: none;}#navSecondary ul, #navSecondary li {  height: 100%;}/* Secondary Nav Level 0 ------------------*/#navSecondary ul.level0 {  margin: 0;  padding: 0 13px 0 0;  list-style: none;	line-height: 14px;}#navSecondary ul.level0 li {  margin: 0;  padding: 0;}#navSecondary ul.level0 li {	border-bottom: 1px solid #ccc;	padding-top: 6px;}#navSecondary a.level0 {  padding: 0 0 8px 0;/*  background: transparent url("../../images/navsecondary-bullet.gif") 1px 5px no-repeat;*/  display: block;}#navSecondary span.level0 {	display: block;	color: #878787;	padding: 0 0 7px 0;}#navSecondary a.level0:hover, #navSecondary a.active, #navSecondary a.active-trail {/*  background: transparent url("../../images/navsecondary-bullet-hover.gif") 1px 5px no-repeat;*/  color: #24298a;  }#navSecondary li.level0 a.expanded {  background: transparent url("../../images/navsecondary-bullet-hover.gif") 1px 5px no-repeat;}/* Secondary Nav Level 1 ------------------*/ #navSecondary ul.level0 {	margin-bottom: 20px;}#navSecondary ul.level1 {    margin: 0;    padding: 0;    list-style: none;}#navSecondary ul.level0 li li.level1 {    margin: 0;    padding: 0;		border: none;}#navSecondary a.level1 {    padding: 0 0 8px 24px;    background: transparent url("../../images/navsecondary-bullet2.gif") 15px 6px no-repeat;        display: block;}#navSecondary span.level1 {    color: #000;    padding: 0 0 8px 24px;    /*background: transparent url("../../images/navsecondary-bullet.gif") 13px 4px no-repeat;    */    display: block;}#navSecondary span.level1_active {    padding: 0 0 0 24px;    background: transparent url("../../images/navsecondary-bullet2-hover.gif") 15px 6px no-repeat;            color: #24298a;    display: block;}#navSecondary a.level1:hover, #navSecondary li.level1 a.active{    background: transparent url("../../images/navsecondary-bullet2-hover.gif") 15px 6px no-repeat;        		color: #494955;}/* Secondary Nav Level 2------------------*/#navSecondary ul.level2 {    margin: 0;    padding: 4px 0 0 0;    list-style: none;}#navSecondary ul.level0 li.level2 {    margin: 0;    padding: 0;		border: none;}#navSecondary a.level2 {    padding: 0 0 8px 36px;/*    background: transparent url("../../images/navsecondary-bullet.gif") 25px 4px no-repeat;*/    background: transparent url("../../images/navsecondary-bullet2.gif") 27px 6px no-repeat;            display: block;}#navSecondary a.level2:hover, #navSecondary li.level2 a.active {/*    background: transparent url("../../images/navsecondary-bullet-hover.gif") 25px 4px no-repeat;*/    background: transparent url("../../images/navsecondary-bullet2-hover.gif") 27px 6px no-repeat;            color: #24298a;		}#navSecondary span.level1 {	display: block;	color: #878787;}#navSecondary ul.level0 li.no-line, #navSecondary ul.level0 li.no-line a {border-bottom: none;padding-bottom: 0; }

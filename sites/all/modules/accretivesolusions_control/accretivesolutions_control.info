@@ -1,0 +1,12 @@
+; $Id: accretivesolutions_control.info,v 1.1 2009/05/25 09:07:54 juneeveek Exp $
+name = Accretive Solutions Control
+description = Adds new themes functions and other site specific overrides.
+dependencies[] = node
+package = Nimbus
+core = 6.x
+
+; Information added by drupal.org packaging script on 2008-10-22
+version = "6.12"
+project = "accretivesolutions_control"
+datestamp = "1224703816"
+

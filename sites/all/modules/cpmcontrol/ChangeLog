@@ -1,0 +1,114 @@
+2009-02-05 23:50  juneeveek
+
+	* cpmcontrol.module: added target blank to pdf links
+
+2009-02-05 19:47  juneeveek
+
+	* cpmcontrol.module: added fixes on thumnail navigations
+
+2009-02-04 19:02  juneeveek
+
+	* cpmcontrol.module: added some cse fixes
+
+2009-02-03 21:08  juneeveek
+
+	* cpmcontrol.module: removed dummy strings
+
+2009-02-02 23:36  juneeveek
+
+	* cpmcontrol.module: added function for programs sorting
+
+2009-02-01 23:40  juneeveek
+
+	* cpmcontrol.module: added some fixes
+
+2009-01-30 09:33  iikka
+
+	* cpmcontrol.module: removed Ages:
+
+2009-01-30 01:26  juneeveek
+
+	* cpmcontrol.module: added New! to camps code
+
+2009-01-28 23:49  juneeveek
+
+	* cpmcontrol.module: added modification on camps popup boxes
+
+2009-01-27 10:49  iikka
+
+	* cpmcontrol.module: added temporary fixes so we can preview site
+
+2009-01-27 00:56  juneeveek
+
+	* cpmcontrol.module: added function for animals taxonomy in sidebar
+
+2009-01-22 23:41  juneeveek
+
+	* cpmcontrol.module: fixed tertiary <li> tag
+
+2009-01-20 21:12  juneeveek
+
+	* cpmcontrol.module: added updates
+
+2009-01-20 01:21  juneeveek
+
+	* cpmcontrol.module: added new function for photo gallery
+
+2009-01-16 00:25  juneeveek
+
+	* cpmcontrol.module: added sorting codes for animals dropdown
+
+2009-01-15 10:26  iikka
+
+	* cpmcontrol.module: added space
+
+2009-01-15 00:27  juneeveek
+
+	* cpmcontrol.module: added fixes for left navigation
+
+2009-01-14 01:03  juneeveek
+
+	* cpmcontrol.module: added function for camp popup dialog
+
+2009-01-13 00:59  juneeveek
+
+	* cpmcontrol.module: added codes for camps
+
+2009-01-12 02:13  juneeveek
+
+	* cpmcontrol.module: fixed term nodes call
+
+2009-01-11 23:52  juneeveek
+
+	* cpmcontrol.module: added fixes for tertiary navigations
+
+2009-01-08 22:18  juneeveek
+
+	* cpmcontrol.module: added new function for camps list
+
+2009-01-04 23:41  jessem
+
+	* cpmcontrol.module: Modified
+
+2008-12-23 01:52  juneeveek
+
+	* cpmcontrol.module: added new function for secondary and tertiary
+	  links on left sidebar
+
+2008-12-19 00:40  juneeveek
+
+	* cpmcontrol.module: added theme for landing page thumbnails and
+	  our animals page
+
+2008-12-16 00:59  juneeveek
+
+	* cpmcontrol.module: added override for login page
+
+2008-12-15 01:22  juneeveek
+
+	* cpmcontrol.module: added search override
+
+2008-12-09 22:11  juneeveek
+
+	* cpmcontrol.info, cpmcontrol.module: added new module "cpmcontrol"
+

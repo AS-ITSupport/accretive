@@ -1,0 +1,813 @@
+<?php
+// $Id: springcmcontrol.module,v 1.28 2009/02/25 02:18:15 juneeveek Exp $
+
+/**
+ * @file springcmcontrol.module
+ */
+
+/**
+ * Implementation of hook_theme().
+ */
+function springcmcontrol_theme() {
+  return array(
+    'springcmcontrol_secondarylinks' => array(
+      'arguments' => array('secondary_links' => NULL, 'tertiary_links' => NULL)
+    ),
+    'springcmcontrol_secondarylinks_privia' => array(
+      'arguments' => array('secondary_links' => NULL, 'tertiary_links' => NULL)
+    ),		
+    'springcmcontrol_resourcesqueue' => array(      
+    ),
+  'springcontrol_resourcesindex' => array(
+  ),
+  'springcmcontrol_banner_ads' => array(
+   'arguments' => array('banner_config' => NULL, 'region' => NULL),
+  ),
+  'springcmcontrol_utility_links' => array(
+  ),
+  );
+}
+
+/**
+ * Implementation of hook_block().
+ */
+function springcmcontrol_block($op = 'list', $delta = 0) {
+
+	switch ($op) {
+		case 'list':
+			$blocks[0]['info'] = t('Related Resources');
+			// Not worth caching.
+			$blocks[0]['cache'] = BLOCK_NO_CACHE;
+			
+			
+			$blocks[1]['info'] = t('Banner Ad 1');
+			// Not worth caching.
+			$blocks[1]['cache'] = BLOCK_NO_CACHE;
+						
+			$blocks[2]['info'] = t('Banner Ad 2');
+			// Not worth caching.
+			$blocks[2]['cache'] = BLOCK_NO_CACHE;
+					
+
+			$blocks[3]['info'] = t('Banner Ad 3');
+			// Not worth caching.
+			$blocks[3]['cache'] = BLOCK_NO_CACHE;
+
+
+			$blocks[4]['info'] = t('Banner Ad 4');
+			// Not worth caching.
+			$blocks[4]['cache'] = BLOCK_NO_CACHE;
+
+			return $blocks;						
+
+		break;
+		
+		case 'configure':
+			switch ($delta) {
+				case 1:
+					 $banner_nodes = springcmcontrol_get_nodes_by_type('banner_image');
+					 
+					 foreach($banner_nodes as $banner) {
+						$banner_options[$banner->nid] = $banner->title;
+					 }
+					 
+					 $form['banner_id1'] = array(
+						  '#type' => 'select',
+						  '#title' => t('Select banner to be displayed in homepage.'),
+						  '#default_value' => variable_get('springcm_banner1', 0),
+						  '#options' => $banner_options
+						);					
+				break;				
+
+				case 2:
+					 $banner_nodes = springcmcontrol_get_nodes_by_type('banner_image');
+					 
+					 foreach($banner_nodes as $banner) {
+						$banner_options[$banner->nid] = $banner->title;
+					 }
+					 
+					 $form['banner_id2'] = array(
+						  '#type' => 'select',
+						  '#title' => t('Select banner to be displayed in homepage.'),
+						  '#default_value' => variable_get('springcm_banner2', 0),
+						  '#options' => $banner_options
+						);					
+				break;				
+
+				case 3:
+					 $banner_nodes = springcmcontrol_get_nodes_by_type('banner_image');
+					 
+					 foreach($banner_nodes as $banner) {
+						$banner_options[$banner->nid] = $banner->title;
+					 }
+					 
+					 $form['banner_id3'] = array(
+						  '#type' => 'select',
+						  '#title' => t('Select banner to be displayed in homepage.'),
+						  '#default_value' => variable_get('springcm_banner3', 0),
+						  '#options' => $banner_options
+						);					
+				break;				
+
+				case 4:
+					 $banner_nodes = springcmcontrol_get_nodes_by_type('banner_image');
+					 
+					 foreach($banner_nodes as $banner) {
+						$banner_options[$banner->nid] = $banner->title;
+					 }
+					 
+					 $form['banner_id4'] = array(
+						  '#type' => 'select',
+						  '#title' => t('Select banner to be displayed in homepage.'),
+						  '#default_value' => variable_get('springcm_banner4', 0),
+						  '#options' => $banner_options
+						);					
+				break;				
+
+			}
+			return $form;
+		break;
+		
+		case 'save':
+			switch ($delta) {				
+				case 1:
+					 variable_set('springcm_banner1', $_POST['banner_id1']);
+				break;				
+
+				case 2:
+					 variable_set('springcm_banner2', $_POST['banner_id2']);
+				break;				
+
+				case 3:
+					 variable_set('springcm_banner3', $_POST['banner_id3']);
+				break;				
+
+				case 4:
+					 variable_set('springcm_banner4', $_POST['banner_id4']);
+				break;				
+				
+			}
+			return;
+			
+		break;
+		
+		case 'view':
+						
+			$region = db_result(db_query("SELECT region FROM {blocks} WHERE module = '%s' AND delta = %d AND theme = '%s'", 'springcmcontrol', $delta, 'springcm'));
+
+			switch ($delta) {
+				case 0:
+					$block['content'] = theme('springcmcontrol_resourcesqueue');
+					$block['subject'] = '';
+				break;
+				
+				case 1:
+					$block['content'] = theme('springcmcontrol_banner_ads', 'springcm_banner1', $region);
+					$block['subject'] = '';				
+				break;
+								
+				case 2:
+					$block['content'] = theme('springcmcontrol_banner_ads', 'springcm_banner2', $region);
+					$block['subject'] = '';				
+				break;
+
+				case 3:
+					$block['content'] = theme('springcmcontrol_banner_ads', 'springcm_banner3', $region);
+					$block['subject'] = '';				
+				break;
+
+				case 4:
+					$block['content'] = theme('springcmcontrol_banner_ads', 'springcm_banner4', $region);
+					$block['subject'] = '';				
+				break;
+
+
+			}
+			return $block;
+		
+		break;				
+	}
+	
+}
+
+
+/**
+ * Returns secondary and tertiary links.
+ */
+function theme_springcmcontrol_secondarylinks($secondary_links, $tertiary_links) {
+
+	$output = '';
+	//$taxonomy_links = array();
+	$taxonomy_names = array();
+	$taxonomy_tertiary = array();
+	$close_list = FALSE;
+
+	//$exclude_types = aray('')
+	
+	//get secondary parent path
+	$trail = menu_get_active_trail();
+	$parent_path = $trail[2]['link_path'];		
+
+	
+	//check if parent is expandable
+	//if not highlight the parent menu and dont show its children
+	$result = db_query("SELECT has_children, expanded FROM {menu_links} WHERE link_path='%s'", $parent_path);
+	$parent_result = db_fetch_array($result);
+	
+	$weight = 0;
+	$items = array();
+	$terms_holder = array();
+	
+	if (count($secondary_links) > 0) {
+	
+		foreach ($secondary_links as $key => $link) {
+
+			$show_tertiary = FALSE;      
+			$item_info = array();
+			$item_info = menu_get_item($link['href']);
+		
+			//determine which tertiary links to be displayed
+			if($link['href'] == $parent_path) {
+				$show_tertiary = TRUE;
+			}
+			
+			//if tertiary links are present to a link that belonged to a taxonomy
+			$result = db_query("SELECT has_children, expanded FROM {menu_links} WHERE link_path='%s'", $link['href']);
+			$children_result = db_fetch_array($result);
+//			print "children_result=" . print_r($children_result,true);
+//if ($children_result[expanded] == 1 ) { $show_tertiary = TRUE; }
+//$show_tertiary = TRUE;
+							
+		
+			//check if item belonged to a taxonomy move it to $taxonomy_links container
+			if(count($item_info['page_arguments'][0]->taxonomy) > 0) {
+								
+				$keys = array_keys($item_info['page_arguments'][0]->taxonomy);
+				
+				if(array_key_exists($item_info['page_arguments'][0]->taxonomy[$keys[0]]->tid, $terms_holder)){
+
+					$term_weight = $terms_holder[$item_info['page_arguments'][0]->taxonomy[$keys[0]]->tid];
+					
+					
+					
+				} else {
+					$weight++;					
+					
+					
+					
+					$terms_holder[$item_info['page_arguments'][0]->taxonomy[$keys[0]]->tid] = $weight;
+					
+					$items[$weight]['type'] = 'taxonomy';
+					$items[$weight]['name'] = $item_info['page_arguments'][0]->taxonomy[$keys[0]]->name;
+										
+					$term_weight = $weight;										
+					
+				}
+				
+				$items[$term_weight]['menus'][] = $link;																				
+				
+				if(($show_tertiary == TRUE) && ($children_result['has_children'] > 0) && ($children_result['expanded']) == 1) {
+				
+					$tertiary_key = str_replace('/', '-', $link['href']);
+					foreach ($tertiary_links as $key => $tertiary_link) {
+						$items[$term_weight]['tertiary'][$tertiary_key][] = l($tertiary_link['title'], $tertiary_link['href'], $tertiary_link);
+					}
+				}
+				
+				
+			} else { //display as ordinary links
+		
+				$weight++;
+				
+				$items[$weight]['type'] = 'ordinary';
+				$items[$weight]['name'] = '';
+				
+				
+				if(($parent_result['expanded'] == 0) && ($link['href'] == $parent_path)) {									
+					$items[$weight]['menus'][] = l($link['title'], $link['href'], array('attributes' => array('class' => 'active')));
+				} else {
+					$items[$weight]['menus'][] = l($link['title'], $link['href'], $link);
+				}
+			
+				//display tertiary links
+				if(($show_tertiary == TRUE) && ($children_result['has_children'] > 0) && ($children_result['expanded']) == 1) {
+//print "YYYYYYYYYYY" . $link['title'] . " === " . print_r($tertiary_links,true);
+				
+					foreach ($tertiary_links as $key => $tertiary_link) {
+						$items[$weight]['tertiary'][] .= l($tertiary_link['title'], $tertiary_link['href'], $tertiary_link);
+					}
+			
+				}			
+								
+			}      	  
+		}		
+	}
+	//print "XXXXXXXXXXXXXX";
+	//print_r($items);
+	//print "XXXXXXXXXXXXXX";
+	if($items) {
+		
+		$output .= '<ul>';
+		foreach($items as $item) {
+		
+			if($item['type'] == 'ordinary') {
+				$output .= '<li>'.$item['menus'][0];
+				
+				if($item['tertiary']) {
+					$output .= '<ul>';
+					
+					foreach($item['tertiary'] as $tertiary_item) {
+						$output .= '<li>';
+						$output .= $tertiary_item;
+						$output .= '</li>';
+					}
+				
+					$output .= '</ul>';	
+				}
+				
+				$output .= '</li>';
+			} else {
+				$output .= '<li>'.$item['name'];
+				
+				$output .= '<ul>';
+				foreach($item['menus'] as $ea_item) {
+				
+					$output .= '<li>';
+					$output .= l($ea_item['title'], $ea_item['href'], $ea_item);
+					
+					//display tertiary links
+					$tertiary_key = str_replace('/', '-', $ea_item['href']);
+					if(count($item['tertiary'][$tertiary_key]) > 0) {
+						
+						$output .= "<ul class='tertiary'>";
+						foreach($item['tertiary'][$tertiary_key] as $tertiary) {
+												
+							$output .= '<li>'.$tertiary.'</li>';
+						}
+						$output .= '</ul>';		
+					}
+					
+					
+					$output .= '</li>';
+										
+				}
+				
+				$output .= '</ul>';
+				
+				$output .= '</li>';
+			}
+			
+		}
+		
+		$output .= '</ul>';
+	}
+	return $output; 
+}
+
+
+/**
+ * Returns secondary and tertiary links for privia pages.
+ */
+function theme_springcmcontrol_secondarylinks_privia($secondary_links, $tertiary_links) {
+
+	$output = '';
+	//$taxonomy_links = array();
+	$taxonomy_names = array();
+	$taxonomy_tertiary = array();
+	$close_list = FALSE;
+
+	//$exclude_types = aray('')
+	
+	//get secondary parent path
+	$trail = menu_get_active_trail();
+	$parent_path = $trail[2]['link_path'];		
+
+	
+	//check if parent is expandable
+	//if not highlight the parent menu and dont show its children
+	$result = db_query("SELECT has_children, expanded FROM {menu_links} WHERE link_path='%s'", $parent_path);
+	$parent_result = db_fetch_array($result);
+	
+	$weight = 0;
+	$items = array();
+	$terms_holder = array();
+	$ctr = 0;
+	
+	if (count($secondary_links) > 0) {	
+		
+		foreach ($secondary_links as $key => $link) {
+
+			//add only the first item of secondary menus to the container until privia links are found
+			if(($ctr == 0) || ($link['href'] == $parent_path)) {
+				$show_tertiary = FALSE;      
+				$item_info = array();
+				$item_info = menu_get_item($link['href']);
+			
+				//determine which tertiary links to be displayed
+				if($link['href'] == $parent_path) {
+					$show_tertiary = TRUE;
+				}
+				
+				//if tertiary links are present to a link that belonged to a taxonomy
+				$result = db_query("SELECT has_children, expanded FROM {menu_links} WHERE link_path='%s'", $link['href']);
+				$children_result = db_fetch_array($result);
+				//			print "children_result=" . print_r($children_result,true);
+				//if ($children_result[expanded] == 1 ) { $show_tertiary = TRUE; }
+				//$show_tertiary = TRUE;
+								
+			
+				//check if item belonged to a taxonomy move it to $taxonomy_links container
+				if(count($item_info['page_arguments'][0]->taxonomy) > 0) {
+									
+					$keys = array_keys($item_info['page_arguments'][0]->taxonomy);
+					
+					if(array_key_exists($item_info['page_arguments'][0]->taxonomy[$keys[0]]->tid, $terms_holder)){
+	
+						$term_weight = $terms_holder[$item_info['page_arguments'][0]->taxonomy[$keys[0]]->tid];															
+					} else {
+						$weight++;					
+						
+						$terms_holder[$item_info['page_arguments'][0]->taxonomy[$keys[0]]->tid] = $weight;
+						
+						$items[$weight]['type'] = 'taxonomy';
+						$items[$weight]['name'] = $item_info['page_arguments'][0]->taxonomy[$keys[0]]->name;
+											
+						$term_weight = $weight;					
+					}
+					
+					$items[$term_weight]['menus'][] = $link;																				
+					
+					if(($show_tertiary == TRUE) && ($children_result['has_children'] > 0) && ($children_result['expanded']) == 1) {
+					
+						$tertiary_key = str_replace('/', '-', $link['href']);
+						foreach ($tertiary_links as $key => $tertiary_link) {
+							$items[$term_weight]['tertiary'][$tertiary_key][] = l($tertiary_link['title'], $tertiary_link['href'], $tertiary_link);
+						}
+					}				
+					
+				} else { //display as ordinary links
+			
+					$weight++;
+					
+					$items[$weight]['type'] = 'ordinary';
+					$items[$weight]['name'] = '';
+					
+					
+					if(($parent_result['expanded'] == 0) && ($link['href'] == $parent_path)) {									
+						$items[$weight]['menus'][] = l($link['title'], $link['href'], array('attributes' => array('class' => 'active')));
+					} else {
+						$items[$weight]['menus'][] = l($link['title'], $link['href'], $link);
+					}
+				
+					//display tertiary links
+					if(($show_tertiary == TRUE) && ($children_result['has_children'] > 0) && ($children_result['expanded']) == 1) {
+					
+						foreach ($tertiary_links as $key => $tertiary_link) {
+							$items[$weight]['tertiary'][] .= l($tertiary_link['title'], $tertiary_link['href'], $tertiary_link);
+						}
+				
+					}			
+									
+				}				
+			} 
+			$ctr++;     	  
+		}		
+	}
+
+	if($items) {
+		
+		foreach($items as $item) {
+		
+			if($item['type'] == 'ordinary') {
+				$output .= '<li>'.$item['menus'][0];
+				
+				if($item['tertiary']) {
+					$output .= '<ul>';
+					
+					foreach($item['tertiary'] as $tertiary_item) {
+						$output .= '<li>';
+						$output .= $tertiary_item;
+						$output .= '</li>';
+					}
+				
+					$output .= '</ul>';	
+				}
+				
+				$output .= '</li>';
+			} else {
+				$output .= '<li>'.$item['name'];
+				
+				$output .= '<ul>';
+				foreach($item['menus'] as $ea_item) {
+				
+					$output .= '<li>';
+					$output .= l($ea_item['title'], $ea_item['href'], $ea_item);
+					
+					//display tertiary links
+					$tertiary_key = str_replace('/', '-', $ea_item['href']);
+					if(count($item['tertiary'][$tertiary_key]) > 0) {
+						
+						$output .= "<ul class='tertiary'>";
+						foreach($item['tertiary'][$tertiary_key] as $tertiary) {
+												
+							$output .= '<li>'.$tertiary.'</li>';
+						}
+						$output .= '</ul>';		
+					}
+					
+					
+					$output .= '</li>';
+										
+				}
+				
+				$output .= '</ul>';
+				
+				$output .= '</li>';
+			}
+			
+		}
+		
+	}
+	return $output; 
+}
+
+
+/**
+ * Themed output of related resources block
+ */
+function theme_springcmcontrol_resourcesqueue() {
+  
+  $output = '';
+  //determine if current page is a node and get its node id
+  if(arg(0) == 'node') {
+    $node_id = arg(1);
+    $fields_tocheck = array('field_multimedia_resource','field_solution_paper_resource','field_case_study_resource','field_data_sheet_resource');
+    $node_info = node_load($node_id);
+    
+    $related_resources = springcmcontrol_get_related_resources($node_info, $fields_tocheck);
+    
+    if($related_resources['show'] == TRUE) {
+      $output .= '<dl class="itemListResources">';
+      
+      if ($related_resources['field_multimedia_resource']['show'] == TRUE) {
+        $output .= '    <dt>';
+        $output .= '        Multimedia:';
+        $output .= '    </dt>';
+        $output .= '    <dd>';
+        
+        foreach($related_resources['field_multimedia_resource']['items'] as $link) {
+          $output .= $link;
+        }
+              
+        $output .= '    </dd>';
+      }
+  
+      if ($related_resources['field_solution_paper_resource']['show'] == TRUE) {
+        $output .= '    <dt>';
+        $output .= '        Solution Papers:';
+        $output .= '    </dt>';
+        $output .= '    <dd>';
+                
+        foreach($related_resources['field_solution_paper_resource']['items'] as $link) {
+          $output .= $link;
+        }
+              
+        $output .= '    </dd>';
+      }
+
+      if ($related_resources['field_data_sheet_resource']['show'] == TRUE) {
+        $output .= '    <dt>';
+        $output .= '        Data Sheets:';
+        $output .= '    </dt>';
+        $output .= '    <dd>';
+                
+        foreach($related_resources['field_data_sheet_resource']['items'] as $link) {
+          $output .= $link;
+        }
+              
+        $output .= '    </dd>';
+      }	  
+      
+      if ($related_resources['field_case_study_resource']['show'] == TRUE) {
+        $output .= '    <dt>';
+        $output .= '        Case Studies:';
+        $output .= '    </dt>';
+        $output .= '    <dd>';
+              
+        foreach($related_resources['field_case_study_resource']['items'] as $link) {
+          $output .= $link;
+        }
+              
+        $output .= '    </dd>';
+      }
+            
+      $output .= '</dl>';
+    }
+  }
+
+  return $output;
+}
+
+/**
+ * Returns array of related resources of current page
+ */
+function springcmcontrol_get_related_resources($node_info, $keys) {
+      
+  $related_resources = array();
+  
+  $related_resources['show'] = FALSE;
+  foreach($keys as $key_field) {
+    if (array_key_exists($key_field, $node_info)) {
+      foreach($node_info->$key_field as $node_related) {
+        if($node_related['nid'] != "") {
+          $related_resources[$key_field]['show'] = TRUE;
+          $related_resources['show'] = TRUE;
+          
+          //load each related node      
+          $related_info = node_load($node_related['nid']);
+          
+          switch ($related_info->type) {
+          
+            case "resource_pdf":          
+              $related_resources[$key_field]['items'][] = l($related_info->title, $related_info->field_pdf_file[0]['filepath']);
+            break;
+            
+            case "external_link":
+              $related_resources[$key_field]['items'][] = l($related_info->title, $related_info->field_external_link[0]['url']);
+            break;
+            
+            default:
+              $related_resources[$key_field]['items'][] = l($related_info->path, $related_info->path);
+            break;        
+          }
+        }
+      }
+    }    
+  }
+  return $related_resources;
+}
+
+/**
+ * Theme override for link module
+ */
+function phptemplate_link_formatter_default($element) {
+ 
+  if((!drupal_is_front_page()) && ($element['#type_name'] == "event_page")) {
+    $element['#item']['display_title'] = "Click here";	
+	return l($element['#item']['display_title'], $element['#item']['url'], $element['#item'])." for more information";
+	
+  } else if (!empty($element['#item']['display_title']) && !empty($element['#item']['url'])) {  
+  // Display a normal link if both title and URL are available.
+    return l($element['#item']['display_title'], $element['#item']['url'], $element['#item']);
+  }
+  
+  // If only a title, display the title.
+  elseif (!empty($element['#item']['display_title'])) {
+    return check_plain($element['#item']['display_title']);
+  }
+}
+
+
+/**
+ * Returns array of nodes based on content type
+ */
+function springcmcontrol_get_nodes_by_type($type) {
+
+	$nodes = array();
+
+	$result = db_query("SELECT * FROM {node} n JOIN {node_revisions} r ON r.nid=n.nid WHERE n.type='%s'", $type);
+	while($row=db_fetch_object($result)){
+	  $nodes[] = $row;
+	}
+	return $nodes;
+}
+
+
+/**
+ * Themed block for banner image
+ */
+function theme_springcmcontrol_banner_ads($banner_delta, $region) {
+	
+	$output = '';
+	
+	//get banner node
+	$node_banner = variable_get($banner_delta, 0);	
+	
+	if($node_banner > 0) {
+	
+		$output .= '<div class="featuredClient"><p>';
+		
+		$banner_info = node_load($node_banner);
+		$output .= l(theme('image', $banner_info->field_banner[0]['filepath'], $banner_info->field_banner[0][data][description], $banner_info->field_banner[0][data][description]), $banner_info->field_banner_link[0]['value'], array('html' => TRUE));
+
+		$output .= '</p></div>';
+	}
+	return $output;
+}
+
+/**
+ * Returns utility links
+ */
+function theme_springcmcontrol_utility_links() {
+	$tree = menu_tree_page_data('menu-utility-links');
+	
+	$items = array();
+	
+	foreach ($tree as $data) {
+		if (!$data['link']['hidden']) {
+		  $items[] = $data;
+		}
+	}	
+	
+	
+	foreach ($items as $i => $data) {
+		$extra_class = NULL;
+		
+		if ($i == 0) {
+		  $extra_class = 'first';
+		}
+		
+		if ($i == $num_items - 1) {
+		  $extra_class = 'last';
+		}
+		
+		$link = theme('menu_item_link', $data['link']);
+				
+		$output .= theme('menu_item', $link, $data['link']['has_children'], '', $data['link']['in_active_trail'], $extra_class);
+	}
+	return $output ? theme('menu_tree', $output) : '';	
+	
+}
+
+/**
+ * Formats below menu items for site map page
+ * Separates menu with taxonomy and ordinary menu into an array
+ */
+function check_first_below_items($data, $key) {
+	
+	$menu_below = array();
+	$counter = 0;
+	foreach($data as $menu_item) {
+			
+		$path_parts = explode('/', $menu_item['link']['link_path']);
+		
+		$path_node = node_load($path_parts[1]);
+					
+		if($path_node->taxonomy) {
+			
+			$taxonomy_key = array_keys($path_node->taxonomy);
+			$menu_below[$counter]['taxonomy'][$taxonomy_key[0]]['name'] = $path_node->taxonomy[$taxonomy_key[0]]->name;
+			$menu_below[$counter]['taxonomy'][$taxonomy_key[0]]['items'][] = $menu_item;
+				
+			
+		} else {
+			$menu_below[$counter] = $menu_item;
+		}
+		
+		$counter++;
+			
+	}
+	return $menu_below;
+}
+
+
+/**
+ * Implementation of hook_translated_menu_link_alter().
+ *
+ * Here is where we make changes to links that need dynamic information such
+ * as the current page path or the number of users.
+ */
+function springcmcontrol_translated_menu_link_alter(&$item, $map) {
+	static $access_all;
+	//print_r($item);
+
+	if($item['link_title'] == 'icon_users')	{
+	
+		$interval = time() - variable_get('user_block_seconds_online', 900);
+		$count_anon = sess_count($interval);
+		$count_auth = db_result(db_query("SELECT COUNT(DISTINCT uid) FROM {sessions} WHERE uid > 0 AND timestamp >= %d", $interval));
+		//$icon_users = '<img src="'. base_path() . drupal_get_path('module', 'admin_menu') .'/images/icon_users.png" width="16" height="15" alt="@title" title="@title" />';
+	
+		$title = array('@title' => t('Current anonymous / authenticated users'));
+		//$icon_users = strtr($icon_users, $title);
+		//$item['title'] = t('@count-anon / @count-auth', array('@count-anon' => $count_anon, '@count-auth' => $count_auth));
+		$item['title'] = t('Login');
+		$item['link_title'] = t('Login');
+		if (user_access('administer users')) {
+		  $item['href'] = 'admin/user/user';
+		}
+	
+	}
+	
+}
+
+
+function springcmcontrol_form_alter(&$form, $form_state, $form_id) {
+	
+	
+	if($form_id == 'search_form') {		
+		$form['basic']['inline']['submit']['#value'] = '';
+		//print($form['basic']['inline']['submit']['#type']);
+		//print_r($form);
+	}
+}

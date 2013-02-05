@@ -1,0 +1,161 @@
+2009-05-13 01:36  juneeveek
+
+	* page-newsletter-ctype.tpl.php: added argument to office view
+
+2009-05-13 01:26  juneeveek
+
+	* template.php, node-newsletter.tpl.php,
+	  page-newsletter-ctype.tpl.php: added new test tpls
+
+2009-05-12 11:54  iikka
+
+	* template.php: added suggestion for data-migration template
+
+2009-05-12 11:53  iikka
+
+	* page-data-migration.tpl.php: added template for displaying data
+	  migration views
+
+2009-04-21 11:23  iikka
+
+	* page-front.tpl.php, page.tpl.php, style.css: removed submenus
+
+2009-04-07 14:50  iikka
+
+	* style.css: cleaning up theme links
+
+2009-04-06 09:49  iikka
+
+	* style.css: fixed sidebar menu padding
+
+2009-03-24 11:45  iikka
+
+	* template.php: fixed missing argument error
+
+2009-03-20 17:13  iikka
+
+	* quicklinks.js: junk removal
+
+2009-03-20 17:13  iikka
+
+	* page-front.tpl.php, page.tpl.php, style.css, template.php: fixed
+	  "white screen of death" bug in utility nav
+
+2009-03-19 18:22  juneeveek
+
+	* page.tpl.php, template.php: fixed theme_links for accretivesolutions
+
+2009-03-19 14:51  iikka
+
+	* node.tpl.php, page-front.tpl.php, page.tpl.php, style.css,
+	  template.php: fixing spacing issues
+
+2009-03-19 08:40  iikka
+
+	* logo.png: added generic logo
+
+2009-02-12 15:21  iikka
+
+	* template.php: cleaning old code
+
+2008-12-07 19:24  juneeveek
+
+	* template.php: added sorting of sitemap menus
+
+2008-12-06 08:51  iikka
+
+	* accretivesolutions.info, page-front.tpl.php, page.tpl.php,
+	  quicklinks.js: corrected how javascript is included in the theme
+
+2008-12-04 23:13  juneeveek
+
+	* style.css: fixes on quicklinks
+
+2008-12-04 23:13  jessem
+
+	* page-front.tpl.php: no message
+
+2008-12-04 23:12  jessem
+
+	* page.tpl.php: Added dropdown feature for quicklinks and set to
+	  collapse for other pages.
+
+2008-12-04 22:55  jessem
+
+	* page-front.tpl.php: Added dropdown feature on quicklinks.
+
+2008-12-04 22:54  jessem
+
+	* block-block-3.tpl.php: Added block override for quicklinks.
+
+2008-12-04 22:50  juneeveek
+
+	* nice_menus.css, style.css, template.php: updated styles and added
+	  codes for sitemap menus
+
+2008-12-04 10:45  iikka
+
+	* page-front.tpl.php, page.tpl.php: fixed few annoying theme bugs
+
+2008-12-04 10:19  iikka
+
+	* style.css: added active trail to utility nav
+
+2008-12-04 10:15  iikka
+
+	* page-front.tpl.php, page.tpl.php, style.css: fixed few annoying
+	  theme bugs
+
+2008-12-04 07:59  iikka
+
+	* page.tpl.php, page-front.tpl.php: added nice_menus dropdown code
+	  directly to the template
+
+2008-12-04 07:47  iikka
+
+	* block.tpl.php, accretivesolutions.info, page-front.tpl.php,
+	  images/bg-header-left.png, images/bg-header-right.png,
+	  images/bg-header.png, images/bg-navmain.png, images/bg-news.gif,
+	  images/bg-quicklinks.jpg, images/bg.png, images/button-arrow.gif,
+	  images/button-arrow2.gif, images/button-search.gif,
+	  images/graphic-discover-science-behind-winter.png,
+	  images/graphic-the-science-of-nature.png, images/home-banner.png,
+	  images/icon-heart.gif, images/logo.png,
+	  images/menu-collapsed.gif, images/menu-expanded.gif,
+	  images/menu-leaf.gif, images/navmain.png, includes/content.css,
+	  includes/home.css, includes/layout.css, includes/navigation.css,
+	  includes/print.css, includes/reset.css: removing theming data
+	  because this is not the folder for CPM theme.
+
+2008-12-04 01:07  juneeveek
+
+	* accretivesolutions.info, page-front.tpl.php, template.php,
+	  images/bg-header-left.png, images/bg-header-right.png,
+	  images/bg-header.png, images/bg-navmain.png, images/bg-news.gif,
+	  images/bg-quicklinks.jpg, images/bg.png, images/button-arrow.gif,
+	  images/button-arrow2.gif, images/button-search.gif,
+	  images/graphic-discover-science-behind-winter.png,
+	  images/graphic-the-science-of-nature.png, images/home-banner.png,
+	  images/icon-heart.gif, images/logo.png, images/navmain.png,
+	  includes/content.css, includes/home.css, includes/layout.css,
+	  includes/navigation.css, includes/print.css, includes/reset.css:
+	  added files for accretivesolutions theme
+
+2008-10-23 13:43  iikka
+
+	* accretivesolutions.info, node.tpl.php, page-front.tpl.php, page.tpl.php,
+	  style.css, template.php: fixed menus
+
+2008-10-23 10:57  iikka
+
+	* page-front.tpl.php: added home
+
+2008-10-22 17:52  iikka
+
+	* LICENSE.txt, README.txt, block.tpl.php, comment.tpl.php,
+	  fix-ie.css, logo.png, maintenance-page.tpl.php, accretivesolutions.info,
+	  node.tpl.php, page.tpl.php, screenshot.png, style.css,
+	  template.php, images/menu-collapsed.gif,
+	  images/menu-expanded.gif, images/menu-leaf.gif: added wireframe
+	  theme for wireframing
+

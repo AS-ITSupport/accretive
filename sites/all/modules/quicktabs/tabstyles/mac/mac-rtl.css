@@ -1,0 +1,5 @@
+/* $Id: mac-rtl.css,v 1.1 2009/07/24 08:22:13 jessem Exp $ */
+
+ul.quicktabs_tabs.quicktabs-style-mac li{
+  float: right;
+}

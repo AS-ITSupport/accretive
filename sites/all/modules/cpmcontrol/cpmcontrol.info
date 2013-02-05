@@ -1,0 +1,12 @@
+; $Id: cpmcontrol.info,v 1.1 2008/12/10 06:11:01 juneeveek Exp $
+name = CPM Control
+description = Adds new themes functions and other site specific overrides.
+dependencies[] = node
+package = Nimbus
+core = 6.x
+
+; Information added by drupal.org packaging script on 2008-10-22
+version = "6.6"
+project = "cpmcontrol"
+datestamp = "1224703816"
+

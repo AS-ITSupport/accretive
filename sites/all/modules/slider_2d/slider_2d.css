@@ -1,0 +1,43 @@
+#purr-container {
+	position: absolute;
+	top: 400px;
+	right: 750px;
+	z-index:5000;
+	/*height:100%; */
+	width: 284px;
+}
+
+.notice {
+	position:relative;
+	width: 284px;
+	/*padding:150px;
+	margin-top:250px;
+	margin-right:600px;	 */
+}
+
+.notice .close {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	display: block;
+	width: 18px;
+	height: 17px;
+	text-indent: -9999px;
+}
+
+.notice-body {
+	min-height: 50px;
+	padding: 17px 0 0 0;
+	background: url(images/purr_bg.png) no-repeat left top;
+	color: #f9f9f9;
+	text-align:center;
+}
+
+
+
+.notice-body p {
+/*	margin: 5px 0 0 60px;
+	font-size: 0.8em;
+	line-height: 1.4em;*/
+	font-size:20px;
+}

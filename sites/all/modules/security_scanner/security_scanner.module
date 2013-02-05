@@ -1,0 +1,522 @@
+<?php
+// $Id: security_scanner.module,v 1.1 2008/07/17 20:57:40 iikka Exp $
+ 
+ 
+ /**
+  *  cURL class 
+  */
+  class drupal_security_scanner_test {
+  
+  var $ch;
+  var $curl_options = array();
+  var $elements;
+  var $headers;
+  
+  /**
+   * Initializes the cURL connection and gets a session cookie.
+   *
+   * This function will add authentaticon headers as specified in
+   * simpletest_httpauth_username and simpletest_httpauth_pass variables.
+   * Also, see the description of $curl_options among the properties.
+   */
+  function curlConnect() {
+    global $base_url, $db_prefix;
+    if (!isset($this->ch)) {
+      $this->ch = curl_init();
+      $curl_options = $this->curl_options + array(
+        CURLOPT_COOKIEJAR => $this->cookie_file,
+        CURLOPT_URL => $base_url,
+        CURLOPT_FOLLOWLOCATION => TRUE,
+        CURLOPT_RETURNTRANSFER => TRUE,
+      );
+      if (preg_match('/simpletest\d+/', $db_prefix)) {
+        $curl_options[CURLOPT_USERAGENT] = $db_prefix;
+      }
+      if (!isset($curl_options[CURLOPT_USERPWD]) && ($auth = variable_get('simpletest_httpauth_username', ''))) {
+        if ($pass = variable_get('simpletest_httpauth_pass', '')) {
+          $auth .= ':' . $pass;
+        }
+        $curl_options[CURLOPT_USERPWD] = $auth;
+      }
+      return $this->curlExec($curl_options);
+    }
+  }
+  
+  /**
+   * Peforms a cURL exec with the specified options after calling curlConnect().
+   *
+   * @param array $curl_options Custom cURL options.
+   * @return string Content returned from the exec.
+   */
+  function curlExec($curl_options) {
+    $this->curlConnect();
+    $url = empty($curl_options[CURLOPT_URL]) ? curl_getinfo($this->ch, CURLINFO_EFFECTIVE_URL) : $curl_options[CURLOPT_URL];
+    curl_setopt_array($this->ch, $this->curl_options + $curl_options);
+    $this->_content = curl_exec($this->ch);
+    $this->plain_text = FALSE;
+    $this->elements = FALSE;
+    return $this->_content;
+  }
+
+  /**
+   * Close the cURL handler and unset the handler.
+   */
+  function curlClose() {
+    if (isset($this->ch)) {
+      curl_close($this->ch);
+      unset($this->ch);
+    }
+  }
+  
+    /**
+   * Parse content returned from curlExec using DOM and simplexml.
+   *
+   * @return SimpleXMLElement A SimpleXMLElement or FALSE on failure.
+   */
+  function parse() {
+    if (!$this->elements) {
+      // DOM can load HTML soup. But, HTML soup can throw warnings, supress
+      // them.
+      @$htmlDom = DOMDocument::loadHTML($this->_content);
+      if ($htmlDom) {
+        // It's much easier to work with simplexml than DOM, luckily enough
+        // we can just simply import our DOM tree.
+        $this->elements = simplexml_import_dom($htmlDom);
+      }
+    }
+    if (!$this->elements) {
+      return "FALSE";
+    }
+    return $this->elements;
+  }
+
+  /**
+   * Retrieves a Drupal path or an absolute path.
+   *
+   * @param $path string Drupal path or url to load into internal browser
+   * @param array $options Options to be forwarded to url().
+   * @return The retrieved HTML string, also available as $this->drupalGetContent()
+   */
+  function drupalGet($path, $options = array()) {
+    $options['absolute'] = TRUE;
+
+    // We re-using a CURL connection here.  If that connection still has certain
+    // options set, it might change the GET into a POST.  Make sure we clear out
+    // previous options.
+    return $this->curlExec(array(CURLOPT_URL => url($path, $options), CURLOPT_POST => FALSE, CURLOPT_POSTFIELDS => array()));
+  }
+  
+    /**
+   * Execute a POST request on a Drupal page.
+   * It will be done as usual POST request with SimpleBrowser.
+   *
+   * @param string  $path
+   *   Location of the post form. Either a Drupal path or an absolute path or
+   *   NULL to post to the current page.
+   * @param array $edit
+   *   Field data in an assocative array. Changes the current input fields
+   *   (where possible) to the values indicated. A checkbox can be set to
+   *   TRUE to be checked and FALSE to be unchecked.
+   * @param string $submit
+   *   Value of the submit button.
+   * @param $tamper
+   *   If this is set to TRUE then you can post anything, otherwise hidden and
+   *   nonexistent fields are not posted.
+   */
+  function drupalPost($path, $edit, $submit, $tamper = FALSE) {
+    $submit_matches = FALSE;
+    if (isset($path)) {
+      $html = $this->drupalGet($path);
+    }
+    if ($this->parse()) {
+      $edit_save = $edit;
+      // Let's iterate over all the forms.
+      $forms = $this->elements->xpath('//form');
+      foreach ($forms as $form) {
+        if ($tamper) {
+          // @TODO: this will be Drupal specific. One needs to add the build_id
+          // and the token to $edit then $post that.
+        }
+        else {
+          // We try to set the fields of this form as specified in $edit.
+          $edit = $edit_save;
+          $post = array();
+          $upload = array();
+          $submit_matches = $this->handleForm($post, $edit, $upload, $submit, $form);
+          $action = isset($form['action']) ? $this->getAbsoluteUrl($form['action']) : $this->getUrl();
+        }
+        // We post only if we managed to handle every field in edit and the
+        // submit button matches.
+        if (!$edit && $submit_matches) {
+          // This part is not pretty. There is very little I can do.
+          if ($upload) {
+            foreach ($post as &$value) {
+              if (strlen($value) > 0 && $value[0] == '@') {
+                $this->fail(t("Can't upload and post a value starting with @"));
+                return FALSE;
+              }
+            }
+            foreach ($upload as $key => $file) {
+              $post[$key] = '@' . realpath($file);
+            }
+          }
+          else {
+            $post_array = $post;
+            $post = array();
+            foreach ($post_array as $key => $value) {
+              // Whether this needs to be urlencode or rawurlencode, is not
+              // quite clear, but this seems to be the better choice.
+              $post[] = urlencode($key) . '=' . urlencode($value);
+            }
+            $post = implode('&', $post);
+          }
+          $out = $this->curlExec(array(CURLOPT_URL => $action, CURLOPT_POSTFIELDS => $post, CURLOPT_POST => TRUE));
+          // Ensure that any changes to variables in the other thread are picked up.
+          $this->refreshVariables(); 
+          return $out;
+        }
+      }
+      // We have not found a form which contained all fields of $edit.
+      foreach ($edit as $name => $value) {
+        $this->fail(t('Failed to set field @name to @value', array('@name' => $name, '@value' => $value)));
+      }
+    }
+  }
+  
+    /**
+   * Handle form input related to drupalPost(). Ensure that the specified fields
+   * exist and attempt to create POST data in the correct manner for the particular
+   * field type.
+   *
+   * @param array $post 
+   *   Reference to array of post values.
+   * @param array $edit 
+   *   Reference to array of edit values to be checked against the form.
+   * @param string $submit 
+   *   Form submit button value.
+   * @param array $form 
+   *   Array of form elements.
+   * @return boolean 
+   *   Submit value matches a valid submit input in the form.
+   */
+  protected function handleForm(&$post, &$edit, &$upload, $submit, $form) {
+    // Retrieve the form elements.
+    $elements = $form->xpath('.//input|.//textarea|.//select');
+    $submit_matches = FALSE;
+    foreach ($elements as $element) {
+      // SimpleXML objects need string casting all the time.
+      $name = (string)$element['name'];
+      // This can either be the type of <input> or the name of the tag itself
+      // for <select> or <textarea>.
+      $type = isset($element['type']) ? (string)$element['type'] : $element->getName();
+      $value = isset($element['value']) ? (string)$element['value'] : '';
+      $done = FALSE;
+      if (isset($edit[$name])) {
+        switch ($type) {
+          case 'text':
+          case 'textarea':
+          case 'password':
+            $post[$name] = $edit[$name];
+            unset($edit[$name]);
+            break;
+          case 'radio':
+            if ($edit[$name] == $value) {
+              $post[$name] = $edit[$name];
+              unset($edit[$name]);
+            }
+            break;
+          case 'checkbox':
+            // To prevent checkbox from being checked.pass in a FALSE,
+            // otherwise the checkbox will be set to its value regardless
+            // of $edit.
+            if ($edit[$name] === FALSE) {
+              unset($edit[$name]);
+              continue 2;
+            }
+            else {
+              unset($edit[$name]);
+              $post[$name] = $value;
+            }
+            break;
+          case 'select':
+            $new_value = $edit[$name];
+            $index = 0;
+            $key = preg_replace('/\[\]$/', '', $name);
+            $options = $this->getAllOptions($element);
+            foreach ($options as $option) {
+              if (is_array($new_value)) {
+                $option_value= (string)$option['value'];
+                if (in_array($option_value, $new_value)) {
+                  $post[$key . '[' . $index++ . ']'] = $option_value;
+                  $done = TRUE;
+                  unset($edit[$name]);
+                }
+              }
+              elseif ($new_value == $option['value']) {
+                $post[$name] = $new_value;
+                unset($edit[$name]);
+                $done = TRUE;
+              }
+            }
+            break;
+          case 'file':
+            $upload[$name] = $edit[$name];
+            unset($edit[$name]);
+            break;
+        }
+      }
+      if (!isset($post[$name]) && !$done) {
+        switch ($type) {
+          case 'textarea':
+            $post[$name] = (string)$element;
+            break;
+          case 'select':
+            $single = empty($element['multiple']);
+            $first = TRUE;
+            $index = 0;
+            $key = preg_replace('/\[\]$/', '', $name);
+            $options = $this->getAllOptions($element);
+            foreach ($options as $option) {
+              // For single select, we load the first option, if there is a
+              // selected option that will overwrite it later.
+              if ($option['selected'] || ($first && $single)) {
+                $first = FALSE;
+                if ($single) {
+                  $post[$name] = (string)$option['value'];
+                }
+                else {
+                  $post[$key . '[' . $index++ . ']'] = (string)$option['value'];
+                }
+              }
+            }
+            break;
+          case 'file':
+            break;
+          case 'submit':
+          case 'image':
+            if ($submit == $value) {
+              $post[$name] = $value;
+              $submit_matches = TRUE;
+            }
+            break;
+          case 'radio':
+          case 'checkbox':
+            if (!isset($element['checked'])) {
+              break;
+            }
+            // Deliberate no break.
+          default:
+            $post[$name] = $value;
+        }
+      }
+    }
+    return $submit_matches;
+  }
+  
+    /**
+   * Takes a path and returns an absolute path.
+   *
+   * @param @path
+   *   The path, can be a Drupal path or a site-relative path. It might have a
+   *   query, too. Can even be an absolute path which is just passed through.
+   * @return
+   *   An absolute path.
+   */
+  function getAbsoluteUrl($path) {
+    $options = array('absolute' => TRUE);
+    $parts = parse_url($path);
+    // This is more crude than the menu_is_external but enough here.
+    if (empty($parts['host'])) {
+      $path = $parts['path'];
+      $base_path = base_path();
+      $n = strlen($base_path);
+      if (substr($path, 0, $n) == $base_path) {
+        $path = substr($path, $n);
+      }
+      if (isset($parts['query'])) {
+        $options['query'] = $parts['query'];
+      }
+      $path = url($path, $options);
+    }
+    return $path;
+  }
+  
+    /**
+   * Refresh the in-memory set of variables. Useful after a page request is made
+   * that changes a variable in a different thread.
+   *
+   * In other words calling a settings page with $this->drupalPost() with a changed
+   * value would update a variable to reflect that change, but in the thread that
+   * made the call (thread running the test) the changed variable would not be
+   * picked up.
+   *
+   * This method clears the variables cache and loads a fresh copy from the database
+   * to ensure that the most up-to-date set of variables is loaded.
+   */
+  function refreshVariables() {
+    global $conf;
+    cache_clear_all('variables', 'cache');
+    $conf = variable_init();
+  }
+}
+
+  /**
+   * Takes a path and returns an absolute path.
+   *
+   * @param @path
+   *   The path, can be a Drupal path or a site-relative path. It might have a
+   *   query, too. Can even be an absolute path which is just passed through.
+   * @return
+   *   An absolute path.
+   */
+  function getAbsoluteUrl($path) {
+    $options = array('absolute' => TRUE);
+    $parts = parse_url($path);
+    // This is more crude than the menu_is_external but enough here.
+    if (empty($parts['host'])) {
+      $path = $parts['path'];
+      $base_path = base_path();
+      $n = strlen($base_path);
+      if (substr($path, 0, $n) == $base_path) {
+        $path = substr($path, $n);
+      }
+      if (isset($parts['query'])) {
+        $options['query'] = $parts['query'];
+      }
+      $path = url($path, $options);
+    }
+    return $path;
+  }
+  
+  /**
+   * Implementation of hook_menu().
+   */
+  function security_scanner_menu() {
+    $items['admin/settings/security_scanner'] = array(
+      'title' => 'Security Scanner',
+      'page callback' => 'page_security_scanner',
+      'access arguments' => array('access scanner'),
+      'type' => MENU_NORMAL_ITEM,
+    );
+  return $items;
+  }
+
+  /**
+   *  Implementation of the crawler page.
+   */     
+  function security_scanner_cron() {
+    global $base_url;
+    //  Check if the auth session cookie value is already into the db, otherwise call
+    //  the function that retrieve this (enable multithreading)
+    if (variable_get('security_scanner_cookie','') == '') {
+      drupal_security_scanner_get_auth_cookie();
+    }
+    $time = time() + 15;
+    while (time() < $time) {
+      // Initialize the crawler
+      db_query('INSERT INTO {crawler} VALUES (default)');
+      $crawler_id = db_last_insert_id('crawler', 'id');
+      //Mark the extracted page as visited
+      db_query("UPDATE {crawler_links} SET crawler_id = %d, status = 1 WHERE crawler_id = 0 LIMIT 1", $crawler_id);
+      // Get the link from crawler_links table 
+      $page_to_visit = db_fetch_array(db_query("SELECT id,path FROM {crawler_links} WHERE crawler_id = %d AND status = 1 LIMIT 1", $crawler_id));
+      // Update the status field to sign as executed that link
+      db_query("UPDATE {crawler_links} SET status = 1 WHERE crawler_id = %d and status = 1 LIMIT 1", $crawler_id);
+      // Create a new object and parse the page
+      // $obj = new drupal_security_scanner_test();
+      $obj = new drupal_security_scanner_test();
+      // Set the cookie
+      $session_cookie = variable_get('security_scanner_cookie','');
+      $obj->curl_options = array(
+        CURLOPT_COOKIE => $session_cookie,
+      );
+      $obj->drupalGet($page_to_visit['path']);
+      $obj->parse();
+      $links = $obj->elements->xpath('//a');      
+      foreach($links as $link) {
+        $url_to_save = (string)$link->attributes()->href;
+        $absolute = getAbsoluteUrl($url_to_save);
+        // Get the page but check if it's logout link, that makes me lose the cookie!
+        $parsed_url = parse_url($absolute);
+        if ($parsed_url['query'] != 'q=logout') {  
+          if (substr($absolute, 0, strlen($base_url)) == $base_url) {
+            // Here we use IGNORE to insert only one time a link into the table. ("path" is a unique index)
+            db_query("INSERT IGNORE INTO {crawler_links} VALUES ('','%s','','')", $absolute);
+          }
+        }
+      }
+      // Get the forms inside the page
+      $inputs = $obj->elements->xpath("//input[@name='form_id']");
+      foreach($inputs as $input) {
+        $form_id = (string)$input->attributes()->id;
+        // Debug line! HAS TO BE REMOVED
+        echo $form_id."Form inserted! <br />";
+        // Here we use again IGNORE to insert only one time a form_id into the table. ("form_id" is the primary key)
+        db_query("INSERT IGNORE INTO {crawler_forms} VALUES ('%s','%d')", $form_id, $page_to_visit['id']);
+      }
+      db_query("UPDATE {crawler_links} SET status = 2 WHERE crawler_id = %d and status = 1 LIMIT 1", $crawler_id);
+    }
+    // This has to be removed because the cookie has to stay into the databes to enable multiple istances of the crawler 
+    variable_del('security_scanner_cookie');
+    $obj->curlClose();
+    return '<p>'. t('The quick brown fox jumps over the lazy dog.') .'</p>';
+  }
+  
+  /**
+   *  Get the cookie of the admin and insert the first link into the table crawler_links.
+   *  There is an issue, I have to start the crawler from uid different than 1.    
+   */
+   function drupal_security_scanner_get_auth_cookie() {
+    $initial_path = user_pass_reset_url(user_load(1));
+    // Add sleep to go round a bug inside a drupal core function. Remove it when it's changed into core.
+    sleep(1);
+    //  Create a new object, set cURL options to call the function drupal_security_scanner_curl_headers that
+    //  saves into the variable table the admin cookie. Then set the cookie.
+    $obj = new drupal_security_scanner_test();
+    $obj->curl_options = array(
+      CURLOPT_HEADERFUNCTION => 'drupal_security_scanner_curl_headers',
+      CURLOPT_FOLLOWLOCATION => 0,
+    );
+    // Get the page with password reset and push submit button
+    $obj->drupalGet($initial_path);
+    $obj->drupalPost($initial_path,'',TRUE);
+    //  Add the first url into the crawler_links table.
+    db_query("INSERT INTO {crawler_links} VALUES ('','%s','','')", url('admin', array('absolute' => TRUE)));
+    return true;
+  }
+  
+  /**
+   *  This function will extract headers and return the lenght.
+   */  
+ function drupal_security_scanner_curl_headers($ch = NULL, $header = NULL) { 
+    static $headers = array();
+    if (!isset($ch)) {
+      return $headers;
+    }
+    if(!strncmp($header, "Set-Cookie:", 11)) { 
+      //  get the cookie
+      $cookiestr = trim(substr($header, 11, -1));
+      $cookie = explode(';', $cookiestr);
+      variable_set('security_scanner_cookie', $cookie[0]);
+    }
+    return strlen($header);   
+  }
+
+  /**
+   *  Implementation of hook _perm()
+   */   
+  function security_scanner_perm() {
+    return array('access scanner');
+  }
+  
+  /**
+   *  Implementation of hook _help()
+   */
+   function security_scanner_help($path, $arg) {
+     switch ($path) {
+       case 'security_scanner':
+       // Here is some help text for a custom page.
+         return t('This sentence contains all the letters in the English alphabet.');
+     }
+   }
+?>

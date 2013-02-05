@@ -1,0 +1,760 @@
+<?php
+
+/**
+ * Implementation of hook_theme().
+ */
+function cpmcontrol_theme() {
+  return array(
+  'cpmcontrol_banner_ads' => array(
+   'arguments' => array('delta_value' => NULL),
+	 ),
+  'cpmcontrol_get_animals' => array(
+   'arguments' => array()
+	 ),	 
+  'cpmcontrol_display_animal' => array(
+   'arguments' => array('term_info' => NULL, 'term_nodes' => NULL),
+	 ),
+	 'cpmcontrol_format_secondary' => array(
+   'arguments' => array('secondary_links' => NULL),
+	 ),
+	 'cpmcontrol_links' => array(
+	  'arguments' => array('secondary_links' => NULL, 'tertiary_links' => NULL, 'active_href' => NULL, 'attributes' => NULL),
+		),
+  'cpmcontrol_display_camps' => array(
+   'arguments' => array()
+	 ),
+  'cpmcontrol_arrange_gallery' => array(
+   'arguments' => array('photos' => NULL),
+	 ),
+  'cpmcontrol_display_programs' => array(
+   'arguments' => array('tids' => NULL),
+	 ),
+  'cpmcontrol_get_animals_for_navigation' => array(
+   'arguments' => array('$taxonomy_info' => NULL),
+	 ),
+  'cpmcontrol_get_programs' => array(
+   'arguments' => array('$tids' => NULL),
+	 )
+  );
+}
+
+
+/**
+ * Implementation of hook_block().
+ */
+function cpmcontrol_block($op = 'list', $delta = 0) {
+
+	switch ($op) {
+
+		case 'list':			
+			$blocks[0]['info'] = t('Banner Ad 1');
+			// Not worth caching.
+			$blocks[0]['cache'] = BLOCK_NO_CACHE;
+						
+			$blocks[1]['info'] = t('Banner Ad 2');
+			// Not worth caching.
+			$blocks[1]['cache'] = BLOCK_NO_CACHE;
+					
+			return $blocks;
+		break;
+		
+		case 'configure':
+			$banner_nodes = cpmcontrol_get_nodes_by_type('feature_banner');
+			
+			foreach($banner_nodes as $banner) {
+				$banner_options[$banner->nid] = $banner->title;
+			}
+			
+			switch ($delta) {
+				case 0:					 
+					 $form['banner_id1'] = array(
+						  '#type' => 'select',
+						  '#title' => t('Select banner to be displayed in homepage'),
+						  '#default_value' => variable_get('cpmcontrol_banner1', 0),
+						  '#options' => $banner_options
+						);					
+				break;				
+
+				case 1:
+					 $banner_nodes = cpmcontrol_get_nodes_by_type('feature_banner');
+					 
+					 foreach($banner_nodes as $banner) {
+						$banner_options[$banner->nid] = $banner->title;
+					 }
+					 
+					 $form['banner_id2'] = array(
+						  '#type' => 'select',
+						  '#title' => t('Select banner to be displayed in homepage'),
+						  '#default_value' => variable_get('cpmcontrol_banner2', 0),
+						  '#options' => $banner_options
+						);					
+				break;				
+			}			
+			return $form;
+		break;
+		
+		case 'save':
+			switch ($delta) {				
+				case 0:
+					 variable_set('cpmcontrol_banner1', $_POST['banner_id1']);
+				break;				
+
+				case 1:
+					 variable_set('cpmcontrol_banner2', $_POST['banner_id2']);
+				break;				
+			}
+			return;			
+		break;
+		
+		case 'view':
+			switch ($delta) {
+				
+				case 0:
+					$delta_value = variable_get('cpmcontrol_banner1', 0);
+					$block['content'] = theme('cpmcontrol_banner_ads', $delta_value);
+					$block['subject'] = '';				
+				break;
+								
+				case 1:
+					$delta_value = variable_get('cpmcontrol_banner2', 0);
+					$block['content'] = theme('cpmcontrol_banner_ads', $delta_value);
+					$block['subject'] = '';				
+				break;
+			}
+			return $block;		
+		break;
+		
+	}
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function cpmcontrol_menu() {
+  $items['cpmcontrol/get/camp_info'] = array(
+    'page callback' => 'cpmcontrol_get_camp_info',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
+  return $items;
+}
+ 
+/**
+ * Returns array of nodes based on content type
+ */
+function cpmcontrol_get_nodes_by_type($type) {
+
+	$nodes = array();
+	$result = db_query("SELECT * FROM {node} n JOIN {node_revisions} r ON r.nid=n.nid WHERE n.type='%s'", $type);
+
+	while($row=db_fetch_object($result)){
+	  $nodes[] = $row;
+	}
+	return $nodes;
+}
+
+/**
+ * Themed block for banner image
+ */
+function theme_cpmcontrol_banner_ads($delta_value) {
+	
+	$output = '';
+	if($delta_value > 0) {			
+		$banner_info = node_load($delta_value);
+		$output .= l(theme('image', $banner_info->field_banner_image[0]['filepath']), $banner_info->field_banner_link[0]['url'], array('html' => TRUE));
+	}
+	return $output;
+}
+
+/*
+ * Implementation of hook_form_alter
+ */
+ function cpmcontrol_form_alter(&$form, $form_state, $form_id) {  
+	
+	switch ($form_id) {
+		case 'search_theme_form':
+      $form['search_theme_form']['#title'] = t('');   
+      $form['submit'] = array('#type' => 'submit', '#value' => t(''),'#attributes' => array('class' => 'form-buttonSearch'));
+      $form['search_theme_form'] = array('#type' => 'textfield', '#default_value' => t('Search'),'#attributes' => array('class' => 'form-textSearch')); 
+			
+		break;
+		
+		/*case 'views_exposed_form':
+			$form['tid'] = array (
+					'#type' => 'select',
+					'#options' => array (
+									'All' => '<Any>',
+									16 => 'Classes and Workshops',
+									17 => 'Early Education Events',
+									15 => 'Shows'),
+					'#default_value' => 'All'
+			);
+
+
+			//print_r($form['tid']);
+		break;*/
+	}
+	
+}
+
+/**
+ * Implementation of hook_translated_menu_link_alter().
+ *
+ * Here is where we make changes to links that need dynamic information such
+ * as the current page path or the number of users.
+ */
+function cpmcontrol_translated_menu_link_alter(&$item, $map) {
+	static $access_all;
+	//print_r($item);
+
+	if($item['link_title'] == 'icon_users')	{
+	
+		$interval = time() - variable_get('user_block_seconds_online', 900);
+		$count_anon = sess_count($interval);
+		$count_auth = db_result(db_query("SELECT COUNT(DISTINCT uid) FROM {sessions} WHERE uid > 0 AND timestamp >= %d", $interval));
+		//$icon_users = '<img src="'. base_path() . drupal_get_path('module', 'admin_menu') .'/images/icon_users.png" width="16" height="15" alt="@title" title="@title" />';
+	
+		$title = array('@title' => t('Current anonymous / authenticated users'));
+		//$icon_users = strtr($icon_users, $title);
+		//$item['title'] = t('@count-anon / @count-auth', array('@count-anon' => $count_anon, '@count-auth' => $count_auth));
+		$item['title'] = t('Login');
+		$item['link_title'] = t('Login');
+		if (user_access('administer users')) {
+		  $item['href'] = 'admin/user/user';
+		}
+	
+	}	
+}
+
+
+/*
+ * Returns themable output of Animals vocabulary
+ */
+function theme_cpmcontrol_get_animals() {
+
+	$output = '';
+	$vocabulary_name = "Animals";
+	
+	$vocabularies = taxonomy_get_vocabularies();
+	
+	//get vid for "Animals" vocabulary
+	foreach($vocabularies as $key => $vocabulary) {
+		
+		if($vocabulary->name == $vocabulary_name) {
+			$our_vid = $vocabulary->vid;
+			break;
+		}		
+	}
+	
+	$terms = taxonomy_get_tree($our_vid);	
+	foreach($terms as $term) {
+		
+		//get nodes for this term
+		
+		$term_nodes = taxonomy_select_nodes(array($term->tid), 'or', 0, FALSE, 'n.title ASC');
+
+		//prepare dropdown nodes for each term
+		$items = array();
+		$vowels = array('A', 'E', 'I', 'O', 'U');
+		if(in_array(substr($term->name, 0, 1), $vowels)) {
+			$concat = 'an';
+		} else {
+			$concat = 'a';
+		}
+		$items[''] = 'Select ' .$concat .' ' . substr($term->name, 0, -1);
+		while($row = db_fetch_object($term_nodes)) {
+			$node_info = node_load($row->nid);
+			$items[base_path().$node_info->path] = $node_info->title;
+		}
+		
+		$output .= theme('cpmcontrol_display_animal', $term, $items);
+	}
+	return $output;	
+}
+
+
+/*
+ * Returns themable output of each animal term
+ */
+function theme_cpmcontrol_display_animal($term_info, $term_nodes) {
+
+	$output = '';
+	
+	//prepare image for each term
+	$file_name = str_replace(' ','-', strtolower($term_info->name));
+	$image_path = base_path() . file_directory_path() . '/' . $file_name . '.jpg';
+	
+	$output .= '<div class="animalBlock">
+		<img src="'.$image_path.'" alt="" />
+		<div class="animalDetails">
+			<b>
+				'.$term_info->name.'
+			</b>
+			<p>
+				'.$term_info->description.'
+				<span>
+				'.drupal_get_form('cpmcontrol_animals_form', $term_nodes, $file_name).'
+				</span>
+			</p>
+		</div>
+	</div>';
+	
+	return $output;
+}
+
+
+/**
+ * Generates dropdown box for Animals vocabulary
+ */
+function cpmcontrol_animals_form($form_state, $term_nodes, $field_name) {
+
+		$form[$field_name] = array(
+			'#type' => 'select',
+			'#title' => t(''),
+			'#options' => $term_nodes,
+			'#attributes' => array('OnChange' => 'location.href=this.options[this.selectedIndex].value', 'class' => 'form-selectAnimalType')
+  	);
+	return $form;
+}
+
+/**
+ * Formats secondary links into thumbnail (link)
+ */
+function theme_cpmcontrol_format_secondary($secondary_links) {
+
+	$output = '';
+	$show_thumbnail = false;
+	
+	$output_list = '';
+	foreach($secondary_links as $link) {
+		$thumbnail = '';
+		$link_info = menu_get_item($link['href']);
+		
+		$thumbnail = $link_info['page_arguments'][0]->field_thumbnail[0]['filepath'];
+		if($thumbnail != '') {
+			$show_thumbnail = true;
+		}
+		
+		$output_list .= '<li>
+								<a href="'.$link_info['page_arguments'][0]->path.'">
+									<img src="'.base_path().$thumbnail.'" alt="" />
+									<b>'.$link_info['page_arguments'][0]->title.'</b>
+								</a>											
+							</li>';
+	}
+	
+	if($show_thumbnail == true) {
+		$output .= '<ul id="subNavExhibitsAndAnimals">'.$output_list.'</ul>';
+	}
+	
+		
+	return $output;
+}
+
+/**
+ * Outputs secondary and tertiary navigations
+ */ 
+function theme_cpmcontrol_links($secondary_links, $tertiary_links, $active_href, $attributes = array('class' => 'links')) {
+  $output = '';
+  if (count($secondary_links) > 0) {
+    $output = '<ul'. drupal_attributes($attributes) .'>';
+
+    $num_links = count($links);
+    $i = 1;
+		
+    foreach ($secondary_links as $key => $link) {
+      $class = $key;
+			$tertiary_output = '';
+
+      // Add first, last and active classes to the list of links to help out themers.
+      if ($i == 1) {
+        $class .= ' first';
+      }
+      if ($i == $num_links) {
+        $class .= ' last';
+      }
+      if ((isset($link['href'])) && (($link['href'] == $_GET['q']) || ($link['href'] == $active_href))) {
+        $class .= ' active';								
+				
+				//prepare tertiary links
+				if (count($tertiary_links) > 0) {					
+					$tertiary_output .= '<span id="tertiary_content"><ul>';
+					
+					foreach ($tertiary_links as $tlink) {
+						//some nodes dont recognize its parent (so lets introduce them)
+						
+						$trail = menu_get_active_trail();
+						if($trail[3]['link_path'] == $tlink['href']) {
+							$tlink['attributes']['class'] = 'active';
+						}
+						
+						$tertiary_output .= '<li>'.l($tlink['title'], $tlink['href'], $tlink).'</li>';
+					}
+					$tertiary_output .= '</ul></span>';
+				}
+				
+      }
+      $output .= '<li'. drupal_attributes(array('class' => $class)) .'>';
+
+      if (isset($link['href'])) {
+        // Pass in $link as $options, they share the same keys.
+        $output .= l($link['title'], $link['href'], $link);
+      }
+      else if (!empty($link['title'])) {
+        // Some links are actually not links, but we wrap these in <span> for adding title and class attributes
+        if (empty($link['html'])) {
+          $link['title'] = check_plain($link['title']);
+        }
+        $span_attributes = '';
+        if (isset($link['attributes'])) {
+          $span_attributes = drupal_attributes($link['attributes']);
+        }
+        $output .= '<span'. $span_attributes .'>'. $link['title'] .'</span>';												
+      }			
+
+			$output .= $tertiary_output;
+      $i++;
+      $output .= "</li>\n";
+    }
+
+    $output .= '</ul>';
+  }
+
+  return $output;
+}
+
+/**
+ * Returns grid format of camp nodes
+ */
+function theme_cpmcontrol_display_camps() {
+	$output = '';
+	
+	//vocabularies that is needed for camp grid
+	$camp_vocabularies = array('camp_grades' => 'Camp Grades', 'camp_sessions' => 'Camp Sessions');
+	
+	//get vocabulary ids
+	$vocabularies = taxonomy_get_vocabularies();
+	
+	//get vid for selected vocabularies
+	foreach($vocabularies as $key => $vocabulary) {
+		
+		$voc_key = array_search($vocabulary->name, $camp_vocabularies);
+		if($voc_key !== false) {
+			$camp_vocabularies[$voc_key] = $vocabulary->vid;
+		}		
+	}
+	
+	//get camp grades terms
+	$grade_terms = taxonomy_get_tree($camp_vocabularies['camp_grades']);
+	
+	//get camp session terms
+	$session_terms = taxonomy_get_tree($camp_vocabularies['camp_sessions']);
+		
+	//populate table header
+	$header[] = '<strong>Sessions</strong>';	
+	
+	//use grade terms for table header
+	foreach($grade_terms as $grade_term) {
+		$header[] = '<strong>'.$grade_term->name.'</strong><br>'.$grade_term->description;
+	}
+	
+	//populate table rows
+	$rows = array();
+	$term_ctr = 0;	
+	
+	foreach($session_terms as $session_term) {
+		$cell_ctr = 0;
+		$rows[$term_ctr][$cell_ctr]['data'] = '<strong>'.$session_term->name.'</strong><br>'.$session_term->description;
+		$cell_ctr++;
+		
+		
+		foreach($grade_terms as $term_grade) {
+			$term_nodes = taxonomy_select_nodes(array($term_grade->tid, $session_term->tid), 'and');
+			
+			$num_rows = false;
+			$cell_content = '';
+			$content_ctr = 0;
+			while($result = db_fetch_object($term_nodes)) {
+				$num_rows = true;
+				$content_ctr++;
+			}
+			
+			if($num_rows) {
+			
+				$nodes = taxonomy_select_nodes(array($term_grade->tid, $session_term->tid), 'and');
+				$cell_class = '';
+				$node_ctr = 0;
+				$last_class = '';
+				while($final_result = db_fetch_object($nodes)) {
+					$node_info = node_load($final_result->nid);
+					$node_ctr++;
+
+					$new_camp = '';
+					if($node_info->field_new_camp[0]['value'] == 'yes') {
+						$new_camp .= '<font class="new">New!</font>';
+					}	
+										
+					if($content_ctr > 1) {
+						if($node_ctr == $content_ctr) {
+							$last_class = ' last';
+						}
+						
+						$cell_content .= '<span class="'.$node_info->field_camp_color[0]['value'].$last_class.'">'
+													.l($node_info->title, $node_info->path, array('attributes' => array('class' => 'camp-item', 'id' => 'node-'.$node_info->nid))).$new_camp
+													.'</span>';
+					} else {
+						$cell_content .= '<span>'
+													.l($node_info->title, $node_info->path, array('attributes' => array('class' => 'camp-item', 'id' => 'node-'.$node_info->nid))).$new_camp
+													.'</span>';
+						$cell_class = $node_info->field_camp_color[0]['value'];
+					}					
+				}
+			
+				$rows[$term_ctr][$cell_ctr]['data'] = $cell_content;
+				if($content_ctr > 1) {
+					$rows[$term_ctr][$cell_ctr]['class'] = 'multiCamps';
+				} else {
+					$rows[$term_ctr][$cell_ctr]['class']= 'singleCamp '.$cell_class;
+				}
+				
+			} else {
+				$rows[$term_ctr][$cell_ctr]['data'] = '&nbsp;';
+				$rows[$term_ctr][$cell_ctr]['class'] = 'empty';
+			}
+			$cell_ctr++;			
+		}		
+		$term_ctr++;
+	}
+	
+	drupal_add_js(array(
+				'cpmcontrol' => array(
+				   'basepath' => 'testing'
+					)
+				), 'setting');
+ 	
+	$output .= theme_table($header, $rows, array('class' => 'table', 'id' => 'tableCampActivities'));
+
+	return $output;
+}
+
+/**
+ * Returns camp info for ajax popup
+ */
+function cpmcontrol_get_camp_info($nid) {
+	$result = '';
+	$id = explode('-', $nid);
+	$node_info = node_load($id[1]);
+	
+	$result .= '<h1 class="campInfoTitle">';
+	$result .= 	$node_info->title;
+	if($node_info->field_new_camp[0]['value'] == 'yes') {
+		$result .= '<span class="new">New!</span>';
+	}	
+	$result .= '</h1>';
+		
+	$result .= '<p>';
+	$result .= $node_info->body;
+	$result .= '</p>';
+	
+	
+	$vocabularies = taxonomy_get_vocabularies();
+	//get vid for selected vocabularies
+	$camp_grades = 'Camp Grades';
+	foreach($vocabularies as $key => $vocabulary) {		
+		if($camp_grades == $vocabulary->name) {
+			$camp_grades_vid = $vocabulary->vid;
+		}		
+	}
+
+	$activity_str = '';
+	
+	if($node_info->field_grade_override[0]['value'] != '') {
+		$activity_str .= $node_info->field_grade_override[0]['value'].'<br>';
+	} else {	
+		foreach($node_info->taxonomy as $ea_taxonomy) {
+			if($ea_taxonomy->vid == $camp_grades_vid) {
+				$activity_str .= $ea_taxonomy->name.'<br>';
+			}
+		}
+	}
+	
+	$activity_str .= 'Fee: Member $'.$node_info->field_member_fee[0]['value'].' Non-Member $'.$node_info->field_non_member_fee[0]['value'].'<br />';	
+	
+	$result .= '<p class="campActivity">';
+	$result .= $activity_str;
+	$result .= '</p>';
+	$result .= l('', $node_info->field_registration_link[0]['value'], array('attributes' => array('class' => 'buttonRegister')));
+	
+	if($node_info->field_pdf_registration[0]['nid']) {
+		$result .= '<p class="campPdf">';
+		$result .= 'or download printable form:<br />';
+		
+		$pdf_info = node_load($node_info->field_pdf_registration[0]['nid']);
+		$result .= $icon = theme('filefield_icon', $pdf_info->field_downloadable_file[0]);
+		$result .= l($pdf_info->field_downloadable_file[0]['filename'], $pdf_info->field_downloadable_file[0]['filepath'], array('attributes' =>array('target' => '_blank')));
+		$result .= '</p>';
+	}		
+	
+  print $result;
+}
+
+
+/**
+ * Returns HTML output for Photo Gallery
+ */
+function theme_cpmcontrol_arrange_gallery($photos) {
+	$output = '';
+	$header = array();
+	
+	$ctr = 1;
+	$row_limit = 2;
+	$key = 0;
+	foreach($photos as $photo) {
+		$size = getimagesize($photo['filepath']);
+		$row_content = '';
+		$row_content .= $photo['view'];
+		
+		$style = '';
+		if($size[0] < 292) {
+			$width = $size[0];
+			$left = ((292/2) - ($width/2));
+			$style = ' style="padding-left:'.$left.'px"';
+		}
+		
+		if($photo['data']['description'] != '') {
+			$row_content .= '<span class="photoCaption"'.$style.'>'.$photo['data']['description'].'</span>';
+		} else {
+			$row_content .= '<span class="photoCaption"'.$style.'>&nbsp;</span>';
+		}
+		
+		$rows[$key][] = array('data' => $row_content, 'align' => 'center');
+		
+		if($ctr == $row_limit) {
+			$ctr = 1;
+			$key++;
+		} else {
+			$ctr++;
+		}
+	}
+	if($ctr == $row_limit) {
+		$rows[$key][] = array('data' => '&nbsp;');
+	}
+	
+	$output .= theme_table($header, $rows, array('class' => 'tablePhotoGallery', 'cellspacing' => 0, 'cellpadding' => 0, 'border' => 0));
+	return $output;
+}
+
+
+/**
+ * Returns animal nodes as navigation
+ */
+function theme_cpmcontrol_get_animals_for_navigation($taxonomy_info) {
+	
+	$output = '';
+	$keys = array_keys($taxonomy_info);
+	$term_nodes = taxonomy_select_nodes(array($taxonomy_info[$keys[0]]->tid), 'or', 0, FALSE, 'n.title ASC');	
+	
+	$output .= '<h1>'.$taxonomy_info[$keys[0]]->name.'</h1>';
+	$output .= '<ul class="menu">';
+	
+	while($row = db_fetch_object($term_nodes)) {
+		$node_info = node_load($row->nid);
+		
+		if(menu_get_active_title() == $node_info->title) {
+			$attributes = array('attributes' =>
+													array('class' => 'active'));
+			$output .= '<li>'.l($node_info->title, $node_info->path, $attributes).'</li>';
+		} else {		
+			$output .= '<li>'.l($node_info->title, $node_info->path).'</li>';
+		}
+		
+	}
+	
+	$output .= '</ul>';
+
+	//get all terms of the current vocabulary
+	$output .= '<h1>&nbsp;</h1>';
+	$terms = taxonomy_get_tree($taxonomy_info[$keys[0]]->vid);
+	
+	$output .= '<ul class="menu">';
+	foreach($terms as $term) {
+	  
+		if($taxonomy_info[$keys[0]]->name != $term->name) {
+			$nodes = taxonomy_select_nodes(array($term->tid), 'or', 0, FALSE, 'n.title ASC');	
+			$row = db_fetch_object($nodes);
+			if ($row) {
+        $info = node_load($row->nid);
+        $output .= '<li>'.l($term->name, $info->path).'</li>';
+			}
+			
+		}		
+	}
+	$output .= '</ul>';
+	$output .= '<br /><br />';
+	
+	return  $output;
+	
+}
+
+
+/**
+ * Displays programs based on terms range
+ */
+function theme_cpmcontrol_get_programs($tids = array()) {
+
+	$result = '';
+	$nodes = taxonomy_select_nodes($tids, 'or', 0, FALSE, 'n.title ASC');	
+	
+	$containers = array();
+	while($ea_node = db_fetch_object($nodes)) {
+	
+		$node_info = node_load($ea_node->nid);
+		
+		if($node_info->type == 'program') {
+
+			$keys = array_keys($node_info->taxonomy);
+			//sum the weight of first and last term of each node
+			$first_term = $node_info->taxonomy[$keys[0]]->weight;			
+			$last_term = 0;
+			$str_grades = ' (Grades '.$node_info->taxonomy[$keys[0]]->name;
+			if(count($node_info->taxonomy) > 1) {
+				$last_term = $node_info->taxonomy[$keys[count($keys) - 1]]->weight;
+				$str_grades .= '-'.$node_info->taxonomy[$keys[count($keys) - 1]]->name;
+			}
+			$str_grades .= ')';
+			
+			$ctr = $first_term + $last_term;
+			$node_info->title = $node_info->title.$str_grades;
+			
+			$containers[$ctr][] = $node_info;			
+		}
+	}
+	
+	//sort containers' keys
+	ksort($containers);
+	
+	foreach($containers as $container) {
+		
+		foreach($container as $final_node) {
+						
+			$result .= '<div class="program-classes">';
+			
+			$result .= '<div class="program-title">'.$final_node->title.'</div>';
+			$result .= $final_node->body;
+			
+			$result .= '<div class="program-specs">';
+			$result .= ($final_node->field_posible_animals[0]['value'] != '') ? '<span class="program-label">Possible Animals:</span> '.$final_node->field_posible_animals[0]['value'].'<br />' : '';
+			$result .= ($final_node->field_lesson_format[0]['value'] != '') ? '<span class="program-label">Lesson Format:</span> '.$final_node->field_lesson_format[0]['value'].'<br />' : '';
+			$result .= ($final_node->field_travel_site_permission[0]['value'] == 'yes') ? '<span class="canTravel">This program can travel to your site!</span>'.'<br />' : '';
+			$result .= ($final_node->field_class_size[0]['value'] != '') ? '<span class="program-label">Max Class Size:</span> '.$final_node->field_class_size[0]['value'].'<br />' : '';
+			$result .= ($final_node->field_program_length[0]['value'] != '') ? '<span class="program-label">Program Length:</span> '.$final_node->field_program_length[0]['value'].'<br />' : '';
+			$result .= ($final_node->field_days_times[0]['value'] != '') ? '<span class="program-label">Days/Times:</span> '.$final_node->field_days_times[0]['value'].'<br />' : '';
+			$result .= ($final_node->field_fee[0]['value'] != '') ? '<span class="program-label">Fee:</span> '.$final_node->field_fee[0]['value'] : '';
+			$result .= '</div>';
+			
+			$result .= '</div>';
+		}
+		
+	}
+	return $result;
+}

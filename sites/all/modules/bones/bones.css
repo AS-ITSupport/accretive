@@ -1,0 +1,66 @@
+/* $Id: bones.css,v 1.1.4.3 2009/03/23 21:48:34 usonian Exp $ */
+#bones-batch-list th.select-all {
+  width:20px;
+}
+
+#bones-batch-list th.bones-batch-details {
+	width:50%;
+}
+
+#bones-batch-list .progress {
+	margin:0 0 0 1em;
+	height:1.5em;
+}
+
+#bones-newmenu {
+  display:none;
+}
+
+#bones-help-link {
+  text-align:right;
+}
+
+#bones-detail-mask {
+  background-image:url(images/bg.png);
+  background-repeat:repeat;
+	position:fixed;
+	z-index:998;
+	display:none;
+	top:0;
+	left:0;
+
+}
+
+.bones-detail-inner {
+  border:1px solid #666;
+  background-color:#FFF;
+  padding:5px;
+  position:absolute;
+  width:600px;
+  height:500px;
+  z-index:999;
+  top:0;
+  left:0;
+  clear:both;
+  overflow:auto;
+}
+
+
+#bones-batch-detail dl dt {
+	font-weight:bold;
+}
+
+.bones-detail-close {
+ display:block;
+ float:right;
+ clear:both;
+ font-weight:bold;
+}
+
+.bones-details-button {
+  font-size:0.8em;
+}
+
+.bones-not-found {
+  font-style:italic;
+}

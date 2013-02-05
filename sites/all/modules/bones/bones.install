@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * Implementation of hook_schema().
+ */
+function bones_schema() {
+  $schema['bones_imports'] = array(
+  'description' => t('Stores information about Bones module import batches'),
+  'fields' => array(
+    'bid' => array(
+      'description' => t('The primary identifier for a Bones import record.'),
+      'type' => 'serial',
+      'unsigned' => TRUE,
+      'not null' => TRUE),
+    'uid' => array(
+      'description' => t('The ID of the user who performed the import.'),
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0
+    ),
+    'created' => array(
+      'description' => t('Unix timestamp containing the import date/time'),
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0,
+      'length' => 11
+    ),
+    'count' => array(
+      'description' => t('Count of nodes created during the import.'),
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+      'default' => 0
+    ),
+    'data' => array(
+      'description' => t('The data describing nodes created by an import'),
+      'type' => 'text')      
+    ),
+  'primary key' => array('bid')
+  );
+  
+  return $schema;
+}
+
+function bones_install() {
+  drupal_install_schema('bones');
+}
+
+function bones_uninstall() {
+  drupal_uninstall_schema('bones');
+  menu_rebuild();
+}

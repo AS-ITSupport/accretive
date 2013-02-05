@@ -1,0 +1,5 @@
+/* $Id: phylactere-rtl.css,v 1.1 2009/07/24 08:23:39 jessem Exp $ */
+
+ul.quicktabs_tabs.quicktabs-style-phylactere li{
+  float: right;
+}

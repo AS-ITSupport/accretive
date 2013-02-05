@@ -1,0 +1,13 @@
+; $Id: swfobject2.info,v 1.6 2009/04/14 20:16:46 iikka Exp $
+name =  SWFObject2
+description = Enables support for the SWFObject 2 embedding method.
+package = SWF Tools
+dependencies[] = swftools
+core = 6.x
+
+; Information added by drupal.org packaging script on 2009-03-29
+version = "6.x-2.4"
+core = "6.x"
+project = "swftools"
+datestamp = "1238286089"
+

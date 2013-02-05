@@ -6,6 +6,14 @@ cache/
 files/
 sites/*/files
 sites/*/private
+upload/*
+documents/*
+WINDOWS/*
+eval/*
+bios/*
+news/*
+remote/*
+status/*
 
 # Ignore default text files
 .htaccess

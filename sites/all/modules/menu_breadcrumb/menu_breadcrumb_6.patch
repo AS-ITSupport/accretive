@@ -1,0 +1,43 @@
+Index: menu_breadcrumb.module
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/menu_breadcrumb/menu_breadcrumb.module,v
+retrieving revision 1.4
+diff -u -p -r1.4 menu_breadcrumb.module
+--- menu_breadcrumb.module	20 Feb 2008 18:56:34 -0000	1.4
++++ menu_breadcrumb.module	20 Dec 2008 18:33:39 -0000
+@@ -75,10 +75,17 @@ function menu_breadcrumb_disable() {
+  */
+ function menu_breadcrumb_init() {
+   if (variable_get('menu_breadcrumb_determine_menu', 1)) {
++    $ignored_menus = array_merge(variable_get('menu_breadbrumb_ignored_menus', array()), array('admin_menu', 'devel'));
+     $menu_item = menu_get_item();
+-    $menu_link = menu_link_load(db_result(db_query("SELECT mlid FROM {menu_links} WHERE link_path = '%s'", $menu_item['href'])));
+-    $use_menu = $menu_link['menu_name'];
+-    menu_set_active_menu_name($use_menu);
++    $result = db_query("SELECT mlid FROM {menu_links} WHERE link_path = '%s'", $menu_item['href']);
++    while($mlid = db_result($result)) {
++      $menu_link = menu_link_load($mlid);
++      // @see http://www.php.net/manual/en/function.in-array.php#86695
++      if (!in_array($menu_link['menu_name'], $ignored_menus, TRUE)) {
++        menu_set_active_menu_name($menu_link['menu_name']);
++        break;
++      }
++    }
+   }
+ 
+   $breadcrumb = drupal_get_breadcrumb();
+@@ -134,5 +141,13 @@ function menu_breadcrumb_admin_settings_
+     '#default_value' => variable_get('menu_breadcrumb_hide_on_single_item', 0),
+   );
+ 
++  $form['menu_breadbrumb_ignored_menus'] = array(
++    '#type' => 'checkboxes',
++    '#title' => t('Ignored menus'),
++    '#description' => t('Menus marked here will be ignored by menu breadcrumb.'),
++    '#options' => drupal_map_assoc(menu_get_names()),
++    '#default_value' => variable_get('menu_breadbrumb_ignored_menus', array()),
++  );
++
+   return system_settings_form($form);
+ }
+\ No newline at end of file

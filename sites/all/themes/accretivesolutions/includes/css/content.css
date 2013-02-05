@@ -1,0 +1,1613 @@
+body {
+
+  text-align: left;
+
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+
+  font-size: 11px;
+
+  color: #494955;
+
+  margin: 0 auto 0 auto;
+
+  padding: 0;
+
+}
+
+
+
+img {
+
+  border: none;
+
+  margin: 0;
+
+  padding: 0;
+
+}
+
+
+
+form {
+
+  margin: 0;
+
+  padding: 0;
+
+}
+
+
+
+fieldset {
+
+  border: none;
+
+  margin: 0;
+
+  padding: 0;
+
+}
+
+
+
+legend {
+
+/*  display: none; */
+
+}
+
+
+
+a {
+
+  color: #008530;
+
+  text-decoration: none;
+
+}
+
+
+
+a:hover {
+
+  color: #24298a;
+
+  text-decoration: underline;
+
+}
+
+
+
+.content {
+
+	line-height: 15px;
+
+}
+
+
+
+.content p {
+
+  margin: 0;
+
+  padding: 0 0 15px 0;
+
+  line-height: 15px;
+
+}
+
+
+
+h1 {
+
+  margin: 0 0 18px 0;
+
+  padding: 9px 0 8px 0;
+
+  font-size: 18px;
+
+  border-bottom: 3px solid #e2e2e2;
+
+	font-weight: bold;
+
+	line-height: 22px;
+
+}
+
+
+
+.sitemap h1 {
+
+	display: none;
+
+}
+
+
+
+.content.sitemap {
+
+	padding-top: 25px;
+
+}
+
+
+
+h2 {
+
+  margin: 0 0 12px 0;
+
+  padding: 13px 0 4px 0;
+
+  font-size: 14px;
+
+  border-bottom: 3px solid #e2e2e2;
+
+	font-weight: bold;	
+
+}
+
+
+
+h2 span {
+
+	float: right;
+
+	font-size: 11px;
+
+	font-weight: normal;
+
+}
+
+
+
+h3 {
+
+  margin: 0;
+
+  padding: 5px 0 10px 0;
+
+  font-size: 10px;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+
+  font-weight:bold;
+
+}
+
+
+
+h4 {
+
+  margin: 0;
+
+  padding: 10px 0 10px 0;
+
+  font-size: 10px;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+
+  border-bottom: 3px solid #e2e2e2;
+
+}
+
+
+
+h5 {
+
+  color: #888AA1;
+
+  letter-spacing: 1px;
+
+  font-size: 13px;
+
+  font-weight: bold;
+
+  padding: 2px 0 5px 0;
+
+  margin: 0;
+
+}
+
+
+
+#contentBox .content ul {
+
+    margin: 0;
+
+    padding: 0;
+
+}
+
+
+
+#contentBox .content ul li {
+
+    list-style:none;
+
+    margin: 0;
+
+    padding: 0 0 10px 12px;
+
+    background: transparent url("../../images/bullet-gray.gif") 0px 5px no-repeat; 
+
+    line-height: 15px;
+
+}
+
+
+
+
+
+strong {
+
+    font-weight:bold;
+
+}
+
+
+
+/* Form Syles */
+
+input, select, textarea {
+
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+
+  font-size: 11px;
+
+}
+
+
+
+.formRadioButton{
+
+  margin: 1px 0 0 0;
+
+  padding: 0;
+
+  height: 13px;
+
+  width: 13px;
+
+}
+
+
+
+.formCheckBox {
+
+  margin: 1px 0 0 0;
+
+  padding: 0;
+
+  height: 13px;
+
+  width: 13px;
+
+}
+
+
+
+#formGeneric {}
+
+
+
+#formGeneric fieldset p {
+
+  margin: 0;
+
+  padding: 0 0 8px 0;
+
+}
+
+
+
+#formGeneric fieldset p.inLine165 {
+
+  float: left;
+
+  width: 165px;
+
+}
+
+
+
+#formGeneric fieldset p.inLine155 {
+
+  float: left;
+
+  width: 153px;
+
+}
+
+
+
+#formGeneric fieldset p.inLine150 {
+
+  float: left;
+
+  width: 148px;
+
+}
+
+
+
+#formGeneric fieldset p.inLine186 {
+
+  float: left;
+
+  width: 205px;
+
+}
+
+#formGeneric fieldset label {
+
+  display: block;
+
+  padding-bottom: 2px;
+
+}
+
+
+
+#formGeneric fieldset label.labelRight {
+
+  display: block;
+
+  float: left;
+
+  padding: 0 0 0 4px;
+
+  margin: 0;
+
+}
+
+
+
+.formSelect155 {
+
+  margin: 0;
+
+  padding: 0;
+
+  width: 158px;
+
+}
+
+
+
+.formText136 {
+
+  margin: 0;
+
+  padding: 2px 0 2px 0;
+
+  width: 136px;
+
+}
+
+
+
+.formTextArea300 {
+
+  margin: 0;
+
+  padding: 0;
+
+  width: 300px;
+
+  height: 95px;
+
+}
+
+
+
+.formTextArea580 {
+
+  margin: 5px 0 0 0;
+
+  padding: 0;
+
+  width: 580px;
+
+  height: 95px;
+
+  display: block;
+
+}
+
+
+
+.formFile370 {
+
+  width: 370px;
+
+}
+
+
+
+#formGeneric fieldset p.formButtonBlock {
+
+  padding-top: 12px;
+
+  width: 580px;
+
+  text-align: center;
+
+}
+
+
+
+#formGeneric fieldset p.formButtonBlock2 {
+
+  padding-top: 12px;
+
+  width: 300px;
+
+  text-align: center;
+
+}
+
+
+
+.column186 {
+
+  width: 205px;
+
+  padding: 5px 0 0 0;
+
+}
+
+
+
+#formGeneric fieldset label.labelOffers {
+
+  padding: 0 5px 0 15px;
+
+  margin: 0;
+
+}
+
+
+
+#direction-form {
+
+    display:none;
+
+}
+
+
+
+.gmap-popup {
+
+    height:95px;
+
+    width:230px;
+
+    line-height:14px;
+
+}
+
+
+
+
+
+
+
+/** Drupal Overrides **/
+
+thead th {
+
+    border: none;
+
+}
+
+
+
+tbody td {
+
+    background: #fff;
+
+    border: none;
+
+}
+
+
+
+
+
+#block-views-offices-block_1 h2 {
+
+  margin: 0 0 12px 0;
+
+  padding: 13px 0 4px 0;
+
+  font-size: 14px;
+
+  border-bottom: 3px solid #e2e2e2;
+
+    font-weight:bold;
+
+}
+
+
+
+#block-views-offices-block_1 .views-field-title {
+
+    font-weight:bold;
+
+}
+
+
+
+#block-views-offices-block_1 .views-row-odd,
+
+#block-views-offices-block_1 .views-row-even {
+
+  margin: 0;
+
+  padding: 0 0 12px 0;
+
+  line-height: 15px;
+
+}    
+
+
+
+/*#col2 .content .content h3, #col2 .content .terms {
+
+	display:none;
+
+}*/
+
+
+
+#col2 .content .terms {
+
+	display:none;
+
+}
+
+
+
+.content .terms {
+
+	padding-bottom:15px;
+
+}
+
+
+
+
+
+#col2 .content .content .adr.col1 {
+
+	float:left;
+
+	padding: 0 0 0 0;
+
+	width: 250px;
+
+}
+
+
+
+#col2 .content .content .adr.col2 {
+
+	float:right;
+
+	padding: 0;
+
+	width: 160px;
+
+}
+
+
+
+
+
+#col2 .view-as-involved .view-content ul li.views-row, #col2 .view-office-events .view-content ul li.views-row  {
+
+	padding: 0 0 10px 0;
+
+	margin: 0;
+
+	list-style: none;
+
+	background: none;
+
+}
+
+
+
+/** Contact Us **/
+
+#webform-component-type_of_inquiry .form-radios, 
+
+#webform-component-contact_information {
+
+  border-bottom: 3px solid #e2e2e2;
+
+    padding: 0 0 25px 0;
+
+}
+
+
+
+#webform-component-type_of_inquiry .option {
+
+  display: block;
+
+  float: left;
+
+  padding: 0 0 0 4px;
+
+  margin: 0;    
+
+}    
+
+
+
+#webform-component-type_of_inquiry .form-radio {
+
+  margin: 1px 0 0 0;
+
+  padding: 0;
+
+  height: 13px;
+
+  width: 13px;
+
+}
+
+
+
+#webform-component-questions_and_comments legend {
+
+    padding-top:15px;
+
+  font-size: 10px;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+
+    font-weight:bold;
+
+}
+
+
+
+#webform-component-contact_information legend {
+
+  padding: 5px 0 10px 0;
+
+  font-size: 10px;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+
+    font-weight:bold;
+
+}
+
+
+
+#webform-component-contact_information .form-select {
+
+  margin: 0;
+
+  padding: 0;
+
+  width: 158px;
+
+}
+
+
+
+#webform-component-contact_information .form-text {
+
+  margin: 0;
+
+  padding: 2px 0 2px 0;
+
+  width: 136px;
+
+}
+
+
+
+#managers_panel {
+
+    display:none;
+
+}
+
+
+
+#webform-component-executive_search, #webform-component-consulting {
+
+    display:none;
+
+}    
+
+
+
+#quickSearch .form-submit {
+
+    background: transparent url("../../images/button-quick-search.gif") left top no-repeat;
+
+    width:71px;
+
+    height:18px;
+
+    border:none;
+
+    float:right;
+
+}
+
+
+
+/** Newsletter **/
+
+.newsletter-introduction,
+
+.views-field-field-newsletter-intro-value {
+
+    color: #008530;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+    font-style:italic;
+
+    padding-top:10px;
+
+}
+
+
+
+.newsletter-published-date,
+
+.views-field-field-newsletter-date-published-value {
+
+    padding-bottom:10px;
+
+}
+
+
+
+/** Management Team **/
+
+/** Management Team **/
+.view-management-team tr td, .view-National-Practice-Leaders tr td, .view-Board-of-Directors tr td, .view-Market-Leaders tr td {
+    padding: 0 10px 10px 10px;
+}
+
+
+.view-management-team .views-field-title, .view-Board-of-Directors .views-field-title, .view-National-Practice-Leaders .views-field-title, .view-Market-Leaders .views-field-title {
+    padding:0 0 25px 0;
+    margin:0;
+    vertical-align:top;
+}
+
+
+.view-management-team .views-field-title h2, .view-Board-of-Directors .views-field-title h2, .view-National-Practice-Leaders .views-field-title h2, .view-Market-Leaders .views-field-title h2 {
+    padding:0;
+    margin-bottom:5px;
+    border:none;
+    font-weight:bold;
+}
+
+
+.view-management-team .views-field-title p, .view-Board-of-Directors .views-field-title p, .view-National-Practice-Leaders .views-field-title p, .view-Market-Leaders .views-field-title p {
+    margin: 0 0 25px 0;
+    padding: 0;
+}
+
+
+.view-management-team .views-field-title .manager-title p, .view-Board-of-Directors .views-field-title .manager-title p, .view-National-Practice-Leaders .views-field-title .manager-title p, .view-Market-Leaders .views-field-title .manager-title p {
+  border-bottom: 3px solid #e2e2e2;
+    margin: 0 0 5px 0;
+    padding: 0 0 5px 0;    
+}
+
+
+
+
+/** End of Drupal Overrides **/
+
+
+
+/**Careers**/
+
+#col2b .view-content h3 {
+
+  margin: 0 0 12px 0;
+
+  padding: 13px 0 4px 0;
+
+  font-size: 11px;
+
+  border-bottom: 3px solid #e2e2e2;  
+
+}
+
+
+
+#col2b .view-content .view-content-custom .views-row .views-field-title span {
+
+  display:block;
+
+    padding-bottom:14px;
+
+}
+
+
+
+.view-content .view-content-custom .views-field-title {
+
+	padding: 5px 0;
+
+}
+
+
+
+#col2b .view-filters .views-exposed-widgets {
+
+  display:block;
+
+}
+
+
+
+#col2b .view-filters .views-exposed-widget {
+
+
+
+}
+
+
+
+#col2b .view-filters .views-exposed-widget #edit-submit {
+
+    margin-top: 9px;
+
+}
+
+
+
+/** End **/
+
+
+
+.term-office {
+
+  font-weight:bold;
+
+}
+
+
+
+#col2 .view-content table tr td img {
+
+  display:none;
+
+}
+
+
+
+#col2 .view-content table tr td{
+
+    padding-bottom:8px;
+
+}
+
+
+
+#col2 .view-content table tr td a{
+
+  display:block;
+
+    padding-bottom:6px;
+
+}
+
+
+
+.sf-sub-indicator {
+
+  display:none;
+
+}
+
+
+
+
+
+/* Office
+
+-------------------*/
+
+.view-offices .views-field-title {
+
+	font-weight: bold;
+
+	color: #008530;
+
+}
+
+	
+
+.view-offices .views-row {
+
+	padding-bottom: 18px;
+
+}
+
+.view-offices .phone strong,
+
+.view-offices .fax strong {	
+
+	color: #9fabbf;
+
+}
+
+
+
+
+
+/* Accordion Management Team
+
+-------------------*/
+
+#managers_panel {
+
+	padding-top: 16px;
+
+}
+
+
+
+.managers_trigger {
+
+  background: transparent url("../../images/arrow-collapsed.gif") left 1px no-repeat;
+
+	padding: 0 0 0 14px;
+
+	font-size: 12px;
+
+}
+
+
+
+.managers_trigger.selected {
+
+   background: transparent url("../../images/arrow-expanded.gif") left 4px no-repeat;
+
+}
+
+
+
+#managers_panel .views-row {
+
+	padding-bottom: 10px;
+
+}
+
+
+
+#managers_panel .views-field-field-manager-photo-fid {
+
+	float: left;
+
+}
+
+
+
+#managers_panel .views-field-title {
+
+	font-weight: bold;
+
+}
+
+
+
+#managers_panel .views-field-body {
+
+	padding: 4px 0 0 0;
+
+}
+
+
+
+#managers_panel .views-field-name,
+
+#managers_panel .views-label-field-manager-title-value {
+
+	display: none;
+
+}
+
+
+
+#managers_panel .views-field-title,
+
+#managers_panel .views-field-field-manager-title-value,
+
+#managers_panel .views-field-body,
+
+#managers_panel .views-field-name {
+
+	margin-left: 100px;
+
+}
+
+
+
+
+
+#col3 .view-jobs ul li {
+
+	background: transparent url("../../images/square_bullet.jpg") 2px 6px no-repeat;
+
+}
+
+
+
+
+
+/* Executive Search Testimonials */
+
+.view-testimonials .views-field-body p,
+
+.view-candidate-testimonials .views-field-body p,
+
+.view-client-testimonials .views-field-body p {
+
+	color: #666;
+
+	font-weight:bold;
+
+}
+
+
+
+.views-field-field-testimonial-abstract-value {
+
+	color:#333333;
+
+	font-weight:bold;
+
+}
+
+
+
+.container-offices {
+
+	width: 210px;
+
+	float: left;
+
+}
+
+
+
+#col3 .container-offices {
+
+	width: 177px;
+
+}
+
+
+
+.container-offices .spacer {
+
+	padding-right: 20px;
+
+}
+
+
+
+.gmap-control, #block-views-office_map-block_1 {
+
+	clear: both;
+
+	padding-top: 10px;
+
+}
+
+
+
+
+
+/* Sitemap 
+
+-----------------*/
+
+.site-map {
+
+
+
+}
+
+
+
+.primary-container {
+
+	float: left;
+
+	width: 395px;
+
+}
+
+
+
+/* level0 */
+
+.site-map br {
+
+	display: none;
+
+}
+
+
+
+.primary-container div {
+
+	padding-right: 25px;
+
+} 
+
+
+
+.site-map ul {
+
+	margin: 0 !important;
+
+	padding: 0 0 8px 0 !important;
+
+	list-style: none;
+
+}
+
+
+
+.site-map ul li {
+
+	background: none !important;
+
+	margin:0 !important;
+
+	padding: 0 0 5px 0 !important;
+
+}
+
+
+
+.site-map a {
+
+	border-top: 1px solid #e2e2e2;	
+
+	padding: 10px 0 8px 0;
+
+	margin: 0;
+
+	font-weight: bold;
+
+	display: block;
+
+/*	background: transparent url("../../images/navsecondary-bullet.gif") 0px 15px no-repeat;*/
+
+	font-size: 14px;
+
+}
+
+
+
+.site-map ul li a {
+
+	border: none;
+
+	padding: 0 0 0 23px;
+
+	font-weight: normal;
+
+	display: block;
+
+	background: transparent url("../../images/navsecondary-bullet2.gif") 16px 6px no-repeat;
+
+	font-size: 11px;	
+
+}
+
+
+
+
+
+/* News and Events */
+
+.view-in-the-news td.views-field-field-article-date-value,
+
+.view-press-releases td.views-field-field-press-date-value,
+
+.view-events .views-field-field-event-date-value-1,
+
+.view-events-default .views-field-field-event-date-value-1 {
+
+	width: 125px !important;
+
+	margin: 0 !important;
+
+	padding: 0 !important;
+
+}
+
+
+
+#node-268 .view-in-the-news td.views-field-title,
+
+#node-268 .view-press-releases td.views-field-title,
+
+#node-268 .view-events .views-field-title {
+
+	margin: 0 !important;
+
+	padding: 0 0 2px 10px !important;
+
+}
+
+
+
+.view-in-the-news caption,
+
+.view-press-releases caption,
+
+.view-events caption {
+
+	font-weight: bold;
+
+	font-size: 12px;
+
+	display: block;
+
+	padding-bottom: 6px;
+
+}
+
+
+
+
+
+#node-268 .view-in-the-news table.views-table,
+
+#node-268 .view-press-releases table.views-table,
+
+#node-268 .view-events table.views-table {
+
+	margin-bottom: 16px !important;
+
+}
+
+
+
+.field-type-text .field-label,
+
+.field-field-press-abstract,
+
+.field-field-press-date .field-label {
+
+	display: none;
+
+}
+
+
+
+.field-field-press-subtitle {
+
+	font-style: italic;
+
+	font-size: 12px;
+
+	padding-bottom: 16px;
+
+}
+
+
+
+.field-type-date, .field-type-date div,
+
+.field-field-press-location, field-field-press-location div {
+
+}
+
+
+
+.field-type-date {
+
+	font-weight:  bold;
+
+}
+
+
+
+.field-field-press-location {
+
+	padding-bottom: 16px;
+
+}
+
+
+
+
+
+.field-field-office-sort-order, .field-field-office-sort, .field-field-page-pdfcenter .filefield-file .filefield-icon {
+
+	display: none;
+
+}
+
+
+
+.field-field-page-pdfcenter .filefield-file a {
+
+  display: block;
+
+	padding-bottom:5px;
+
+}
+
+
+
+#recaptcha_switch_audio_btn:hover {
+
+	cursor: default;
+
+}
+
+
+
+.link_spacer {
+
+	padding-bottom: 6px;
+
+}
+
+
+
+.link_spacer a{
+
+  padding-bottom:6px;
+
+	display: block;
+
+}
+
+
+
+#webform-component-first_name,
+
+#webform-component-telephone,
+
+#webform-component-company_name
+
+{
+
+	float: left;
+
+	padding: 0 10px 0 0;
+
+}
+
+
+
+#webform-component-last_name,
+
+#webform-component-company_size 
+
+{
+
+	padding-right: 310px;
+
+	float: left;
+
+}
+
+
+
+#col2 .content .content ul li ul {
+
+  padding-top:10px;
+
+}
+
+
+
+#webform-component-email, 
+
+#webform-component-job_title,
+
+#webform-component-number_of_attendees {
+
+	clear: both;
+
+}
+
+
+
+#col3 h3 {  
+
+  border-bottom: 3px solid #e2e2e2;
+
+}
+
+
+
+.box .node-results .search-info {
+
+  display:none;
+
+}
+
+
+
+.site-map li span {
+
+	display: block;
+
+}
+
+
+
+.site-map ul.custom-sitemap li span {
+
+	padding-left: 10px;
+
+	padding-bottom: 6px;
+
+}
+
+
+
+.site-map li li {
+
+	padding-left: 6px !important;
+
+}
+
+
+
+.site-map li li span {
+
+	padding-left: 0 !important;
+
+	padding-bottom: 0 !important;	
+
+}
+
+
+
+#col2 .content .field-field-event-contact {
+
+  padding-top:10px;
+
+}
+
+
+
+.webform-admin table {
+
+  width: 100%;
+
+}
+
+
+
+.webform-admin table th {
+
+  font-weight: bold;
+
+}
+
+
+
+.webform-admin table tbody tr.even td {
+
+  background-color: #f0f0f0;
+
+}
+
+
+
+.webform-admin table td {
+
+  padding: 6px 4px 6px 4px;
+
+  background-color: #fff;
+
+}
+
+
+
+#contentBox .content.webform-admin ul li {
+
+  background:none;
+
+  line-height:15px;
+
+  list-style-image:none;
+
+  list-style-position:outside;
+
+  list-style-type:none;
+
+  margin:0;
+
+  padding:0 0 10px 12px;
+
+}
+
+
+
+#contentBox .content.webform-admin ul.secondary {
+
+  padding: 6px 0 6px 0;
+
+}
+
+
+
+#contentBox .content.webform-admin ul.secondary li {
+
+  border-right:0px;
+
+  display:inline;
+
+  padding:0 1em;
+
+}
+
+
+
+div.status
+
+{
+
+	border: 1px solid #33a333;
+
+    color: #33a333;
+
+	padding: 5px;
+
+	margin: 5px 0 5px 0;
+
+}
+
+
+
+
+
+.view-events-default .views-field-title {
+
+	padding-right: 20px !important;
+
+}
+
+
+
+#edit-submitted-job-title {  
+
+  background-color:#ebebe4 !important;
+
+  border:solid 1px !important;
+
+  border-color:#7f9db9 !important; 
+
+  cursor:default;  
+
+}

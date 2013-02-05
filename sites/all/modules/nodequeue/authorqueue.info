@@ -1,0 +1,14 @@
+; $Id: authorqueue.info,v 1.1 2008/07/30 00:59:40 juneeveek Exp $
+name = Smartqueue Author
+description = Creates a node queue for each node author
+package = Nodequeue
+dependencies[] = nodequeue
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2008-06-26
+version = "6.x-2.0-rc1"
+core = "6.x"
+project = "nodequeue"
+datestamp = "1214451312"
+

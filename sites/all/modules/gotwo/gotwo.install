@@ -1,0 +1,136 @@
+<?php
+// $Id: gotwo.install,v 1.1.6.11 2009/08/22 19:31:55 hass Exp $
+
+/**
+ * @file
+ * Installation script for the gotwo.module
+ */
+
+function gotwo_install() {
+  drupal_install_schema('gotwo');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function gotwo_uninstall() {
+  drupal_uninstall_schema('gotwo');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function gotwo_schema() {
+
+  $schema['gotwo'] = array(
+    'description' => 'Stores gotwo settings.',
+    'fields' => array(
+      'gid' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique gotwo ID.',
+      ),
+      'src' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The label used in the go url, this will automatically be made suitable.',
+      ),
+      'dst' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'The target url. Can be a relative drupal url or an absolute url.',
+      ),
+      'cnt' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'Count clicks on the link.',
+      )
+    ),
+    'unique keys' => array('src' => array('src')),
+    'primary key' => array('gid'),
+  );
+
+  /* TODO
+  'language' => array(
+    'type' => 'varchar',
+    'length' => 12,
+    'not null' => TRUE,
+    'default' => '',
+    'description' => 'Language dependend path',
+  )
+  */
+
+  return $schema;
+}
+
+/**
+ * Update the permissions table, to reflect changes to hook_perm.
+ */
+function gotwo_update_5100() {
+  $ret = array();
+
+  $res = db_query('SELECT rid, perm FROM {permission}');
+  $perms = array();
+  while ($p = db_fetch_object($res)) {
+    $perm = $p->perm;
+    $perm = preg_replace('/Administrative Settings/', 'administer gotwo', $perm);
+    $perm = preg_replace('/view entry list/', 'view gotwo entries', $perm);
+    $perm = preg_replace('/edit entries/', 'edit gotwo entries', $perm);
+    $perms[$p->rid] = $perm;
+  }
+
+  foreach ($perms as $key => $value) {
+    db_query("UPDATE {permission} SET perm = '%s' WHERE rid = %d", $value, $key);
+  }
+
+  return $ret;
+}
+
+/**
+ * Update the permissions table, to reflect changes to hook_perm.
+ */
+function gotwo_update_6100() {
+  $ret = array();
+
+  $res = db_query('SELECT rid, perm FROM {permission}');
+  $perms = array();
+  while ($p = db_fetch_object($res)) {
+    $perm = $p->perm;
+    $perm = preg_replace('/view gotwo entries/', 'view gotwo redirects', $perm);
+    $perm = preg_replace('/edit gotwo entries/', 'edit gotwo redirects', $perm);
+    $perms[$p->rid] = $perm;
+  }
+
+  foreach ($perms as $key => $value) {
+    db_query("UPDATE {permission} SET perm = '%s' WHERE rid = %d", $value, $key);
+  }
+
+  return $ret;
+}
+
+/**
+ * Change 'gid' column to auto increment.
+ */
+function gotwo_update_6101() {
+  $ret = array();
+
+  db_change_field($ret, 'gotwo', 'gid', 'gid', array('type' => 'serial', 'not null' => TRUE));
+
+  return $ret;
+}
+
+/**
+ * Extend the length of 'dst' column to 255.
+ */
+function gotwo_update_6102() {
+  $ret = array();
+
+  db_change_field($ret, 'gotwo', 'dst', 'dst', array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''));
+
+  return $ret;
+}

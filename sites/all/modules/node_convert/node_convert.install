@@ -1,0 +1,33 @@
+<?php
+// $Id: node_convert.install,v 1.1.2.1 2009/05/01 21:30:03 placinta Exp $
+
+/**
+ * @file
+ * The node_convert install file.
+ *
+ * Installs necesarry tables for correct node_convert functionality
+ */
+
+function node_convert_schema() {
+  $schema['node_convert_templates'] = array(
+    'fields' => array(
+         'ctid' => array('type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE),
+         'name' => array('type' => 'text', 'size' => 'small'),
+         'source_type' => array('type' => 'text', 'size' => 'small', 'not null' => FALSE),
+         'destination_type' => array('type' => 'text', 'size' => 'small', 'not null' => TRUE),
+         'data' => array('type' => 'text', 'size' => 'medium')),
+    'primary key' => array('ctid'),
+  );
+  return $schema;
+}
+
+function node_convert_install() {
+  // Create my tables.
+  drupal_install_schema('node_convert');
+}
+
+function node_convert_uninstall() {
+  // Drop my tables.
+  drupal_uninstall_schema('node_convert');
+  db_query("DELETE FROM {actions} WHERE callback = 'node_convert_convert_action");
+}

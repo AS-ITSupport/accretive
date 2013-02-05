@@ -1,0 +1,38 @@
+; $Id: accretivesolutions.info,v 1.5 2008/12/06 16:51:13 iikka Exp $
+
+name = Accretive Solutions
+description = Theme for Accretive Solutions' new web site.
+version = VERSION
+core = 6.x
+engine = phptemplate
+
+stylesheets[screen][] = includes/css/reset.css
+stylesheets[screen][] = includes/css/layout.css
+stylesheets[screen][] = includes/css/navigation.css
+stylesheets[screen][] = includes/css/content.css
+stylesheets[screen][] = includes/css/home.css
+stylesheets[screen][] = includes/css/nice_menus.css
+stylesheets[print][] = includes/css/print.css
+
+regions[header] = Header
+regions[left] = Left sidebar
+regions[right] = Right sidebar
+regions[content] = Content
+regions[utility] = Utility
+regions[footer] = Footer
+regions[footer_right] = Footer Right
+regions[home_feature] = Home Featured Area
+regions[home_promotional] = Home Promotional Area
+regions[home_news] = Home News Area
+regions[home_column] = Home Column Area
+
+scripts[] = includes/js/jquery_actions.js
+scripts[] = includes/js/nice_menus.js
+scripts[] = includes/js/AC_RunActiveContent.js
+
+; Information added by drupal.org packaging script on 2008-10-11
+version = "6.x-2.1"
+core = "6.x"
+project = "accretivesolutions"
+datestamp = "1223762115"
+

@@ -1,0 +1,5 @@
+/* $Id: bullets-rtl.css,v 1.1 2009/07/24 08:18:32 jessem Exp $ */
+
+ul.quicktabs_tabs.quicktabs-style-bullets li{
+  float: right;
+}

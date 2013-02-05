@@ -1,0 +1,799 @@
+<?php //$Id: bones.module,v 1.1.4.13 2009/03/23 21:48:34 usonian Exp $
+
+/**
+ * @file
+ * Allows users to rapidly built out menus and nodes via YAML import.
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function bones_menu() {
+
+  $items['admin/build/bones'] = array(
+    'title' => 'Bones',
+    'description' => 'Build out nodes &amp; menu items by importing YAML',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bones_form'),
+    'access callback' => 'bones_access',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  
+  $items['admin/build/bones/import'] = array(
+    'title' => 'Import',
+    'description' => 'Build out nodes &amp; menu items by importing YAML',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bones_form'),
+    'access callback' => 'bones_access',
+    'type' => MENU_DEFAULT_LOCAL_TASK    
+  );
+  
+  $items['admin/build/bones/past'] = array(
+    'title' => 'Past Imports',
+    'description' => 'View and delete previous imported nodes.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bones_batch_list', arg(4)),
+    'access callback' => 'bones_access',  
+    'type' => MENU_LOCAL_TASK
+  );
+  
+  $items['admin/build/bones/details_js/%'] = array(
+    'page callback' => 'bones_batch_details_js',
+    'page arguments' => array(4),
+    'access callback' => 'bones_access',
+    'type' => MENU_CALLBACK
+  );
+
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function bones_theme() {
+  return array(
+    'bones_batch_list' => array(
+      'arguments' => array('form'),
+      'function' => 'theme_bones_batch_list',
+    ),
+    'bones_batch_details' => array(
+      'arguments' => array(),
+      'function' => 'theme_bones_batch_details'
+    )
+  );
+}
+
+/**
+ * Specifies access control for bones menu.
+ */
+function bones_access() {
+  return user_access('access administration pages') && user_access('administer menu') && user_access('administer nodes');
+}
+
+/**
+ * Implementation of hook_help().
+ */
+function bones_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#bones':
+      return t('<p>The Bones module allows you to rapidly build out the bare structure of a site by importing a YAML file containing an outline of the menu structure and page titles you want to set up.</p>
+<h3>Purpose</h3>
+      <p>Bones was created to bypass the tedious process of manually adding nodes, expanding the Menu Settings fieldset, entering a menu title, choosing a parent item and weight and submitting for each page on a mostly "static" site. YAML provides a relatively lightweight way to construct a site outline, and using that outline Bones can build out a skeletal site structure in one step.</p>
+<h3>Setup</h3>
+      <p>In order to use Bones, a user must have three permissions: <tt>access administration pages</tt>, <tt>administer menu</tt>, and <tt>administer nodes</tt>.</p>
+	  <p>Bones also requires the SPYC YAML parser, which is available separately.  Download SPYC from <a href="http://spyc.sourceforge.net/">http://spyc.sourceforge.net/</a> and unzip it into the Bones module directory.</p>
+
+<h3>Usage</h3>
+      <p>Bones provides a single form for importing data, which can be found under Administer > Site Building > Bones, (<tt>!bones</tt>).</p>
+      <p>Upon uploading the YAML file, the Bones module will create stub nodes and build menu items pointing to them.</p>
+      <p>If the !path module is enabled, you may provide path aliases for each item in your outline, or let Bones generate them for you. (If Bones finds that a path already exists in the system, it creates a menu link to the existing path rather than creating a stub node for it.)</p>
+      <p>A sample Bones import file might look like this:
+      <code><pre>
+-title: Products
+ name: hiro
+ -title: WidgetMaster 2008 Lite
+ -title: WidgetMaster 2008 Pro
+-title: News
+ -title: WidgetMaster 2008 Wins Prestigious Award
+  type: story
+-title: About Us
+  path: about
+ -title: History
+  body: Brief company history goes here
+ -title: The Team
+  -title: John P Hackworth, President
+  -title: Randy Waterhouse, VP of Engineering
+  -title: Eliza, Chief Financial Officer
+-title: Contact Us
+ path: contact
+-title: Map & Directions
+      </pre></code>
+      </p>
+<p>Each item in the outline must minimally provide a <tt>title</tt>, but as shown above you may also provide additional attributes.</p>
+<dl>
+<dt>name</dt>
+<dd>If you want a node to be attributed to a specific user on your Drupal site, set the <tt>name</tt> attribute with their Drupal user name.
+<dt>type</dt>
+<dd>This may be the machine-friendly name of any content type currently available on your Drupal site.</dd>
+<dt>path</dt>
+<dd>By default, Bones will attempt to automatically build Path aliases for you, but you can override that by providing the <tt>path</tt> attribute.  This is useful if you want to link to an existing node or path provided by another module, such as the site contact form in the example above.</dd>
+<dt>body</dt>
+<dd>You may also provide some stub content using the <tt>body</tt> attribute.  Theoretically you should be able to import as much content as you like if it remains on one line, but this has not been tested.</dd>
+</dl>
+<p>In fact, Bones will attempt to add any attribute you provide to the nodes it creates, so in theory you should also be able to set other attributes such as publication date, status, front page promotion, et cetera, but this has not been tested.</p>
+', array('!path' => l('Path', 'admin/help/path'), '!bones' => l('admin/build/bones', 'admin/build/bones')));
+  }
+}
+
+/**
+ * Get the import form
+ **/
+function bones_form() {
+
+  $form = array();
+  $form['helplink'] = array(
+    '#type' => 'markup',
+    '#value' => l('Help', 'admin/help/bones'),
+    '#prefix' => '<div id="bones-help-link">',
+    '#suffix' => '</div>'
+  );
+  //Check for existence of spyc library, and exit with error message if missing
+  //TODO provide link to sourceforge project space, example directory structure
+  if (!file_exists(drupal_get_path('module', 'bones') .'/spyc/spyc.php')) {
+    $form['spyc_error'] = array(
+      '#type' => 'item',
+      '#title' => t("SPYC library not found"),
+      '#value' => '<span class="error">'. t("The SPYC YAML parsing library does not appear to be installed.  Please download and unzip Spyc into the Bones module directory.") .'</span>'
+    );
+    return $form;
+  }
+
+  //Load the module JS & CSS
+  drupal_add_css(drupal_get_path('module', 'bones') .'/bones.css');
+  drupal_add_js(drupal_get_path('module', 'bones') .'/bones.js');
+
+  $form['import'] = array(
+   '#type' => 'file',
+   '#size' => '20',
+   '#title' => t('YAML file to import'),
+   '#description' => t('Select a YAML file representing an outline of the page structure you wish to import.'),
+  );
+
+  $form['menu'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Menu Options'),
+    '#collapsed' => FALSE,
+  );
+
+  $form['menu']['option'] = array(
+    '#type' => 'radios',
+    '#options' => array(
+      'existing' => t('Create new menu items under an existing menu item.'),
+      'createnew' => t('Create new menu items under a new menu.'),
+      'none'  => t("Don&apos;t create menu items; Just create nodes.")
+    ),
+    '#default_value' => 'existing',
+    '#attributes' => array(
+      'onclick' => 'bones_toggle_menu_option()'
+    )
+  );
+
+  // Generate a list of possible parents (not including this item or descendants).
+  $options = menu_parent_options(menu_get_menus(), 0);
+  $form['menu']['plid'] = array(
+    '#type' => 'select',
+    '#title' => t('Parent for imported menu items'),
+    '#default_value' => 'primary-links:0',
+    '#options' => $options,
+    '#description' => t('To import nodes under an existing menu item, choose it here.'),
+    '#prefix' => '<div id="bones-plid">',
+    '#suffix' => '</div>'
+  );
+
+  $form['menu']['new'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Create a New Menu'),
+    '#prefix' => '<div id="bones-newmenu">',
+    '#suffix' => '</div>'
+  );
+  
+  $form['menu']['new']['menu_name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Menu name'),
+    '#maxsize' => MENU_MAX_MENU_NAME_LENGTH_UI,
+    '#description' => t('The machine-readable name of this menu. This text will be used for constructing the URL of the <em>menu overview</em> page for this menu. This name must contain only lowercase letters, numbers, and hyphens, and must be unique.'),
+  );
+  
+  $form['menu']['new']['title'] = array(
+    '#type' => 'textfield',
+        '#size' => '20',
+    '#title' => t('New Menu Name'),
+  );
+  
+  $form['menu']['new']['description'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Description'),
+  );
+
+  $form['node_options'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Node Options'),
+  );
+
+  $form['node_options']['default_type'] = array(
+    '#title' => t('Default node type'),
+    '#type' => 'select',
+    '#options' => node_get_types('names'),
+    //'#options' => array('test' => 'Test'),
+    '#description' => t('Unless otherwise specified in the import file, this type will be used to create the imported nodes.'),
+    '#default_value' => 'page'
+  );
+
+  
+  if (function_exists('path_set_alias')) {
+    $path_disabled = FALSE;
+    $path_extra_description = '';
+  }
+  else {
+    $path_disabled = TRUE;
+    $path_extra_description = ' <span class="error">'. t("(The <strong>Path</strong> module must be enabled to use this feature)") .'</span>';
+
+  }
+  
+  $form['node_options']['format'] = filter_form();
+
+  $form['node_options']['create_paths'] = array(
+    '#title' => t('Automatic Aliases'),
+    '#type' => 'checkboxes',
+    '#options' => array(TRUE => t('Create nested path aliases based on imported node titles')),
+    '#description' => t('If checked, nested path aliases will be generated based on the titles of imported nodes.  For example, if you have a node titled "Executive Team" that is a child of another node titled "About Us", it will receive an alias of <tt>aboutus/executiveteam</tt>.  If path information is provided in your YAML outline, that will be used instead.') . $path_extra_description,
+    '#disabled' => $path_disabled,
+    '#default_value' => array(TRUE)
+  );
+  
+  if (function_exists('devel_generate_menu') && user_access('')) {
+    $dummy_disabled = FALSE;
+    $dummy_extra_description = '';
+  }
+  else {
+    $dummy_disabled = TRUE;
+    $dummy_extra_description = ' <span class="error">'. t("(The <strong>Devel generate</strong> module must be enabled to use this feature)") .'</span>';
+  }
+  
+  $form['node_options']['dummy'] = array(
+    '#title' => t('Dummy Text'),
+    '#type'  => 'checkboxes',
+    '#options' => array(TRUE => t('Create dummy text for imported nodes')),
+    '#description' => t('If checked, imported nodes without a "body" attribute will be populated with dummy text.') . $dummy_extra_description,
+    '#disabled' => $dummy_disabled,
+    '#default_value' => array(FALSE)
+  );
+  
+  
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Import')
+  );
+
+  $form['#attributes'] = array(
+    'enctype' => 'multipart/form-data'
+  );
+  return $form;
+}
+
+/**
+ * Submit handler for the Bones import form.  Processes uploaded YAML file and creates stub nodes and menu items.
+ *
+ * @param string $form_id
+ * @param Array $form_values
+ * @return string
+ */
+function bones_form_submit($form, &$form_state) {
+
+  require_once('spyc/spyc.php');
+
+  $file = file_save_upload('import');
+
+  //Handle parameters
+  $add_menu_items = FALSE;
+  $plid = NULL;
+  $create_paths = $form_state['values']['create_paths'][1];
+  $default_type = $form_state['values']['default_type'];
+  $format = $form_state['values']['format'];
+  $dummy = $form_state['values']['dummy'][1];
+
+  //Include menu admin functions
+  require_once(drupal_get_path('module', 'menu') .'/menu.admin.inc');
+  
+  if ($form_state['values']['option'] == 'createnew'  && !empty($form_state['values']['title'])) {
+    $add_menu_items = TRUE;
+
+    //Create the new menu and store its ID
+    $menu = array(
+      'title' => $form_state['values']['title'],
+      'menu_name' => $form_state['values']['menu_name'],
+      'description' => $form_state['values']['description']
+    );
+    $form_state = array('values' => $menu);
+    drupal_execute('menu_edit_menu', $form_state, '');    
+
+    $menu_name = 'menu-'. $form_state['values']['menu_name']; //(The system prepends menu- to custom menu names)
+    $plid = 0;
+
+  }
+  elseif ($form_state['values']['option'] == 'existing') { //plid will always be set to something, so if other options are empty, go with this one
+    $add_menu_items = TRUE;
+    $parent_info = split(':', $form_state['values']['plid']);
+    $plid = $parent_info[1];
+    $menu_name = $parent_info[0];
+  }//No else necessary for ['option']['none']; $add_menu_items is FALSE by default
+
+  $yaml = Spyc::YAMLLoad($file->filepath);
+
+  _bones_build_bones($yaml, '', $plid, $menu_name, NULL, $add_menu_items, $create_paths, $default_type, $format, $dummy);
+
+  bones_store_batch();
+  
+  //Rebuild menus
+  menu_rebuild();
+
+  if (count($_SESSION['bones_imported_nids'])) {
+    drupal_set_message('!count nodes imported.', array('!count' => count($_SESSION['bones_imported_nids'])));
+  }
+  return ('admin/build');
+}
+
+/**
+ * Validation function for the Bones form. Mostly borrowed from menu_edit_menu_validate() in menu.admin.inc
+ *
+ * @param array $form
+ * @param array $form_state
+ */
+function bones_form_validate($form, &$form_state) {
+  
+  if (empty($_FILES['files']['name']['import'])) {
+    form_set_error('files][import', t('Please choose a file to import.'));
+  }
+  //TODO: Write conditional blocks to validate new menu/existing menu selections as appropriate (If user wants a new menu, validate the menu_name and title fields, etc)
+  //TODO: Add logic to alter the form state to make the appropriate fieldsets visible based on menu option selections
+  
+  $item = $form_state['values'];
+  if (preg_match('/[^a-z0-9-]/', $item['menu_name'])) {
+    form_set_error('new][menu_name', t('The menu name may only consist of lowercase letters, numbers, and hyphens.'));
+  }
+  if (strlen($item['menu_name']) > MENU_MAX_MENU_NAME_LENGTH_UI) {
+    form_set_error('new][menu_name', format_plural(MENU_MAX_MENU_NAME_LENGTH_UI, "The menu name can't be longer than 1 character.", "The menu name can't be longer than @count characters."));
+  }
+  $count = db_result(db_query("SELECT COUNT(menu_name) AS name_exists FROM {menu_custom} WHERE menu_name = '%s'", $item['menu_name'])); 
+  if($count) {
+    form_set_error('new][menu_name', t("A menu with the name @menu_name already exists.  Please use a different menu name.", array('@menu_name' => $item['menu_name'])));    
+  }
+  
+}
+
+/**
+ * Displays a list of prior import batches with batch editing options
+ * @return unknown_type
+ */
+function bones_batch_list($form_state, $bid = 0) {
+  
+  if ($bid != 0) { //If a batch ID has been passed via the URL, display the batch details form instead
+    return bones_batch_details(array(), $bid);
+  }
+  
+  if ($form_state['values']['operation'] == 'delete' && $form_state['values']['confirm'] != 1) {
+    //The only time this form will be rebuilt is to display the confirmation dialog:
+    $form = confirm_form($form,
+                t('Are you sure you want to delete these nodes and batches?'),
+                'admin/build/bones/past', t('This action cannot be undone.'),
+                t('Delete all'),
+                t('Cancel'));
+    $form['operation'] = array('#type' => 'hidden', '#value' => 'delete');
+    $form['#submit'][] = 'bones_batch_list_submit';  
+    $form_state['storage']['batches'] = $form_state['values']['batches'];   
+    $form_state['rebuild'] = FALSE;
+  }
+  else{
+
+    drupal_add_css(drupal_get_path('module', 'bones') .'/bones.css');
+    drupal_add_js(drupal_get_path('module', 'bones') .'/bones.js');    
+    $form = array();
+    
+    $count = db_result(db_query('SELECT COUNT(bid) AS count FROM {bones_imports}'));
+    
+    $form['options'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Update options'),
+      '#prefix' => '<div class="container-inline">',
+      '#suffix' => '</div>',
+    );
+  
+    //TODO: Implement support for hook_node_operations to build operation menu?
+    $options = array(
+      'publish'   => t('Publish nodes in Batch'),
+      'unpublish' => t('Unpublish nodes in Batch'),
+      'delete'    => t('Delete nodes in Batch')
+    );
+    $form['options']['operation'] = array(
+      '#type' => 'select',
+      '#options' => $options,
+      '#default_value' => 'approve',
+    );
+    $form['options']['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Update'),
+      '#submit' => array('bones_batch_list_submit'),
+    );
+    
+    $result = db_query("SELECT bid, bi.data, bi.uid, u.name, bi.created, bi.count FROM {bones_imports} bi LEFT JOIN {users} u ON bi.uid = u.uid ORDER BY `created` DESC");
+    
+    while ($batch = db_fetch_object($result)) {
+      $batches[$batch->bid] = '';
+      $form['import_date'][$batch->bid] = array('#value' => format_date($batch->created));     
+      $form['username'][$batch->bid]    = array('#value' => theme('username', $batch));
+      //$form['node_count'][$batch->bid]  = array('#value' =>  l($batch->count, 'admin/build/bones/past', array('attributes' => array('title' => t('View details for this import'), 'onclick' => 'bones_batch_details('. $batch->bid .');return false;'))));
+      $form['batch_details'][$batch->bid] = array(
+        '#type' => 'button',
+        '#value' => t('Details'),
+        '#ahah' => array(
+          'event' => 'click',
+          'method' => 'replace',
+          'path' => 'admin/build/bones/details_js/'. $batch->bid,
+          'wrapper' => 'bones-batch-detail',
+          'progress' => array('type' => 'bar', 'message' => '')
+        ),
+        '#attributes' => array('onclick' => 'bones_details_center()', 'class' => 'bones-details-button')
+      );
+    }
+    
+    $form['batches'] = array('#type' => 'checkboxes', '#options' => $batches);
+    $form['pager'] = array('#value' => theme('pager', NULL, 25, 0));
+    
+    $form['detail'] = array(
+      '#type' => 'markup',
+      '#value' => '<div id="bones-batch-detail"></div><div id="bones-detail-mask"></div>'
+    );
+    
+    $form['#theme'] = 'bones_batch_list';
+      
+        
+  }
+
+  
+
+  return $form;
+}
+
+/**
+ * Validate the batch list admin form.
+ * @param array $form
+ * @param array $form_state
+ * @return void
+ */
+function bones_batch_list_validate($form, $form_state) {
+  if (isset($form_state['values']['batches']) && !count(array_filter($form_state['values']['batches']))) {
+    form_set_error('batches', t('You need to select at least one batch.'));
+  }
+}
+
+/**
+ * Process bones_batch_list form submissions.
+ * 
+ * Execute the chosen 'Update option' on the selected batches.
+ */
+function bones_batch_list_submit($form, &$form_state) {
+
+  switch ($form_state['values']['operation']) {
+    case 'publish': //Loop through selected batches and publish constituent nodes
+      
+      // Filter out unchecked batches
+      $batches = array_filter($form_state['values']['batches']);
+      
+      $node_count = 0;
+      foreach($batches as $bid) {
+        $result = db_query("SELECT {data} FROM {bones_imports} WHERE bid = %d", $bid);
+        
+        while ($row = db_fetch_array($result)) {
+          $batch = unserialize($row['data']);
+          
+          foreach($batch as $nid) {
+            $node = node_load(array('nid' => $nid));
+            $node->status = 1;
+            $node = node_submit($node);
+            node_save($node);
+            $node_count++;
+          }          
+        }        
+      }
+      
+      drupal_set_message(t("!node_count nodes were published.", array('!node_count' => $node_count)));
+      
+      break;
+    case 'unpublish': //Loop through selected batches and unpublish constituent nodes
+
+      // Filter out unchecked batches
+      $batches = array_filter($form_state['values']['batches']);
+      
+      $node_count = 0;
+      foreach($batches as $bid) {
+        $result = db_query("SELECT {data} FROM {bones_imports} WHERE bid = %d", $bid);
+        
+        while ($row = db_fetch_array($result)) {
+          $batch = unserialize($row['data']);
+          
+          foreach($batch as $nid) {
+            $node = node_load(array('nid' => $nid));
+            $node->status = 0;
+            $node = node_submit($node);
+            node_save($node);
+            $node_count++;
+          }          
+        }        
+      }
+
+      drupal_set_message(t("!node_count nodes were unpublished.", array('!node_count' => $node_count)));
+      
+      break;
+    case 'delete': 
+      if ($form_state['values']['confirm'] == 1) { //Delete selected batches and nodes
+        
+        $batches = array_filter($form_state['storage']['batches']);
+        
+        foreach($batches as $bid) {
+          $result = db_query("SELECT {data} FROM {bones_imports} WHERE bid = %d", $bid);
+          
+          while ($row = db_fetch_array($result)) {
+            $batch = unserialize($row['data']);
+            
+            foreach($batch as $nid) {
+              node_delete($nid);
+            }       
+
+            db_query("DELETE FROM {bones_imports} WHERE bid = %d", $bid);
+            
+          }        
+        }
+      }
+      else { //Rebuild and display delete confirmation
+        $form['#submit'] = array('bones_batch_delete_confirm_submit');
+        $form_state['rebuild'] = TRUE;
+        $form_state['storage'] = $batches;        
+      }
+
+
+  }
+}
+
+
+
+function bones_batch_details_js($bid) {
+  $result = db_query("SELECT bid, bi.data, bi.uid, u.name, bi.created, bi.count FROM {bones_imports} bi LEFT JOIN {users} u ON bi.uid = u.uid WHERE bid = %d ORDER BY `created` DESC", $bid);
+  if (!$result) {
+    drupal_json(array('status' => false, 'data' => t("The specified batch could not be found.")));
+  }
+  else {
+    $batch = db_fetch_object($result);
+    $data = unserialize($batch->data);
+    $batch->nodes = array();
+    foreach($data as $nid) {
+      $node = node_load($nid);
+      $batch->nodes[$nid] = $node->title;
+    }
+    drupal_json(array('status' => TRUE, 'data' => theme('bones_batch_details', $batch)));    
+  }
+
+}
+
+/**
+ * Creates a record in the {bones_imports} table which stores information about import batches.
+ * @return void
+ */
+function bones_store_batch() {
+  //Store a batch record for this import if any nodes were created
+  if (count($_SESSION['bones_imported_nids'])) {
+    $record = new stdClass;
+    $record->uid = $GLOBALS['user']->uid;
+    $record->created = time();
+    $record->count = count($_SESSION['bones_imported_nids']);
+    $record->data = serialize($_SESSION['bones_imported_nids']); 
+    drupal_write_record('bones_imports', $record);
+    watchdog('bones', 'Added bones import batch data with id %id.', array('%id' => $record->bid));    
+  }
+  unset($_SESSION['bones_imported_nids']); 
+}
+
+/**
+ * Recursively parse the data structure and create new Page nodes and Menu items
+ *
+ * @param Array $input
+ * @param string $parent_path
+ * @param int $plid
+ * @param string $menu_name
+ * @param int $weight
+ * @param boolean $add_menu_items
+ * @param boolean $create_paths
+ * @param string $default_type
+ * @param int $format
+ * @param bool $dummy
+ * @return void
+ * 
+ * //TODO: Group some args into an array; it's getting messy
+ */
+function _bones_build_bones($input, $parent_path = '', $plid = 0, $menu_name = 'primary-links', $weight = 0, $add_menu_items = TRUE, $create_paths = TRUE, $default_type = 'page', $format = null, $dummy = FALSE) {
+  /* At a minimum, the incoming array will have the following key(s): 'title',
+  * and optional keys: 'path', 'body'.  Once all fields have been checked for,
+  * the new page and menu item will be created.  If array key [0] exists,
+  * the function will be re-called with the new menu ID as $plid.
+  */
+  
+  if (!is_array($input)) {
+    return FALSE;
+  }
+  
+  //track nids of newly created nodes
+  if (!(isset($_SESSION['bones_imported_nids']))) {
+    $_SESSION['bones_imported_nids'] = array();
+  }
+  
+  if(is_null($format)) {
+    $format = FILTER_FORMAT_DEFAULT;
+  }
+  
+  $node = new stdClass();
+  $node->format = $format;
+  $node->weight = $weight;
+  if (empty($input['type'])) {
+    $node->type = $default_type;
+  }
+  if (empty($input['name'])) {
+    $node->name = $GLOBALS['user']->name;
+  }
+  
+  if (empty($input['body']) && $dummy) {
+    require_once(drupal_get_path('module', 'devel_generate') .'/devel_generate.inc');
+    $node->body = devel_create_content(4);
+  }
+  
+  $children = array();
+  //Optional keys
+
+  $has_path = FALSE;
+  foreach (array_keys($input) as $key) {
+    $val = $input[$key];
+
+    if (preg_match('/\d+/', $key)) { //Numeric keys are child pages; save them for last
+      $children[] = $val;
+    }
+    else {
+      if ($key == 'path') {
+        $new_path = $val;
+        $node->$key = $new_path;
+        $parent_path = $new_path;
+        $has_path = TRUE;
+      }
+      else {
+        $node->$key = $input[$key];
+      }
+    }
+  }
+
+  if ($has_path == FALSE) {
+    $path = drupal_strtolower(preg_replace('`[^a-z0-9]`i', '', $node->title));
+
+    $new_path = $parent_path <> '' ? "$parent_path/$path" : $path;
+    $node->path = $new_path;
+    $parent_path = $new_path;
+  }
+
+  //Unset the path if the user doesn't want it
+  if ($create_paths == FALSE) {
+    unset($node->path);
+  }
+
+  //Create new node, path and menu item
+  if (!empty($node->title)) {
+
+    //Don't create new nodes for existing paths -TODO: make this an optional setting?
+    if (!drupal_lookup_path('alias', $node->path) && !drupal_lookup_path('source', $node->path)) { //Is there a more efficient way to make this check?
+      $node = node_submit($node);
+      node_save($node);
+      $_SESSION['bones_imported_nids'][] = $node->nid;
+      
+      if (!isset($node->path)) {
+        $node->path = 'node/'. $node->nid;
+      }
+      drupal_set_message(t('The %type "%title" was added.', array('%type' => $node->type, '%title' => $node->title)));
+    }
+    else {
+      drupal_set_message(t("The path %path already exists in the system.  No node was created.", array('%path' => $node->path)));
+    }
+
+    if ($add_menu_items) {
+      $item = array(
+        'link_path' => 'node/'. $node->nid, //Use the "normal" path here, or the item won't get created: http://drupal.org/node/337777#comment-1177598
+        'plid' => $plid,
+        'link_title' => $node->title,
+        'menu_name' => $menu_name,
+        'weight' => $weight
+      );
+      $plid = menu_link_save($item);
+    }
+  }
+  
+  if (count($children) > 0) {
+    $weight = -10;
+    foreach ($children as $child) {
+      _bones_build_bones($child, $parent_path, $plid, $menu_name, $weight++, $add_menu_items, $create_paths, $default_type, $format, $dummy);
+    }
+  }
+}
+
+/**
+ * Theme bones batch administration overview.
+ *
+ * @ingroup themeable
+ */
+function theme_bones_batch_list($form) {
+  // If there are rows in this form, 
+  // then $form['import_date'] contains a list of
+  // the date form elements.
+  $has_batches = isset($form['import_date']) && is_array($form['import_date']);
+  $select_header = $has_batches ? theme('table_select_header_cell') : '';
+
+  $header = array($select_header, t('Date'), t('User'), array('data' => '&nbsp;', 'class' => 'bones-batch-details'));
+
+  $output .= drupal_render($form['options']);
+  if ($has_batches) {
+    $rows = array();
+    foreach (element_children($form['import_date']) as $key) {
+      $row = array();
+      $row[] = drupal_render($form['batches'][$key]);
+      $row[] = drupal_render($form['import_date'][$key]);
+      $row[] = drupal_render($form['username'][$key]);
+      $row[] = drupal_render($form['batch_details'][$key]);
+      $rows[] = $row;
+    }
+  }
+  else {
+    $rows[] = array(array('data' => t('There are no imports in the system.'), 'colspan' => '3'));
+  }
+
+  $output .= theme('table', $header, $rows);
+  if ($form['pager']['#value']) {
+    $output .= drupal_render($form['pager']);
+  }
+
+  $output .= drupal_render($form);
+
+  return $output;
+}
+
+function theme_bones_batch_details($batch) {
+ 
+ $has_empty = FALSE;
+ $output = '<div class="bones-detail-inner">';
+ $output .= l(t('[Close]'), 'admin/build/bones/past', array('attributes' => array('onclick' => '$("#bones-batch-detail").empty();$("#bones-detail-mask").hide();return false;', 'class' => 'bones-detail-close'))); 
+ $output .= '<h1>'. t("Details for Bones Import #!bid", array('!bid' => $batch->bid)) ."</h1>\n";
+ $output .= "<dl>\n\t<dt>". t('Date') ."</dt>\n\t<dd>". format_date($batch->created) ."</dd>\n\t";
+ $output .= "<dt>". t("User") ."</dt>\n\t<dd>". theme('username', $batch) ."</dd>\n\t";
+ $output .= "<dt>". t("Nodes") ."</dt>\n\t<dd>\n\t\t<ul>\n";
+ foreach ($batch->nodes as $nid => $title) {
+   if (empty($title)) {
+     $title = '<span class="bones-not-found">'. t("(Node %nid not found)", array('%nid' => $nid)) .'<sup>*</sup></span>';
+     $has_empty = TRUE;
+   }
+   else {
+     $title = l($title, 'node/'. $nid);
+   }
+   $output .= "\t\t\t<li>". $title ."</li>\n";
+ }
+ $output .= "</ul>\n\t\t</dd>\n\t";
+ $output .= '</dl>';
+ if ($has_empty) {
+   $output .= '<div class="description"><sup>*</sup>'. t("Missing nodes may have been deleted since the original import was performed.") .'</div>';
+ }
+ $output .= '</div>';
+
+ return $output;
+}

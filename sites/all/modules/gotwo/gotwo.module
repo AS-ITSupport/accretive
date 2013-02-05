@@ -1,0 +1,349 @@
+<?php
+// $Id: gotwo.module,v 1.8.2.19 2009/08/26 18:53:11 hass Exp $
+
+/**
+ * @file
+ * Module that provides easy to use redirection links. A redirection link
+ * would be like:
+ *  http://examples.org/go/a_label
+ *  http://examples.org/go/123546
+ *  http://examples.org/go/or/like/this
+ *
+ * It's much like url aliases except these are redirects
+ */
+
+define('GOTWO_CREATE', 1);
+
+/**
+ * Implementation of hook_perm
+ */
+function gotwo_perm() {
+  return array('view gotwo redirects', 'edit gotwo redirects', 'administer gotwo');
+}
+
+/**
+ * Implementation of hook_help
+ */
+function gotwo_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#gotwo':
+      return gotwo_filter_tips(0, '', TRUE);
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_filter_tips().
+ */
+function gotwo_filter_tips($delta, $format, $long = FALSE) {
+  switch ($delta) {
+    case 0:
+      if (!$long) {
+        return t('You can use the &lt;go&gt; tags just like the &lt;a&gt; for nicer urls.');
+      }
+      else {
+        return '<p>'. t('You can use the &lt;go&gt; tags just like the &lt;a&gt;. The url will be rewritten to in internal URL that will eventually redirect the user to the given url. Depending on the settings the url will contain an identifying label constructed from the provided url. Alternatively you can provide a label by means of the "title" argument.') .'</p><p>'. t('For example: <pre>&lt;go href="http://example.org/some/page"&gt;Some page example&lt;/go&gt;</pre> produces: <pre>&lt;a href="go/example.com/some/page"&gt;Some page example&lt;/a&gt;</pre>Or like this:<pre>&lt;go href="http://example.com/some/page" title="Some page"&gt;Some page example&lt;/go&gt;</pre> produces: <pre>&lt;a href="go/some_page" title="Some page"&gt;Some page example&lt;/a&gt;</pre>') .'</p>';
+      }
+      break;
+  }
+}
+
+/**
+ * Implementation of hook_menu
+ */
+function gotwo_menu() {
+
+  $items['go'] = array(
+    'page callback' => '_gotwo_do_redir',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/build/gotwo'] = array(
+    'title' => 'Go redirects',
+    'description' => 'You can use the &lt;go&gt; tags just like the &lt;a&gt; for nicer urls.',
+    'page callback' => '_gotwo_list',
+    'access arguments' => array('view gotwo redirects'),
+    'file' => 'gotwo.admin.inc',
+  );
+  $items['admin/build/gotwo/list'] = array(
+    'title' => 'List',
+    'access arguments' => array('view gotwo redirects'),
+    'file' => 'gotwo.admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  $items['admin/build/gotwo/add'] = array(
+    'title' => 'Add redirect',
+    'description' => 'Add a new Go redirect',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('gotwo_add_form'),
+    'access arguments' => array('edit gotwo redirects'),
+    'file' => 'gotwo.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+  $items['admin/build/gotwo/delete/%gotwo'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('gotwo_delete_form', 4),
+    'access arguments' => array('edit gotwo redirects'),
+    'file' => 'gotwo.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/build/gotwo/reset/%gotwo'] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('gotwo_reset_form', 4),
+    'access arguments' => array('edit gotwo redirects'),
+    'file' => 'gotwo.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/settings/gotwo'] = array(
+    'title' => 'Go settings',
+    'description' => 'Configure URL parameters and disclaimer options',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('gotwo_admin_settings_form'),
+    'access arguments' => array('administer gotwo'),
+    'file' => 'gotwo.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Menu helper function to verify if gotwo id exists.
+ */
+function gotwo_load($gid) {
+  return db_fetch_object(db_query("SELECT * FROM {gotwo} WHERE gid = %d", $gid));
+}
+
+/**
+ * Redirect the user to the given location
+ */
+function _gotwo_do_redir() {
+  $args = func_get_args();
+  $src = implode('/', $args);
+
+  // $src may be an Go ID or a source attribute
+  $res = db_fetch_object(db_query("SELECT * FROM {gotwo} WHERE src = '%s' OR gid = %d", $src, intval($src)));
+
+  if (!$res) {
+    drupal_not_found();
+  }
+  else {
+    db_query("UPDATE {gotwo} SET cnt = cnt+1 WHERE gid = %d", $res->gid);
+    if (variable_get('gotwo_disclaimer_boolean', FALSE)) {
+      // Display the Disclaimer
+      $disclaimer_text = variable_get('gotwo_disclaimer_text', '');
+      $find_array = array('%url', '%seconds');
+      $replace_array = array(check_url($res->dst), variable_get('gotwo_disclaimer_time', 0));
+      $page_content = filter_xss_admin(str_replace($find_array, $replace_array, $disclaimer_text));
+
+      // Should we refresh?
+      if (variable_get('gotwo_disclaimer_time', 0) > 0 ) {
+        drupal_set_html_head('<meta http-equiv="refresh" content="' . variable_get('gotwo_disclaimer_time', 0) . ';url=' . check_url($res->dst) . '"/>');
+      }
+
+      return $page_content;
+    }
+    else {
+      // Parse the URL.
+      $uri = parse_url($res->dst);
+
+      $scheme = isset($uri['scheme']) ? $uri['scheme'] . '://' : '';
+      $user = isset($uri['user']) ? $uri['user'] . ($uri['pass'] ? ':' . $uri['pass'] : '') . '@' : '';
+      $port = isset($uri['port']) ? $uri['port'] : 80;
+      $host = $uri['host'] . ($port != 80 ? ':'. $port : '');
+      $path = isset($uri['path']) ? $uri['path'] : '/';
+
+      // Glue the URL variables.
+      $dst_url = $scheme . $user . $host . $path;
+      $dst_query = isset($uri['query']) ? $uri['query'] : NULL;
+      $dst_fragment = isset($uri['fragment']) ? $uri['fragment'] : NULL;
+
+      drupal_goto($dst_url, $dst_query, $dst_fragment);
+    }
+  }
+}
+
+/**
+ * Implementation of hook_filter
+ */
+function gotwo_filter($op, $delta = 0, $format = -1, $text = '') {
+  switch ($op) {
+    case 'list':
+      return array(0 => t('"Go" redirection filter'));
+
+    case 'description':
+      return t('Automatically creates redirection urls. &lt;go href=""&gt;&lt;/go&gt; tags are nicely translated to &lt;a href=""&gt;&lt;/a&gt; tags.');
+
+    case 'prepare':
+      return $text;
+
+    case "process":
+      return preg_replace_callback('#<go\s([^>]*)>([^<]*)</go>#is', '_gotwo_filter', $text);
+
+    default:
+      return $text;
+  }
+}
+
+/**
+ * This function will strip the <go> link into it's parts, save the link with
+ * the title to the database and returns a HTML based link for the replacement
+ * in the content.
+ *
+ * @param $link
+ *   A raw <go> link to be processed.
+ * @return
+ *   The HTML representation of a <go> link.
+ */
+function _gotwo_filter($link) {
+  // Split all link tag attributes into key and value pairs.
+  preg_match_all('/\s?+([^=]*)=["\']([^"\']*)["\']/i', $link[1], $matches);
+  $go_attributes = array_combine($matches[1], $matches[2]);
+
+  // Drop empty attributes and sort by name.
+  $go_attributes = array_filter($go_attributes);
+  ksort($go_attributes);
+
+  // Verify if the url exists in the {gotwo} table. If the url is missing,
+  // add the url with link title to the {gotwo} table.
+  if (!empty($go_attributes['href'])) {
+    $go_attributes['href'] = _gotwo_get_url($go_attributes['href'], isset($go_attributes['title']) ? $go_attributes['title'] : NULL);
+  }
+
+  // Do not return a link if the go link doesn't haven attributes.
+  return empty($go_attributes) ? '' : '<a ' . drupal_attributes($go_attributes) . '>' . check_plain($link[2]) . '</a>';
+}
+
+/**
+ * Return the GO url for a given link
+ */
+function _gotwo_get_url($url, $src = FALSE, $flags = GOTWO_CREATE) {
+  $res = _gotwo_get($url, $src, $flags);
+  if (!$res) {
+    return url($url);
+  }
+  if (variable_get('gotwo_numeric', FALSE)) {
+    return url('go/'. $res->gid);
+  }
+  return url('go/'. $res->src);
+}
+
+/**
+ * Return the GO object url for a given link
+ */
+function _gotwo_get($url, $src = NULL, $flags = GOTWO_CREATE) {
+  // Only add valid URLs to the database. Otherwise the disclaimer reload may fail.
+  if (!valid_url($url)) {
+    return FALSE;
+  }
+  // If there is no title to mangle, use the url instead.
+  if (!$src) {
+    $src = preg_replace('#^(http(s)?://)#', '', $url);
+  }
+  $src = _gotwo_mangle_src($src);
+
+  $maxlength = min(variable_get('gotwo_max_length', 128), 128);
+
+  $res = db_fetch_object(db_query("SELECT * FROM {gotwo} WHERE src = '%s' AND dst = '%s'", $src, $url));
+  if ($res === FALSE) {
+    $res = db_fetch_object(db_query("SELECT * FROM {gotwo} WHERE src = gid+'/%s' AND dst = '%s'", $src, $url));
+    if (!empty($res)) {
+      $src_old = substr($res->gid .'/'. $src, 0, $maxlength);
+      if ($src_old != $res->src) {
+        $res == FALSE;
+      }
+    }
+  }
+  if ($res === FALSE) {
+    if ($flags & GOTWO_CREATE) {
+      // Force unique src.
+      $res = db_fetch_object(db_query("SELECT * FROM {gotwo} WHERE src = '%s'", $src));
+      if (!empty($res)) {
+        // TODO: find a better solution.
+        // Insert a dummy first with an uniqe src value to get the 'gid' value.
+        db_query("INSERT INTO {gotwo} (src, dst) VALUES ('%s', '%s')", uniqid(), $url);
+        $gid = db_last_insert_id('gotwo', 'gid');
+        $src = substr($gid .'/'. $src, 0, $maxlength);
+        db_query("UPDATE {gotwo} SET src = '%s' WHERE gid = %d", $src, $gid);
+      }
+      else {
+        db_query("INSERT INTO {gotwo} (src, dst) VALUES ('%s', '%s')", $src, $url);
+      }
+    }
+    else {
+      return FALSE;
+    }
+  }
+  return $res;
+}
+
+/**
+ * Mangle the input for url friendlyness. Based on pathauto_cleanstring from pathauto.module
+ */
+function _gotwo_mangle_src($string) {
+  static $translations = array(
+    'À'=>'A','Á'=>'A','Â'=>'A','Ã'=>'A','Ä'=>'A','Å'=>'A','Ā'=>'A','Ą'=>'A','Ă'=>'A',
+    'à'=>'a','á'=>'a','â'=>'a','ã'=>'a','ä'=>'a','å'=>'a','ā'=>'a','ą'=>'a','ă'=>'a',
+    'Æ'=>'Ae',
+    'æ'=>'ae',
+    'Ç'=>'C','Ć'=>'C','Č'=>'C','Ĉ'=>'C','Ċ'=>'C',
+    'ç'=>'c','ć'=>'c','č'=>'c','ĉ'=>'c','ċ'=>'c',
+    'Ď'=>'D','Đ'=>'D','Ð'=>'D',
+    'ď'=>'d','đ'=>'d','ð'=>'d',
+    'È'=>'E','É'=>'E','Ê'=>'E','Ë'=>'E','Ē'=>'E','Ę'=>'E','Ě'=>'E','Ĕ'=>'E','Ė'=>'E',
+    'è'=>'e','é'=>'e','ê'=>'e','ë'=>'e','ē'=>'e','ę'=>'e','ě'=>'e','ĕ'=>'e','ė'=>'e',
+    'ƒ'=>'f',
+    'Ĝ'=>'G','Ğ'=>'G','Ġ'=>'G','Ģ'=>'G',
+    'ĝ'=>'g','ğ'=>'g','ġ'=>'g','ģ'=>'g',
+    'Ĥ'=>'H','Ħ'=>'H',
+    'ĥ'=>'h','ħ'=>'h',
+    'Ì'=>'I','Í'=>'I','Î'=>'I','Ï'=>'I','Ī'=>'I','Ĩ'=>'I','Ĭ'=>'I','Į'=>'I','İ'=>'I',
+    'ì'=>'i','í'=>'i','î'=>'i','ï'=>'i','ī'=>'i','ĩ'=>'i','ĭ'=>'i','į'=>'i','ı'=>'i',
+    'Ĳ'=>'Ij',
+    'ĳ'=>'ij',
+    'Ĵ'=>'J',
+    'ĵ'=>'j',
+    'Ķ'=>'K',
+    'ķ'=>'k','ĸ'=>'k',
+    'Ł'=>'L','Ľ'=>'L','Ĺ'=>'L','Ļ'=>'L','Ŀ'=>'L',
+    'ł'=>'l','ľ'=>'l','ĺ'=>'l','ļ'=>'l','ŀ'=>'l',
+    'Ñ'=>'N','Ń'=>'N','Ň'=>'N','Ņ'=>'N','Ŋ'=>'N',
+    'ñ'=>'n','ń'=>'n','ň'=>'n','ņ'=>'n','ŉ'=>'n','ŋ'=>'n',
+    'Ò'=>'O','Ó'=>'O','Ô'=>'O','Õ'=>'O','Ö'=>'O','Ø'=>'O','Ō'=>'O','Ő'=>'O','Ŏ'=>'O',
+    'ò'=>'o','ó'=>'o','ô'=>'o','õ'=>'o','ö'=>'o','ø'=>'o','ō'=>'o','ő'=>'o','ŏ'=>'o',
+    'Œ'=>'Oe',
+    'œ'=>'oe',
+    'Ŕ'=>'R','Ř'=>'R','Ŗ'=>'R',
+    'ŕ'=>'r','ř'=>'r','ŗ'=>'r',
+    'Ś'=>'S','Š'=>'S','Ş'=>'S','Ŝ'=>'S','Ș'=>'S',
+    'Ť'=>'T','Ţ'=>'T','Ŧ'=>'T','Ț'=>'T','Þ'=>'T',
+    'þ'=>'t',
+    'Ù'=>'U','Ú'=>'U','Û'=>'U','Ü'=>'U','Ū'=>'U','Ů'=>'U','Ű'=>'U','Ŭ'=>'U','Ũ'=>'U','Ų'=>'U',
+    'ú'=>'u','û'=>'u','ü'=>'u','ū'=>'u','ů'=>'u','ű'=>'u','ŭ'=>'u','ũ'=>'u','ų'=>'u',
+    'Ŵ'=>'W',
+    'ŵ'=>'w',
+    'Ý'=>'Y','Ŷ'=>'Y','Ÿ'=>'Y','Y'=>'Y',
+    'ý'=>'y','ÿ'=>'y','ŷ'=>'y',
+    'Ź'=>'Z','Ž'=>'Z','Ż'=>'Z',
+    'ž'=>'z','ż'=>'z','ź'=>'z',
+    'ß'=>'ss','ſ'=>'ss');
+
+  $output = str_replace("'", "", $string);
+  $output = strtr($output, $translations);
+  $pattern = '#[^a-zA-Z0-9./]+# ';
+  $separator = '_';
+  $output = preg_replace($pattern, $separator, $output);
+  if ($separator) {
+    if (ctype_alnum($separator)) {
+      $seppattern = $separator;
+    }
+    else {
+      $seppattern = '\\'. $separator;
+    }
+    $output = preg_replace("/^$seppattern+|$seppattern+$/", "", $output);
+  }
+  $maxlength = min(variable_get('gotwo_max_length', 128), 128);
+  $output = substr($output, 0, $maxlength);
+
+  return $output;
+}

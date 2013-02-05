@@ -1,0 +1,13 @@
+; $Id: springcmcontrol.info,v 1.1 2008/07/28 22:01:06 iikka Exp $
+name = SpringCM Site
+description = Adds new themes functions and other site specific overrides
+dependencies[] = menu
+core = 6.x
+package = Nimbus
+
+; Information added by drupal.org packaging script on 2008-07-08
+version = "6.x-1.0"
+core = "6.x"
+project = "springcmcontrol"
+datestamp = "1215524708"
+

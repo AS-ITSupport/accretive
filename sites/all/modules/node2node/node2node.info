@@ -1,0 +1,11 @@
+; $Id: node2node.info,v 1.1 2008/08/06 08:56:08 juneeveek Exp $
+name = Node 2 Node
+description = Create associations between nodes
+core = 6.x
+
+; Information added by drupal.org packaging script on 2008-07-10
+version = "6.x-1.1"
+core = "6.x"
+project = "node2node"
+datestamp = "1215703829"
+

@@ -1,0 +1,21 @@
+<?php
+// $Id: location.tc.inc,v 1.1 2009/04/16 09:47:13 juneeveek Exp $
+
+// Turks and Caicos Islands
+
+function location_province_list_tc() {
+  return array('AC' => "Ambergris Cays",
+    'DC' => "Dellis Cay",
+    'FC' => "French Cay",
+    'LW' => "Little Water Cay",
+    'RC' => "Parrot Cay",
+    'PN' => "Pine Cay",
+    'SL' => "Salt Cay",
+    'GT' => "Grand Turk",
+    'SC' => "South Caicos",
+    'EC' => "East Caicos",
+    'MC' => "Middle Caicos",
+    'NC' => "North Caicos",
+    'PR' => "Providenciales",
+    'WC' => "West Caicos");
+}

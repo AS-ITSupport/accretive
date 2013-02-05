@@ -1,0 +1,18 @@
+/* $Id: quicktabs.css,v 1.1 2009/07/24 08:10:13 jessem Exp $ */
+
+div.quicktabs_tabpage.nojs-hide {
+  display: none;
+}
+
+ul.quicktabs_tabs {
+  margin-top: 0;
+}
+ul.quicktabs_tabs li {
+  display: inline;
+  background: none;
+  list-style-type: none;
+  padding: 2px;
+}
+ul.quicktabs_tabs li a:focus {
+  outline: none;
+}

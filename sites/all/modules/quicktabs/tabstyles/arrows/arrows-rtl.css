@@ -1,0 +1,10 @@
+/* $Id: arrows-rtl.css,v 1.1 2009/07/24 08:16:23 jessem Exp $ */
+
+ul.quicktabs_tabs.quicktabs-style-arrows{
+  padding:0 0 0 10px!important;
+  height:25px;
+}
+
+ul.quicktabs_tabs.quicktabs-style-arrows li{
+  float:right;
+}

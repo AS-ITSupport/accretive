@@ -1,0 +1,24 @@
+<?php
+// $Id: linktocontent_node.install,v 1.1 2008/12/19 23:46:36 iikka Exp $
+
+/*
+* @file
+* Linktocontent Node Module for Drupal 6.x (patched for FCKeditor)
+*/
+
+module_load_include("inc", "linktocontent", "linktocontent_util");
+
+function linktocontent_node_install() {
+  linktocontent_register('linktocontent_node');
+  linktocontent_register('linktocontent_node', 'linktocontent_node');
+  if (_linktocontent_autoinstall('linktonode') !== FALSE) {
+    drupal_set_message(t('Linktocontent Node module has been successfully installed.'));
+  }
+}
+
+function linktocontent_node_uninstall() {
+  // unregister all registered functions
+  linktocontent_unregister('linktocontent_node');
+  _linktocontent_autouninstall('linktonode');
+  drupal_set_message(t('Linktocontent Node module has been successfully uninstalled.'));
+}

@@ -1,0 +1,93 @@
+<?php
+// $Id: security_scanner.install,v 1.1 2008/07/17 20:57:40 iikka Exp $
+
+/**
+ * Implementation of hook_install().
+ */
+function security_scanner_install() {
+  // Create tables.
+  drupal_install_schema('security_scanner');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function security_scanner_uninstall() {
+  // Remove tables.
+  drupal_uninstall_schema('security_scanner');
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function security_scanner_schema() {
+  $schema['crawler'] = array(
+    'description' => t('Stores crawler ids.'),
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('The id of the crawler.'),
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  
+  $schema['crawler_links'] = array(
+    'description' => t('Stores links derived from pages.'),
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('The id of the link.'),
+      ),
+      'path' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('The path extracted from pages.'),
+      ),
+      'crawler_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('The id of the crawler that is checking the path.'),
+      ),
+      'status' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => t('The status of this path.'),
+      ),
+    ),
+    'unique keys' => array(
+      'path'     => array('path')
+      ),
+    'primary key' => array('id'),
+  );
+  
+  $schema['crawler_forms'] = array(
+    'description' => t('Stores form ids derived from pages.'),
+    'fields' => array(
+      'id' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'description' => t('The id of the form.'),
+      ),
+      'page_id' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'description' => t('The page in which the form is inside.'),
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}

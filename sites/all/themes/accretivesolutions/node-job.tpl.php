@@ -1,0 +1,8 @@
+<?php // $Id: node-job.tpl.php,v 1.6 2009/09/22 13:40:32 iikka Exp $ ?> <div id="node-<?php print $node->nid; ?>" class="node<?php if ($sticky) { print ' sticky'; } ?><?php if (!$status) { print ' node-unpublished'; } ?>">    <?php print $picture ?>    <?php if ($page == 0): ?>     <h2><a href="<?php print $node_url ?>" title="<?php print $title ?>"><?php print $title ?></a></h2>   <?php endif; ?>    <?php if ($submitted): ?>     <span class="submitted"><?php print $submitted; ?></span>   <?php endif; ?>    <div class="content">     <?php 
+
+if (stristr($content, '<a href="mailto:jdesoto@accretivesolutions.com">jdesoto@accretivesolutions.com</a>')) {
+$content = str_replace('Alternate Contact Email:', '', $content);
+$content = str_replace('<a href="mailto:jdesoto@accretivesolutions.com">jdesoto@accretivesolutions.com</a>', '', $content);
+}
+
+print $content ?>   </div>   <div class="clear"></div>   <?php if ($links||$taxonomy){ ?>     <div>        <?php if ($links): ?>         <div class="links">           <?php print $links; ?>         </div>       <?php endif; ?>        <div class="clear"></div>       <?php if ($taxonomy): ?>         <div class="terms">           <?php  					  $terms = strip_tags($terms,'<div><ul><li>'); 					  print $terms;  					?>         </div>       <?php endif;?>         <div class="clear"></div>      </div>   <?php }?>   <br />   <form name="apply-job" action="/careers/job-application" method="post">   	<input type="hidden" name="term_id" value="<?php print $term_id ?>" />     <input type="hidden" name="node_id" value="<?php print $node->nid?>" />     <input type="submit" value="Apply" name="apply_now" />   </form>  </div> 

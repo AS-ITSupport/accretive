@@ -1,0 +1,10 @@
+; $Id: gotwo.info,v 1.3.2.2 2007/12/29 23:46:36 hass Exp $
+name = Gotwo
+description = "Go URLs redirect to outside websites and tracks the visit. A disclaimer can also be added before a redirect occurs"
+core = 6.x
+; Information added by drupal.org packaging script on 2009-08-26
+version = "6.x-1.1"
+core = "6.x"
+project = "gotwo"
+datestamp = "1251313860"
+

@@ -1,0 +1,11 @@
+; $Id: contemplate.info,v 1.1 2008/07/17 20:55:41 iikka Exp $
+name = Content Templates
+description = Create templates to customize output of teaser and body content.
+package = CCK
+core = 6.x
+; Information added by drupal.org packaging script on 2008-05-15
+version = "6.x-0.13"
+core = "6.x"
+project = "contemplate"
+datestamp = "1210881304"
+

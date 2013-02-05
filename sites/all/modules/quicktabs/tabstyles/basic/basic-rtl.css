@@ -1,0 +1,13 @@
+/* $Id: basic-rtl.css,v 1.1 2009/07/24 08:17:48 jessem Exp $ */
+
+.quicktabs_main.quicktabs-style-basic{
+  border:1px solid #aaa;
+}
+ul.quicktabs_tabs.quicktabs-style-basic{
+  border-bottom:none;
+  padding:0 0 0 5px;
+}
+ul.quicktabs_tabs.quicktabs-style-basic li{
+  float:right;
+  margin:0 0 0 3px;
+}

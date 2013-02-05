@@ -1,0 +1,11 @@
+; $Id: bones.info,v 1.1.4.2 2008/12/31 20:22:55 usonian Exp $
+name = Bones
+description = "Rapidly build out site nodes and corresponding menu items."
+package = "Development"
+core=6.x
+; Information added by drupal.org packaging script on 2009-03-24
+version = "6.x-1.0-unstable3"
+core = "6.x"
+project = "bones"
+datestamp = "1237864212"
+

@@ -1,0 +1,281 @@
+<?php
+
+/**
+ * Implementation of hook_menu().
+ */
+function slider_2d_menu() {
+  $items = array();
+	
+  $items['slider_panel/%/%/%'] = array(
+    'title' => 'Slider Panel',
+    'type' => MENU_CALLBACK,
+    'page callback' => 'slider_2d_panel',
+		'access callback' => TRUE,
+		'page arguments' => array(1,2,3)
+  );
+	
+	return $items;
+}
+
+
+/**
+ * Implementation of hook_theme().
+ */
+function slider_2d_theme($existing) {
+  return array(
+  'slider_2d_slide' => array(
+   'arguments' => array('node_info' => NULL),
+	 ),
+  'views_view__viewname_displayid' => array (
+      'arguments' =>  array('view' => NULL, 'options' => NULL, 'row' => NULL),
+      'template' => 'slider-2d-views-row',
+      'original hook' => 'views_view',	 
+		),
+	); 
+}
+
+
+/**
+ *  Implementation of hook_views_api().
+ */
+function slider_2d_views_api() {
+  return array(
+		'api' => 2,
+	  //'path' => drupal_get_path('module', 'slider_2d')
+		);
+}
+
+
+function template_preprocess_slider_2d_view(&$vars) {
+
+	//include js files
+  drupal_add_js(drupal_get_path('module', 'slider_2d') .'/js/jquery.slider_2d.js');
+  drupal_add_js(drupal_get_path('module', 'slider_2d') .'/js/jquery.easing.js');
+	drupal_add_js(drupal_get_path('module', 'slider_2d') .'/js/jquery.mousewheel.js');
+	drupal_add_js(drupal_get_path('module', 'slider_2d') .'/js/jquery.purr.js');
+	drupal_add_js(drupal_get_path('module', 'slider_2d') .'/js/slider_2d.js');
+	drupal_add_js(drupal_get_path('module', 'slider_2d') .'/js/jquery.ajaxqueue.js');
+	
+	
+	//add css file
+	drupal_add_css(drupal_get_path('module', 'slider_2d') .'/slider_2d.css');
+	
+	//get image path for preloading of images
+	$view = $vars['view'];
+	
+	$handlers = $view->display_handler->handlers['field'];
+	
+	
+	foreach($handlers as $handler) {
+				
+		//find an image field
+		if($handler->content_field['module'] == 'filefield') {
+			//print_r($handler);
+
+			//get image format
+			$image_format = $handler->content_field['display_settings']['full']['format'];
+			$preset_parts = explode('_', $image_format);
+
+			 for($i=0; $i<=count($preset_parts) - 2; $i++) {
+			 		$names[] = $preset_parts[$i];
+			 }
+			 
+			 $presetname = implode('_', $names);			 
+			 $image_path = 	imagecache_create_path($presetname, $handler->content_field['widget']['file_path']);
+		}				
+	}
+	
+	$vars['slider_2d_id'] = 'slider_2d-'. $view->name .'-'. $view->current_display;	
+	
+	$keys = array_keys($view->display['default']->display_options['filters']['vid']['value']);
+	$vid = $view->display['default']->display_options['filters']['vid']['value'][$keys[0]];
+	
+	$terms = taxonomy_get_tree($vid);
+		
+	//get options
+	$options = array();		
+	$options['mouseWheel'] = $vars['options']['mousewheel'];
+	$options['speed'] = $vars['options']['speed'];
+	$options['categories'] = slider_2d_get_categories($terms, 'numCategories');
+	$options['numPanels'] = slider_2d_get_categories($terms, 'numPanels');
+	$options['categoryNames'] = slider_2d_get_categories($terms, 'categoryNames');
+	$options['hashNames'] = slider_2d_get_categories($terms, 'nodeCollection');
+	$options['vid'] = $vid;
+	
+	/*
+	 * Juneevee: these need to be fixed asap:
+	 * Don't hard code any file paths into the module: $options['imagePath'] or $my_directory
+	 * Query views data to build your arrays. Don't assume that any image in the 
+	 * directory belongs to portfolio. 
+	 **/
+	$options['imagePath'] = $image_path;
+	
+	$my_directory = $image_path;	
+		
+	if (file_exists($my_directory)) {
+		$dir = dir($my_directory); 
+			
+		while($temp = $dir->read()) 
+		{ 
+			if (preg_match('/^.+\.(gif|png|jpe?g|bmp|tif)$/i', $temp)) {
+				 $dirarray[] = $temp; 
+			}
+		}
+	
+	} else {
+		$options['imagesPath'] = ''; 
+	}
+	$options['imagesPath'] = $dirarray; 
+	
+	
+	drupal_add_js(array('slider_2d' => array($vars['slider_2d_id'] => $options)), 'setting');
+}
+
+
+/**
+ * Returns number of nodes per category/term names in string format
+ */
+function slider_2d_get_categories($terms, $get_string) {
+	
+	$result = '';
+	$term_names = '';
+	$count = '';
+	$num_categories = 0;
+	$categories = array();
+	$node_collection = array();
+	foreach($terms as $term) {		
+		$ctr = 0;
+		$term_nodes = taxonomy_select_nodes(array($term->tid), 'or', 0, FALSE, 'n.title ASC');		
+		
+		$node_names = array();
+		while($row = db_fetch_object($term_nodes)) {
+			
+			
+			$node_info = node_load($row->nid);
+			$path_parts = explode('/', $node_info->path);
+			/*$node_name = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $row->title); //remove special characters
+			$node_name = str_replace(' ', '-', $node_name); //replace spaces with dash*/
+						
+			$node_names[] = $path_parts[2];
+			$ctr++;
+		}
+				
+		if($ctr > 0) {
+			$term_names .= $term->name.'|';
+			$count .= $ctr.'|';
+			$node_collection[$num_categories] = $node_names;
+			$num_categories++;			
+			$categories[] = $term;
+		}
+		
+	}
+		
+	switch ($get_string) {
+	
+		case 'numPanels':
+			$result = $count;
+			break;
+		case 'categoryNames':
+			$result = $term_names;
+			break;			
+		case 'numCategories':
+			$result = $num_categories;
+			break;
+		case 'termCollection':
+			$result = $categories;
+			break;
+		case 'nodeCollection':
+			$result = $node_collection;
+			break;
+	}
+		
+	return $result;	
+}
+
+
+/**
+ *  Returns a single panel for next slide
+ */
+function slider_2d_panel() {
+	$current_category = arg(1);
+	$current_panel = arg(2);
+	$vid = arg(3);
+		
+	//get category terms
+	$terms = taxonomy_get_tree($vid);
+		
+	$current_terms = slider_2d_get_categories($terms, 'termCollection');
+	
+	//lets all start with zero index
+	$current_category = $current_category - 1;
+	$current_panel = $current_panel - 1;
+	
+	//get nodes for current term	
+	$term_nodes = taxonomy_select_nodes(array($current_terms[$current_category]->tid), 'or', 0, FALSE, 'n.title ASC');
+	
+	$nodes = array();
+	while($row = db_fetch_object($term_nodes)) {
+		$node_info = node_load($row->nid);
+		$nodes[] = $node_info;
+	}
+	
+	print(theme('slider_2d_slide', $nodes[$current_panel]));
+}
+
+
+/**
+ * Themeable panel slide
+ */
+function theme_slider_2d_slide($node_info) {
+	$result = '';	
+	
+	$result = '<div class="pfViewImage">'.			
+			theme('imagecache', 'portfolio_fullsize', $node_info->field_image[0]['filepath'])
+			.'</div>
+			<div class="pfDescription">
+				<div class="pfClientName">'.
+					$node_info->title.'
+				</div>
+				<div class="pfWorkType"></div>
+				<p>'.
+					$node_info->body.'
+				</p>
+		  </div>';
+	
+	
+	return $result;
+}
+
+
+function slider_2d_get_terms_for_navigation($path, $node_path) {
+
+	$output = '';
+	$vocabulary_name = "Portfolio";
+	
+	$vocabularies = taxonomy_get_vocabularies();
+	
+	//get vid for "Animals" vocabulary	
+	foreach($vocabularies as $key => $vocabulary) {
+		
+		if($vocabulary->name == $vocabulary_name) {
+			$our_vid = $vocabulary->vid;
+			break;
+		}		
+	}
+	
+	$terms = taxonomy_get_tree($our_vid);	
+	if($node_path == $path) {
+		$class = 'class = "selected"';
+	}
+	
+	$output .= '<a href="/portfolio"'.$class.'>All</a>';
+	foreach($terms as $term) {
+		$class = '';
+		if($node_path == $path.'/'.strtolower($term->name)) {
+			$class = 'class = "selected"';
+		}
+		
+		$output .= '<a href="/'.$path.'/'.strtolower($term->name).'"'.$class.'>'.$term->name.'</a>';
+	}
+	return $output;
+}

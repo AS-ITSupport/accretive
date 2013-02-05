@@ -1,0 +1,11 @@
+; $Id: page_title.info,v 1.5 2009/07/02 13:48:57 iikka Exp $
+name = Page Title
+description = "Enhanced control over the page title (in the &lt;head> tag)."
+dependencies[] = token
+core = 6.x
+; Information added by drupal.org packaging script on 2009-06-17
+version = "6.x-2.2"
+core = "6.x"
+project = "page_title"
+datestamp = "1245253961"
+

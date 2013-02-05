@@ -1,0 +1,609 @@
+<?php
+
+
+
+/**
+
+ * Implementation of hook_theme().
+
+ */
+
+function accretivesolutions_control_theme() {
+
+  return array(
+
+  'accretivesolutions_control_links' => array(
+
+   'arguments' => array('links' => NULL, 'attributes' => NULL),
+
+	 )
+
+  );
+
+}
+
+
+
+
+
+/**
+
+ * Implementation of hook_mail_alter().
+
+ */
+
+function accretivesolutions_control_mail_alter(&$message) {	
+
+
+
+	if($message['id'] == 'webform_submission') {
+
+		$message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+
+		
+
+		if (strpos($message['to'], '|') > 0) {
+
+			$extract_to = explode('|', $message['to']);
+
+			
+
+			$recipient = accretivesolutions_email_router($extract_to[0], $extract_to[1]);
+
+			$message['to'] = $recipient;
+
+
+
+			//load job info
+
+			if(count($extract_to) == 3) {
+
+				$job_info = node_load($extract_to[2]);
+
+				$job_contact_email = strip_tags($job_info->field_job_contact[0]['value']);
+
+				if( $job_contact_email != '') {
+
+				    $message['to'] = $job_contact_email;
+
+				}
+
+			}
+
+			
+
+		}		
+
+	}
+
+}
+
+
+
+
+
+/**
+
+ * Returns email address based on type and/or office
+
+ *
+
+ * @param $type_name the type of query the email has to be sent
+
+ * @param $office_id office id
+
+ *
+
+ * @return string
+
+ */
+
+function accretivesolutions_email_router($type_name='', $office_id=0) {
+
+	
+
+	$headquarter = node_load(theme_get_setting('headquarters_office'));
+
+	
+
+	$id = (office_id == 0) ? $office_id : $headquarter->nid;
+
+	
+
+	//check if $id is a number or a string
+
+	//if string find matching term from Offices vocabulary
+
+	if(!is_numeric($id)) {
+
+	
+
+		$vocabularies = taxonomy_get_vocabularies();
+
+		$vocabulary_name = "Offices";
+
+		
+
+		//get vid for "Offices" vocabulary
+
+		foreach($vocabularies as $key => $vocabulary) {
+
+			
+
+			if($vocabulary->name == $vocabulary_name) {
+
+				$our_vid = $vocabulary->vid;
+
+				break;
+
+			}			
+
+		}
+
+		
+
+		$terms = taxonomy_get_tree($our_vid);	
+
+		foreach($terms as $term) {
+
+			if($term->name == $id) {
+
+				$tid = $term->tid;
+
+				break;
+
+			}
+
+		}
+
+		
+
+		
+
+		$term_nodes = accretivesolutions_control_select_nodes(array($tid), 'or', 0, FALSE, 'n.title ASC', 'office');
+
+		while($row = db_fetch_object($term_nodes)) {
+
+			$term_node_info = node_load($row->nid);
+
+		}
+
+		//$id = $term_node_info->nid				
+
+		$node_info = $term_node_info;
+
+	} else {
+
+		$node_info = node_load($id);
+
+	}
+
+		
+
+		
+
+	switch($type_name) {
+
+		case 'General Information':
+
+			$result = $node_info->field_office_email[0]['email'];
+
+		break;
+
+		
+
+		case 'Consulting':
+
+			$result = $node_info->field_recruitment_email[0]['email'];
+
+		break;
+
+		
+
+		case 'Executive Search':
+
+			$result = $node_info->field_executive_search_email[0]['email'];
+
+		break;
+
+		
+
+		default:
+
+			$result = $headquarter->field_office_email[0]['email'];
+
+	}
+
+	return $result;
+
+	
+
+}
+
+
+
+
+
+/**
+
+ * Override from taxonomy_select_nodes() from taxonomy.module
+
+ */ 
+
+function accretivesolutions_control_select_nodes($tids = array(), $operator = 'or', $depth = 0, $pager = TRUE, $order = 'n.sticky DESC, n.created DESC', $node_type = '') {
+
+  if (count($tids) > 0) {
+
+    // For each term ID, generate an array of descendant term IDs to the right depth.
+
+    $descendant_tids = array();
+
+    if ($depth === 'all') {
+
+      $depth = NULL;
+
+    }
+
+    foreach ($tids as $index => $tid) {
+
+      $term = taxonomy_get_term($tid);
+
+      $tree = taxonomy_get_tree($term->vid, $tid, -1, $depth);
+
+      $descendant_tids[] = array_merge(array($tid), array_map('_taxonomy_get_tid_from_term', $tree));
+
+    }
+
+		
+
+		$where_include = '';
+
+		if($node_type != '') {
+
+		  $where_include =  ' AND n.type=\''.$node_type.'\' ';
+
+		}
+
+
+
+    if ($operator == 'or') {
+
+      $args = call_user_func_array('array_merge', $descendant_tids);
+
+      $placeholders = db_placeholders($args, 'int');
+
+      $sql = 'SELECT DISTINCT(n.nid), n.sticky, n.title, n.created FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN ('. $placeholders .') AND n.status = 1'.$where_include.' ORDER BY '. $order;
+
+      $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid WHERE tn.tid IN ('. $placeholders .') AND n.status = 1'.$where_include;
+
+    }
+
+    else {
+
+      $joins = '';
+
+      $wheres = '';
+
+      $args = array();
+
+      foreach ($descendant_tids as $index => $tids) {
+
+        $joins .= ' INNER JOIN {term_node} tn'. $index .' ON n.vid = tn'. $index .'.vid';
+
+        $wheres .= ' AND tn'. $index .'.tid IN ('. db_placeholders($tids, 'int') .')';
+
+				$wheres .= $where_include;
+
+        $args = array_merge($args, $tids);
+
+      }
+
+      $sql = 'SELECT DISTINCT(n.nid), n.sticky, n.title, n.created FROM {node} n '. $joins .' WHERE n.status = 1 '. $wheres .' ORDER BY '. $order;
+
+      $sql_count = 'SELECT COUNT(DISTINCT(n.nid)) FROM {node} n '. $joins .' WHERE n.status = 1 '. $wheres;
+
+    }
+
+
+
+    $sql = db_rewrite_sql($sql);
+
+    $sql_count = db_rewrite_sql($sql_count);
+
+    if ($pager) {
+
+      $result = pager_query($sql, variable_get('default_nodes_main', 10), 0, $sql_count, $args);
+
+    }
+
+    else {
+
+      //$result = db_query_range($sql, $args, 0, variable_get('feed_default_items', 10));
+
+			$result = db_query($sql, $args);
+
+    }
+
+  }
+
+
+
+  return $result;
+
+}
+
+
+
+
+
+/**
+
+ * Returns all nodes based on passed content type. Sql query from node_admin_nodes() from node.admin.inc
+
+ *
+
+ * @param $type_name content type name
+
+ *
+
+ * @return array
+
+ * 
+
+ */
+
+function accretivesolutions_control_get_node_by_type($type_name = '') {
+
+	
+
+	$where = ($type_name) ? ' WHERE n.type=\''.$type_name.'\'' : '';
+
+	
+
+	$query = db_query('SELECT n.* FROM {node} n '. $where.' ORDER BY n.title ASC');
+
+	
+
+	while ($node = db_fetch_object($query)) {
+
+		$result[] = $node;
+
+	}
+
+	return $result;
+
+} 
+
+
+
+
+
+/**
+
+ * Ovveride for theme_links() function
+
+ */
+
+function theme_accretivesolutions_control_links($links, $attributes = array('class' => 'links')) {
+
+  global $language;
+
+  $output = '';
+
+
+
+  if (count($links) > 0) {
+
+    $output = '<ul>';
+
+
+
+    $num_links = count($links);
+
+    $i = 1;
+
+		
+
+		$active_trail = menu_get_active_trail();
+
+		$active_parent = $active_trail[1];
+
+
+
+    foreach ($links as $key => $link) {
+
+      $class = $key;
+
+
+
+      // Add first, last and active classes to the list of links to help out themers.
+
+      if ($i == 1) {
+
+        $class .= ' first';
+
+      }
+
+      if ($i == $num_links) {
+
+        $class .= ' last';
+
+      }
+
+      if (isset($link['href']) && ($link['href'] == $_GET['q'] || ($link['href'] == '<front>' && drupal_is_front_page()))
+
+          && (empty($link['language']) || $link['language']->language == $language->language)) {
+
+        $class .= ' active';
+
+      }
+
+						
+
+			
+
+			//create unique id for each item
+
+			$id = 'nav'.str_replace(' ', '', $link['title']);
+
+			
+
+      $output .= '<li'. drupal_attributes(array('class' => $class, 'id' => $id)) .'>';
+
+
+
+      
+
+			if (isset($link['href'])) {
+
+				$href_class = ($link['href'] == $active_parent['href']) ? ' active'  : '';	
+
+				$link['attributes']['class'] = $href_class;
+
+        // Pass in $link as $options, they share the same keys.
+
+        $output .= l($link['title'], $link['href'], $link);
+
+      }
+
+      else if (!empty($link['title'])) {
+
+        // Some links are actually not links, but we wrap these in <span> for adding title and class attributes
+
+        if (empty($link['html'])) {
+
+          $link['title'] = check_plain($link['title']);
+
+        }
+
+        $span_attributes = '';
+
+        if (isset($link['attributes'])) {
+
+          $span_attributes = drupal_attributes($link['attributes']);
+
+        }
+
+        $output .= '<span'. $span_attributes .'>'. $link['title'] .'</span>';
+
+      }
+
+
+
+      $i++;
+
+      $output .= "</li>\n";
+
+    }
+
+
+
+    $output .= '</ul>';
+
+  }
+
+
+
+  return $output;
+
+}
+
+
+
+
+
+/**
+
+ * Implementation of hook_form_alter()
+
+ */
+
+function accretivesolutions_control_form_alter(&$form, $form_state, $form_id) {
+
+	
+
+	switch($form_id) {
+
+		case 'search_theme_form':
+
+			$form[$form_id] = array(
+
+				'#title' => '',
+
+				'#type' => 'textfield',
+
+				'#size' => 15,
+
+				'#default_value' => '',
+
+				'#attributes' => array('title' => t('Enter the terms you wish to search for.'), 'class' => 'formTextQuickSearch'),
+
+				'#weight' => 2,
+
+			);
+
+			$form['submit'] = array('#type' => 'submit', '#value' => t(''), '#weight' => 1);
+
+
+
+		break;
+
+	}
+
+} 
+
+
+
+
+
+/**
+
+ * Returns term object based on its vocabulary name
+
+ *
+
+ * @param $vocabulary_name name of vocabulary
+
+ *
+
+ * @return array
+
+ *
+
+ */
+
+function accretivesolutions_get_terms_voc_name($vocabulary_name) {
+
+	$result = '';
+
+	
+
+	if($vocabulary_name) {
+
+		$vocabularies = taxonomy_get_vocabularies();
+
+		
+
+		foreach($vocabularies as $key => $vocabulary) {
+
+			
+
+			if($vocabulary->name == $vocabulary_name) {
+
+				$our_vid = $vocabulary->vid;
+
+				break;
+
+			}			
+
+		}
+
+		
+
+		$result = taxonomy_get_tree($our_vid);	
+
+	}
+
+	return $result;
+
+}

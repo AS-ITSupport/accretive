@@ -1,0 +1,19 @@
+// $Id: CHANGELOG.txt,v 1.1.2.2 2009/03/24 03:00:53 usonian Exp $
+
+Bones 6.x-1.0-unstable3, 2009-03-23
+-----------------------------------
+#410906 - fixed dummy text checkbox
+#410494 Implemented lightbox-style batch detail views
+removed vestigial bones_batch_delete_confirm_submit() function
+Batch management form now validates
+
+
+Bones 6.x-1.0-unstable2, 2009-03-22
+-----------------------------------
+#410520 Batch records no longer created if no nodes are imported.
+#393434 Added batch import records & publish/unpublish/delete functionality
+#393428 Added ability to populate imported nodes with dummy content if devel_generate module is available
+#393426 Added input format menu to the import form
+#360769 Fixed imported menu item weights
+#377030 Fixed hook_help path typo
+#364063 Default node type input now works correctly.
