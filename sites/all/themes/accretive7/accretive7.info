@@ -3,6 +3,8 @@ description = Drupal 7 Theme for Accretive Solutions' based off of Seven Theme.
 core = 7.x
 base theme = seven_doublemthemes
 
+stylesheets[all][]      = css/accretive7.css
+
 regions[help]           = Help
 regions[sidebar_first]  = First sidebar
 regions[sidebar_second] = Second sidebar
