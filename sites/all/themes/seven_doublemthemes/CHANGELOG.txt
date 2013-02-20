@@ -1,0 +1,20 @@
+Seven 7.x-1.1, 2012-07-11
+-----------------------
+- Fixed "+ details" links issue in "Recent Products" block and 2 Portfolios.
+- Updated Module "Jump Menu" and refactorized Responsive DropDown menu styles.
+- Updated "Token" and "PathAuto" to stable releases.
+- Removed Module "AddThis". Replaced by "Social Media" features.
+- Removed "ImageCache Actions" module due to unuse.
+- Removed "ViewsJQFX" module due to unuse.
+- Default Block styles added for sidebars.
+- Fixed "Slideshow 1" styles causing an overlapping.
+- Fixed "Home Item Blocks" layout on Slideshows 5 and 7.
+- Background PSD source files also included with the Layered PNGs.
+
+Seven 7.x-1.0, 2012-05-24
+-----------------------
+- Initial Release
+
+
+yulianruizgarcia@yahoo.es
+

@@ -1,0 +1,70 @@
+screenshot  = screenshot.png
+name        = Seven - Responsive Premium Theme v1.1 by DoubleMThemes.com
+description = Drupal theme for creating Business, Corporate, Agency and Freelance websites. It includes a lot of features you can easily setup to get your site 99% ready in just a few minutes. It was built for <a href="http://www.themesnap.com/"><strong>ThemeSnap</strong></a> by <a href="http://www.doublemthemes.com/"><strong>DoubleMThemes</strong></a>. <br /><br />For theme FAQs, info & "How to..." visit <a href="http://demos.doublemthemes.com/seven/documentation/"><strong>Seven Documentation</strong></a> or contact us via <a href="http://support.doublemthemes.com"><strong>our support forums</strong></a>. 
+
+
+core        = 7.x
+base theme  = zen
+
+stylesheets[screen,projection][]        = css/blueprint/screen.css
+stylesheets[all][]        = css/wireframes.css
+stylesheets[all][]        = css/layout-fixed.css
+stylesheets[all][]        = css/page-backgrounds.css
+stylesheets[all][]        = css/tabs.css
+stylesheets[all][]        = css/pages.css
+stylesheets[all][]        = css/blocks.css
+stylesheets[all][]        = css/navigation.css
+stylesheets[all][]        = css/views-styles.css
+stylesheets[all][]        = css/nodes.css
+stylesheets[all][]        = css/comments.css
+stylesheets[all][]        = css/forms.css
+stylesheets[all][]        = css/fields.css
+stylesheets[all][]        = nivo/nivo-slider.css
+stylesheets[all][]        = css/seven_common.css
+stylesheets[all][]        = css/responsive-mobile-portrait-layout.css
+stylesheets[all][]        = css/seven_colors.css
+stylesheets[print][]      = css/print.css
+
+stylesheets[(min-width: 479px)][] = css/responsive-mobile-landscape-layout.css
+stylesheets[(min-width: 767px)][] = css/responsive-tablet-layout.css
+stylesheets[all and (min-width: 980px) and (min-device-width: 980px), all and (max-device-width: 1024px) and (min-width: 1024px) and (orientation:landscape)][] = css/responsive-screen-layout.css
+stylesheets[(min-width: 1120px)][] = css/responsive-wide-layout.css
+
+stylesheets-conditional[lt IE 9][all][]  = css/ie-responsive-mobile-landscape-layout.css
+stylesheets-conditional[lt IE 9][all][]  = css/ie-responsive-tablet-layout.css
+stylesheets-conditional[lt IE 9][all][]  = css/ie-responsive-screen-layout.css
+
+scripts[] = js/jquery-1.7.1.min.js
+scripts[] = js/scrollTo.js
+scripts[] = js/menu.js
+
+
+regions[help]           = Help
+regions[sidebar_first]  = First sidebar
+regions[sidebar_second] = Second sidebar
+regions[navigation]     = Navigation bar
+regions[highlighted]    = Highlighted
+regions[content]        = Content
+regions[header]         = Header
+regions[footer]         = Footer
+regions[bottom]         = Page bottom
+regions[page_top]       = Page top
+regions[page_bottom]    = Page bottom
+
+features[] = logo
+features[] = name
+features[] = slogan
+features[] = node_user_picture
+features[] = comment_user_picture
+features[] = favicon
+features[] = main_menu
+features[] = secondary_menu
+
+settings[zen_breadcrumb]           = yes
+settings[zen_breadcrumb_separator] = ' › '
+settings[zen_breadcrumb_home]      = 1
+settings[zen_breadcrumb_trailing]  = 1
+settings[zen_breadcrumb_title]     = 0
+settings[zen_jump_link_target]     = main-menu
+settings[zen_rebuild_registry]     = 1
+settings[zen_wireframes]           = 0

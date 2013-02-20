@@ -1,0 +1,1451 @@
+/*
+ *	7 Seven Premium Theme v1.0
+ *	Media Layout for MaxDeviceWidth 480px
+ *	
+ *  This stylesheet works only on a 480px width device. i.e. an iPhone on Landscape mode.
+*/
+
+
+/* Page */ 
+
+#page-wrapper, .region-bottom {
+    margin-left: auto;
+    margin-right: auto;
+    width: 480px;
+}
+
+#content, .region-sidebar-first, .region-sidebar-second {
+    margin-top: 1.2em;
+}
+
+
+/* Main Menu */
+ 
+#block-system-main-menu{
+	display: none;
+}
+
+#block-jump-menu-jump-menu-m-main-menu {
+    margin-bottom: 0;
+    margin-top: 10px;
+}
+
+#block-jump-menu-jump-menu-m-main-menu select {
+    padding: 10px;
+}
+
+
+/* Header */
+
+header {    
+    text-align: center;
+	background: url("../images/header-shadow-mobile.png") repeat-x scroll center bottom transparent;
+}
+
+#logo {
+    float: none;
+    margin: 0 auto;
+    padding: 0;
+	display: none;
+}
+
+#mobile-logo{
+	display: block;
+	float: none;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.region-header {
+    float: none;
+}
+
+
+/* Main Page Area */
+
+body.not-front #content {
+    margin-right: 0;
+    padding: 0 10px 40px;
+    width: 460px;
+	border-right: none;
+}
+
+h1 {
+    font-size: 2em;
+    line-height: 1.2em !important;
+}
+
+.breadcrumb {
+    background: none repeat-x scroll 0 0 #333333;
+    color: #EDEDED;
+    margin-top: -3px;
+    padding: 10px;
+}
+
+.breadcrumb a{
+    color: #999999;    
+}
+
+body.sidebar-first .view-mode-full .field-name-body img, body.sidebar-second .view-mode-full .field-name-body img, body.sidebar-second .view-mode-full .field-name-field-image img, body.sidebar-first .view-mode-full .field-name-field-image img {    
+    max-width: 452px;
+}
+
+body.sidebar-first #content {    
+	border-left: none;
+}
+
+body.not-front .region-sidebar-second, body.not-front .region-sidebar-first .section{
+    background: none repeat scroll 0 0 #EDEDED;
+    border-top: 21px solid #333333;
+    clear: both;
+    float: none;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    padding: 29px 20px 6px;
+    width: 440px;
+}
+
+.region-sidebar-second .section {
+    margin: 0;    
+}
+
+.view-seven-features-side-block-2 .views-row, .block-views-seven-features-side-block-block  .views-row{
+    border-bottom: 1px dashed #333333;
+}
+
+
+/* Features Block */
+
+#block-views-seven-features-block-block .views-row {
+    border-bottom: 1px dashed #CCCCCC;
+    margin-bottom: 20px;
+    margin-left: 40px;
+    margin-right: 0;
+    padding-right: 0;
+    width: 360px;
+}
+
+#block-views-seven-features-block-block .views-row-last {
+    border-bottom: none;    
+}
+
+#block-views-seven-features-block-block .views-field-title h3 {
+    font-size: 16px;
+    line-height: 20px;
+    margin-top: 10px;
+}
+
+#block-views-seven-features-block-block .views-row-last {
+    margin-right: 0 !important;
+    padding-right: 0 !important; 
+}
+
+#block-views-seven-features-block-block .views-field-field-image img{
+    float: left;
+    width: 50px;
+	height: auto;
+}
+
+
+/* Recent Products */
+
+#block-views-seven-our-products-block {
+    border-top: 1px solid #E0E0E0;
+    clear: both;
+    padding-top: 23px;
+	margin-bottom: 6px;
+    margin-left: 20px;
+    width: 440px;
+}
+
+#block-views-seven-our-products-block .views-row {
+    border-bottom: 1px dashed;
+	padding-bottom: 34px;
+    float: left;    
+    margin-right: 27px;
+    margin-top: 7px;
+    padding-right: 0;
+    width: 270px;
+}
+
+#block-views-seven-our-products-block .views-row {
+    background: url("../images/2-shadow.png") no-repeat scroll 15px 207px transparent;
+    border-right: none;
+    float: left;
+    margin-bottom: 16px;
+    margin-right: 20px;
+    margin-top: 7px;
+    padding-right: 0;
+    width: auto;
+}
+
+#block-views-seven-our-products-block .views-row:nth-child(2n+2) {
+    border-right: medium none;
+    margin-right: 0;
+    padding-right: 0;
+}
+
+#block-views-seven-our-products-block .views-row-2, #block-views-seven-our-products-block .views-row-4, #block-views-seven-our-products-block .views-row-6 {
+    border-right: medium none;
+    margin-right: 0;
+    padding-right: 0;
+}
+
+#block-views-seven-our-products-block .views-row-1, #block-views-seven-our-products-block .views-row-3, .#block-views-seven-our-products-block .views-row-5 {
+    border-right: 1px dashed #E0E0E0;
+    clear: both;
+}
+
+#block-views-seven-our-products-block .views-row img {
+    height: auto;
+    width: 432px;
+}
+
+#block-views-seven-our-products-block .views-row-last{
+	border-bottom: none;
+}
+
+#block-views-seven-our-products-block .views-row  .views-field-body p{
+	margin-bottom: 0;
+}
+
+#block-views-seven-our-products-block .views-row img{
+    border: solid 1px #CCCCCC;
+	padding: 3px;
+}
+
+#block-views-seven-our-products-block .views-row:nth-child(2n+2) {
+    border-right: medium none;
+    margin-right: 0;
+    padding-right: 0;
+}
+
+#block-views-seven-our-products-block .views-row:nth-child(2n + 1) {    
+    clear: both;  
+	border-right: medium none;
+}
+
+#block-views-seven-our-products-block .views-row h3 {
+    font-size: 16px;
+    line-height: 20px;
+    margin-bottom: 7px;
+    margin-top: 14px;
+}
+
+#block-views-seven-our-products-block .views-row h3 a{
+    text-decoration: none;
+}
+
+
+/* Our Clients */ 
+
+#block-views-seven-our-clients-block {    
+    margin-left: 10px;    
+    width: 460px;
+}
+
+#block-views-seven-our-clients-block .views-row {
+    float: left;
+    margin-bottom: 7px;
+    margin-right: 34px;
+}
+
+#block-views-seven-our-clients-block .views-row-last {    
+    margin-right: 0;
+}
+
+#block-views-seven-our-clients-block .view-content {
+    float: left;
+    margin-left: 58px;
+    margin-top: 0;
+    width: 355px;
+}
+
+#block-views-seven-our-clients-block .view-header {
+    float: left;
+    width: 100%;
+}
+
+
+/* Blog Page */
+
+.view-seven-blog .views-row .views-field-field-image img {
+    border: 1px solid #CCCCCC;
+    height: auto;
+    padding: 3px;
+    width: 452px;
+}
+
+.view-seven-blog .views-row {
+   background: url("../images/2-shadow.png") no-repeat scroll 18px 164px transparent;
+}
+
+
+/* Comments */
+
+.comment .user-picture img{
+    height: auto;
+	width: 50px;
+}
+
+.comment .user-picture {    
+    margin-top: 0;
+}
+
+.comment, .comment.comment-by-node-author {    
+    background: none;
+}
+
+.comment .submitted {  
+    margin-left: 60px;
+}
+
+.comment .content {    
+    margin-left: 60px;
+}
+
+.indented {
+    margin-left: 30px;
+}
+
+
+/* Left Sidebar Reordering */
+
+#main{
+	display: table !important;
+	width: 100%;
+}
+
+body.not-front #content {
+    display: table-row-group;
+    margin-left: 0;
+}
+
+body.not-front .region-sidebar-first {
+    display: table-footer-group;
+    float: none;
+    margin-right: 0;	
+}
+
+
+/* Product Portfolio 3 Columns */
+
+.view-seven-products-portfolio-1 {        
+    width: 460px;
+}
+
+.view-seven-products-portfolio-1 .views-row img {   
+    height: auto;
+    width: 452px;
+}
+
+.view-seven-products-portfolio-1 .views-row {
+    background: url("../images/2-shadow.png") no-repeat scroll 15px 215px transparent;
+    border-bottom: 1px dashed;
+    border-right: medium none;
+    clear: both;
+    float: none;
+    margin-bottom: 24px;
+    margin-right: 27px;
+    margin-top: 7px;
+    padding-bottom: 23px;
+    padding-right: 0;
+    width: 460px;
+}
+
+.view-seven-products-portfolio-1 .views-row img {    
+    float: left;
+    margin-bottom: 16px;
+    margin-right: 12px; 	
+}
+
+
+/* Product Portfolio 2 Columns */
+
+.view-seven-products-portfolio-2 {        
+    width: 460px;
+}
+
+.view-seven-products-portfolio-2 .views-row img {
+    border: 1px solid #CCCCCC;
+    height: auto;
+    padding: 3px;
+    width: 452px;
+}
+
+.view-seven-products-portfolio-2 .views-row {
+    background: url("../images/2-shadow.png") no-repeat scroll 15px 215px transparent;
+    border-bottom: 1px dashed;
+    border-right: medium none;
+    clear: both;
+    float: none;
+    margin-bottom: 24px;
+    margin-right: 27px;
+    margin-top: 7px;
+    padding-bottom: 23px;
+    padding-right: 0;
+    width: 460px;
+}
+
+
+/* Product Portfolio 1 Column */
+
+.view-seven-products-portfolio-3 {        
+    width: 460px;
+}
+
+.view-seven-products-portfolio-3 .views-row img {
+    border: 1px solid #CCCCCC;
+    height: auto;
+    margin-bottom: 17px;
+    padding: 3px;
+    width: 452px;
+}
+
+.view-seven-products-portfolio-3 .views-row {
+    background: url("../images/2-shadow.png") no-repeat scroll 15px 215px transparent;
+    border-bottom: 1px dashed;
+    border-right: medium none;
+    clear: both;
+    float: none;
+    margin-bottom: 24px;
+    margin-right: 27px;
+    margin-top: 7px;
+    padding-bottom: 23px;
+    padding-right: 0;
+    width: 460px;
+}
+
+
+/* Product Portfolio ColorBox */
+
+.view-seven-products-portfolio-4 {        
+    width: 460px;
+}
+
+.view-seven-products-portfolio-4 .views-row img {   
+    height: auto;
+    width: 452px;
+}
+
+.view-seven-products-portfolio-4 .views-row {
+    background: url("../images/2-shadow.png") no-repeat scroll 15px 215px transparent;
+    border-bottom: 1px dashed;
+    border-right: medium none;
+    clear: both;
+    float: none;
+    margin-bottom: 24px;
+    margin-right: 27px;
+    margin-top: 7px;
+    padding-bottom: 23px;
+    padding-right: 0;
+    width: 460px;
+}
+
+
+/* Facebook Like Box */
+
+#block-widgets-s-facebook-like-box{
+	width: 440px;
+}
+
+.fb_iframe_widget span {    
+    width: 440px !important;
+}
+
+.fb_iframe_widget iframe {
+    width: 100% !important;
+}
+
+
+/* 404 */
+
+.not-found {
+    background: url("../images/404.png") no-repeat scroll 0 0 transparent;
+    -moz-background-size: 450px auto;
+	-webkit-background-size: 450px auto;
+	-o-background-size: 450px auto;
+	background-size: 450px auto;
+    border-right: medium none;
+    float: left;
+    height: 246px;
+    margin-right: 0;
+    padding-right: 0;
+    width: 460px;
+}
+
+.not-found-where-to-go {
+    float: left;
+    width: 460px;
+}
+
+
+/* Contact Form */
+
+#contact-site-form input[type="text"], #contact-site-form input[type="password"], #contact-site-form input.text, #contact-site-form input.title {
+    padding: 10px;
+    width: 438px;
+}
+
+#block-locationmap-image img{
+	width: 452px;
+	height: auto;
+}
+
+#locationmap_map{
+	width: 452px !important;
+	height: 250px !important;
+}
+
+/* Footer */
+
+.closure {
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 291px;
+    width: 480px;
+}
+
+.closure .block {
+    clear: none;
+    float: left;
+    margin-bottom: 52px;
+    margin-left: 20px;
+    margin-right: 0;
+    padding-top: 5px;
+    width: 206px;
+}
+
+#block-multiblock-1{
+	clear: both;
+}
+
+#block-block-7 {
+    margin-left: 0;
+    padding: 8px 10px 0;
+	width: 460px;
+}
+
+.region-bottom {
+    padding: 0;
+}
+
+
+/* Slideshow 1 */
+
+#block-views-seven-slideshow-1-block .views-field-nothing {    
+    height: 125px;    
+    width: 438px;
+}
+
+#block-views-seven-slideshow-1-block .views-field-field-image img {
+    margin-left: 0;
+    width: 458px;
+}
+
+#block-views-seven-slideshow-1-block .views-field-field-image {    
+	width: 458px;
+}
+
+#block-views-seven-slideshow-1-block .views-slideshow-controls-bottom {    
+    margin-top: -33px;
+}
+
+#block-views-seven-slideshow-1-block .views-slideshow-cycle-main-frame {
+    height: 274px !important;
+}
+
+
+/* Slideshow 2 */
+
+#block-views-seven-slideshow-2-block {
+    margin-bottom: 34px;
+    margin-top: 0;
+    padding-top: 22px;
+}
+
+#block-views-seven-slideshow-2-block .views-field-nothing {
+    background: none repeat scroll 0 0 #222222;
+    height: 114px;
+    padding: 20px 20px 0;
+    position: absolute;
+    top: 227px;
+    width: 440px;
+}
+
+#block-views-seven-slideshow-2-block .views-field-field-image img {
+    height: auto;
+    margin-left: 24px;
+    width: 433px;
+}
+
+#block-views-seven-slideshow-2-block .views-field-field-image {
+    left: 0;
+    position: absolute;
+    top: 2px;
+}
+
+#block-views-seven-slideshow-2-block .views-field-nothing h2 {
+    font-size: 16px;
+    line-height: 21px;
+    margin-bottom: 12px;
+    padding-top: 4px;
+}
+
+#block-views-seven-slideshow-2-block .views-field-nothing a {
+    display: none;
+    padding: 7px;
+    text-decoration: none;
+    width: 96px;	
+	opacity: 1;   
+	-moz-transition: opacity 0.5s ease-out;
+	-o-transition: opacity 0.5s ease-out;
+	-webkit-transition: opacity 0.5s ease-out;
+	transition: opacity 0.5s ease-out;
+}
+
+#block-views-seven-slideshow-2-block .views-field-nothing a:hover {
+    opacity: 0.8;   	
+}
+
+#block-views-seven-slideshow-2-block .views-field-nothing p {
+    font-size: 12px;
+}
+
+#block-views-seven-slideshow-2-block .views-slideshow-cycle-main-frame{
+	height: 362px !important;
+}
+
+#block-views-seven-slideshow-2-block .views-slideshow-controls-bottom {
+    border-bottom: 1px solid #CCCCCC;
+    margin-top: 9px;
+    padding-bottom: 7px;
+    text-align: center;
+}
+
+#block-views-seven-slideshow-2-block .views-slideshow-controls-bottom .views-slideshow-pager-field-item {
+    display: inline-block;
+    float: none;
+}
+
+#block-views-seven-slideshow-2-block .views-slideshow-controls-bottom .views-field-nothing {
+    background: url("../images/slide-control.png") no-repeat scroll 2px -18px transparent;
+    height: 15px;
+    margin-right: 1px;
+    padding: 0;
+    position: relative;
+    width: 15px;
+	top: auto;
+}
+
+#block-views-seven-slideshow-2-block .views-slideshow-controls-bottom .active .views-field-nothing, #block-views-seven-slideshow-2-block .views-slideshow-controls-bottom .views-field-nothing:hover {
+    background: url("../images/slide-control.png") no-repeat scroll 2px 2px transparent;    
+}
+
+#block-views-seven-slideshow-2-block .views-field-nothing-2 {
+    background: url("../images/slide2-inner-shadow.png") repeat scroll 0 0 transparent;
+    height: 11px;
+    left: 0;
+    position: absolute;
+    top: 216px;
+    width: 480px;
+    z-index: 0;
+}
+
+
+/* Home Variant 2 - Backgrounds & Styles */
+
+body.page-home-variant-2 h1{
+	display: none;
+}
+
+body.page-home-variant-2 .breadcrumb{
+	display: none;
+}
+
+body.page-home-variant-2 #content, body.page-home-variant-2 .region-sidebar-first, body.page-home-variant-2 .region-sidebar-second {
+    padding: 0;
+    width: 480px;
+	margin-top: 0;
+	overflow: hidden;
+}
+
+body.page-home-variant-2{
+    background: url("../images/variant 2/body-background-iphone-landscape.jpg") repeat-x scroll 0 190px transparent;
+}
+
+body.page-home-variant-2 #block-views-seven-slideshow-4-block .views-slideshow-controls-bottom .views-slideshow-pager-field-item {    
+    opacity: 0.4;
+}
+
+body.page-home-variant-2 header {
+    border-bottom: none;
+	padding: 30px 0;
+} 
+
+body.page-home-variant-2 #block-views-seven-slideshow-4-block {
+    margin-bottom: 23px;   
+}
+
+body.page-home-variant-2 #block-views-seven-slideshow-4-block .views-slideshow-controls-bottom {
+    border-bottom: none;
+}
+
+
+/* Slideshow 3 */
+
+#block-views-seven-slideshow-3-block {
+    margin-bottom: 15px;
+    margin-top: 10px;
+    padding-top: 0;
+}
+
+#block-views-seven-slideshow-3-block .views-field-field-image img {
+    box-shadow: 1px 1px 6px #000000;
+	-o-box-shadow: 1px 1px 6px #000000;
+	-moz-box-shadow: 1px 1px 6px #000000;
+	-webkit-box-shadow: 1px 1px 6px #000000;
+    height: auto;
+    width: 440px;
+	margin-left: 18px;
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-cycle-main-frame{
+	width: 479px !important;  
+	min-height: 274px;	
+}
+
+#block-views-seven-slideshow-3-block .views-field-nothing {
+    margin-top: 0;
+    text-align: center;
+	width: 480px;
+}
+
+#block-views-seven-slideshow-3-block .views-field-nothing h2 {
+    font-size: 15px;
+    line-height: 23px;
+    margin-bottom: 7px;
+    margin-top: 20px;
+    padding: 0 40px;
+}
+
+#block-views-seven-slideshow-3-block .views-field-nothing p {
+    color: #666666;
+    font-size: 12px;
+    padding: 0 40px;
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-top {
+    margin-left: 30px;
+    margin-top: 57px;
+    position: absolute;
+    width: 410px;
+    z-index: 100;
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-top .views-slideshow-controls-text-pause{
+	display: none;
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-top .views-slideshow-controls-text-previous{
+    float: left;
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-top .views-slideshow-controls-text-previous a {
+    background: url("../images/slider-arrows.png") repeat scroll 0 0 transparent;
+    display: block;
+    font-size: 0;
+    height: 30px;
+    width: 30px;
+	opacity: 0.8;
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-top .views-slideshow-controls-text-previous a:hover{	
+	opacity: 1;	
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-top .views_slideshow_controls_text_next{
+    float: right;
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-top .views_slideshow_controls_text_next a{
+	background: url("../images/slider-arrows.png") repeat scroll 30px 0 transparent;
+    display: block;
+    font-size: 0;
+    height: 30px;
+    width: 30px;
+	opacity: 0.8;	
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-top .views_slideshow_controls_text_next a:hover{	
+	opacity: 1;	
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-bottom {
+    border-bottom: 1px solid #CCCCCC;
+    padding-bottom: 25px;
+    text-align: center;
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-bottom .views-slideshow-pager-field-item {
+    display: inline-block;
+    float: none;
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-bottom .views-field-nothing {
+    background: url("../images/slide-control.png") no-repeat scroll 2px -18px transparent;
+    height: 15px;
+    margin-right: 1px;
+    padding: 0;
+    position: relative;
+    width: 15px;
+}
+
+#block-views-seven-slideshow-3-block .views-slideshow-controls-bottom .active .views-field-nothing, #block-views-seven-slideshow-3-block .views-slideshow-controls-bottom .views-field-nothing:hover {
+    background: url("../images/slide-control.png") no-repeat scroll 2px 2px transparent;    
+}
+
+
+/* Home Variant 3 - Backgrounds & Styles */
+
+body.page-home-variant-3 h1{
+	display: none;
+}
+
+body.page-home-variant-3 .breadcrumb{
+	display: none;
+}
+
+body.page-home-variant-3 #content, body.page-home-variant-3 .region-sidebar-first, body.page-home-variant-3 .region-sidebar-second {
+    padding: 0;
+    width: 480px;
+	overflow: hidden;
+}
+
+
+/* Slideshow 4 */
+
+#block-views-seven-slideshow-4-block {
+    margin-bottom: 15px;
+    margin-top: 32px;
+    padding-top: 0;
+}
+
+#block-views-seven-slideshow-4-block .views-field-field-image img {
+    box-shadow: 1px 1px 6px #000000;
+	-o-box-shadow: 1px 1px 6px #000000;
+	-moz-box-shadow: 1px 1px 6px #000000;
+	-webkit-box-shadow: 1px 1px 6px #000000;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-cycle-main-frame-row .views-field-field-image img {   
+    height: auto;
+    width: 440px;
+	margin-left: 18px;
+}
+
+#block-views-seven-slideshow-4-block .views-field-nothing {
+    background: url("../images/slide1-background.png") repeat scroll 0 0 #333333;
+    bottom: auto;
+    box-shadow: 1px 1px 6px #000000;
+	-o-box-shadow: 1px 1px 6px #000000;
+	-moz-box-shadow: 1px 1px 6px #000000;
+	-webkit-box-shadow: 1px 1px 6px #000000;
+    margin-left: 18px;
+    position: absolute;
+    text-align: left;
+    top: 143px;
+	width: 440px;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-cycle-main-frame, #block-views-seven-slideshow-4-block .views-slideshow-cycle-main-frame-row{
+	width: 479px !important;  
+	min-height: 240px;	
+}
+
+#block-views-seven-slideshow-4-block .views-field-nothing h2 {
+    font-size: 15px;
+    line-height: 21px;
+    margin-bottom: 7px;
+    margin-top: 20px;
+    padding: 0 23px;
+}
+
+#block-views-seven-slideshow-4-block .views-field-nothing p {
+    font-size: 11px;
+    padding: 0 23px;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-top {
+    margin-left: 41px;
+    margin-top: 36px;
+    position: absolute;
+    width: 393px;
+    z-index: 100;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-top .views-slideshow-controls-text-pause{
+	display: none;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-top .views-slideshow-controls-text-previous{
+    float: left;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-top .views-slideshow-controls-text-previous a {
+    background: url("../images/slider-arrows.png") repeat scroll 0 0 transparent;
+    display: block;
+    font-size: 0;
+    height: 30px;
+    width: 30px;
+	opacity: 0.8;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-top .views-slideshow-controls-text-previous a:hover{	
+	opacity: 1;	
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-top .views_slideshow_controls_text_next{
+    float: right;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-top .views_slideshow_controls_text_next a{
+	background: url("../images/slider-arrows.png") repeat scroll 30px 0 transparent;
+    display: block;
+    font-size: 0;
+    height: 30px;
+    width: 30px;
+	opacity: 0.8;	
+	-moz-transition: opacity 1s ease-out;
+	-o-transition: opacity 1s ease-out;
+	-webkit-transition: opacity 1s ease-out;
+	transition: opacity 1s ease-out;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-top .views_slideshow_controls_text_next a:hover{	
+	opacity: 1;	
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-bottom {
+    border-bottom: 1px solid #CCCCCC;
+    margin-top: 22px;
+    padding-bottom: 25px;
+    text-align: center;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-bottom img {
+    height: auto;
+    margin-top: 16px;
+    width: 74px;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-bottom .views-slideshow-pager-field-item {
+    display: inline-block;
+    float: none;
+    margin-right: 12px;
+	margin-left: 0;
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-bottom   .views-slideshow-pager-field-item {
+    opacity: 0.7;   
+	-moz-transition: opacity 1s ease-out;
+	-o-transition: opacity 1s ease-out;
+	-webkit-transition: opacity 1s ease-out;
+	transition: opacity 1s ease-out;	
+}
+
+#block-views-seven-slideshow-4-block .views-slideshow-controls-bottom  .views-slideshow-pager-field-item.active, #block-views-seven-slideshow-4-block .views-slideshow-controls-bottom  .views-slideshow-pager-field-item:hover {
+    opacity: 1 !important;
+}
+
+
+
+/* Home Variant 4 - Backgrounds & Styles */
+
+body.page-home-variant-4 h1{
+	display: none;
+}
+
+body.page-home-variant-4 .breadcrumb{
+	display: none;
+}
+
+body.page-home-variant-4 #content, body.page-home-variant-4 .region-sidebar-first, body.page-home-variant-4 .region-sidebar-second {
+    padding: 0;
+    width: 480px;
+	margin-top: 0;
+	overflow: hidden;
+}
+
+body.page-home-variant-4 {
+    background: url("../images/variant 4/body-background-iphone-landscape.jpg") repeat-x scroll 0 190px transparent;
+}
+
+body.page-home-variant-4 header {
+    border-bottom: none;
+}    
+
+body.page-home-variant-4 #block-views-seven-features-block-block {
+    margin-top: 39px;    
+}
+
+body.page-home-variant-4 #block-views-seven-slideshow-4-block .views-slideshow-controls-bottom .views-slideshow-pager-field-item {    
+    opacity: 0.4;
+}
+
+body.page-home-variant-4 #block-views-seven-slideshow-4-block {
+    margin-bottom: 23px;   
+}
+
+body.page-home-variant-4 #block-views-seven-slideshow-4-block .views-slideshow-controls-bottom {
+    border-bottom: none;
+}
+
+
+
+/* Slideshow 5 */
+
+#block-views-seven-slideshow-5-block {
+    border-bottom: 1px solid #EDEDED;
+    height: 378px;
+    margin-bottom: 27px;
+    margin-top: 49px;
+    padding-top: 0;
+}
+
+#block-views-seven-slideshow-5-block .views-field-nothing {
+    height: 148px;
+    padding: 228px 30px 2px;
+    position: absolute;
+    width: 412px;
+}
+
+#block-views-seven-slideshow-5-block .views-field-field-image img {
+    height: auto;
+    margin-left: 0px;
+    width: 421px;
+}
+
+#block-views-seven-slideshow-5-block .views-field-field-image {
+    left: 30px;
+    position: absolute;
+    top: -15px;
+}
+
+#block-views-seven-slideshow-5-block .views-field-nothing h2 {
+    font-size: 21px;
+    line-height: 25px;
+    margin-bottom: 12px;
+    padding-top: 0;
+}
+
+#block-views-seven-slideshow-5-block .views-field-nothing a {
+    display: none;
+    padding: 7px;
+    text-decoration: none;
+    width: 88px;
+	opacity: 1;   
+	-moz-transition: opacity 0.5s ease-out;
+	-o-transition: opacity 0.5s ease-out;
+	-webkit-transition: opacity 0.5s ease-out;
+	transition: opacity 0.5s ease-out;
+}
+
+#block-views-seven-slideshow-5-block .views-field-nothing a:hover {
+    opacity: 0.5;   	
+}
+
+#block-views-seven-slideshow-5-block .views-field-nothing p {
+    font-size: 13px;
+}
+
+#block-views-seven-slideshow-5-block .views-slideshow-cycle-main-frame{
+	height: 297px !important;
+}
+
+#block-views-seven-slideshow-5-block .views-slideshow-controls-bottom {
+    border-bottom: medium none;
+    float: right;
+    margin-right: 40px;
+    margin-top: -100px;
+    padding-bottom: 7px;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    width: 423px;
+    z-index: 1000;
+}
+
+#block-views-seven-slideshow-5-block .views-slideshow-controls-bottom .views-slideshow-pager-field-item {
+    display: inline-block;
+    float: none;
+}
+
+#block-views-seven-slideshow-5-block .views-slideshow-controls-bottom .views-field-nothing {
+    background: url("../images/slide-control.png") no-repeat scroll 2px -18px transparent;
+    height: 15px;
+    margin-right: 1px;
+    padding: 0;
+    position: relative;
+    width: 15px;
+}
+
+#block-views-seven-slideshow-5-block .views-slideshow-controls-bottom .active .views-field-nothing, #block-views-seven-slideshow-5-block .views-slideshow-controls-bottom .views-field-nothing:hover {
+    background: url("../images/slide-control.png") no-repeat scroll 2px 2px transparent;    
+}
+
+
+/* Home Variant 5 - Backgrounds & Styles */
+
+body.page-home-variant-5 h1{
+	display: none;
+}
+
+body.page-home-variant-5 .breadcrumb{
+	display: none;
+}
+
+body.page-home-variant-5 #content, body.page-home-variant-5 .region-sidebar-first, body.page-home-variant-5 .region-sidebar-second {
+    padding: 0;
+    width: 480px;
+	margin-top: 0;	
+}
+
+body.page-home-variant-5{
+    background: url("../images/variant 5/slide-background-iphone-landscape.jpg") no-repeat scroll center 190px transparent;
+}
+
+body.page-home-variant-5 #block-views-seven-slideshow-4-block .views-slideshow-controls-bottom .views-slideshow-pager-field-item {    
+    opacity: 0.4;
+}
+
+body.page-home-variant-5 header {
+    border-bottom: none;
+	padding: 30px 0;
+} 
+
+body.page-home-variant-5 #block-views-seven-slideshow-4-block {
+    margin-bottom: 23px;   
+}
+
+body.page-home-variant-5 #block-views-seven-slideshow-4-block .views-slideshow-controls-bottom {
+    border-bottom: none;
+}
+
+
+/* Slideshow 6 */
+
+#block-views-seven-slideshow-6-block {
+    border-bottom: 1px solid #CCCCCC;
+    margin-bottom: 15px;
+    margin-top: 29px;
+    padding-left: 17px;
+    padding-top: 0;
+}
+
+#block-views-seven-slideshow-6-block .views-field-field-image img {
+    height: auto;
+    margin-left: 0;
+    width: 447px;
+}
+
+#block-views-seven-slideshow-6-block .views-field-field-image {
+    overflow: hidden;
+	width: 714px;	
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-cycle-main-frame-row, #block-views-seven-slideshow-6-block .views-slideshow-cycle-main-frame {
+    height: 176px !important;
+	overflow: hidden;
+	width: 723px;
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-cycle-main-frame-row-item .views-field-nothing {
+    background: url("../images/variant 6/slide1-background.png") repeat scroll 0 0 transparent;    
+    margin-top: 11px;
+    position: absolute;
+	bottom: auto;
+    text-align: left;
+    width: 304px;
+}
+
+#block-views-seven-slideshow-6-block .views-field-nothing h2 {
+    font-size: 18px;
+    line-height: 22px;
+    margin-bottom: 7px;
+    margin-top: 20px;
+    padding: 0 24px;
+}
+
+#block-views-seven-slideshow-6-block .views-field-nothing p {
+    color: #CCCCCC;
+    font-size: 11px;
+    padding: 0 24px;
+	display: block;
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-top {
+    margin-left: -62px;
+    margin-top: 171px;
+    position: absolute;
+    width: 1065px;
+    z-index: 100;
+	display: none;
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-top .views-slideshow-controls-text-pause{
+	display: none;
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-top .views-slideshow-controls-text-previous{
+    float: left;
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-top .views-slideshow-controls-text-previous a {
+    background: url("../images/slider-arrows.png") repeat scroll 0 0 transparent;    
+    font-size: 0;
+    height: 30px;
+    width: 30px;
+	display: block;
+	opacity: 0.8;	
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-top .views-slideshow-controls-text-previous a:hover{	
+	opacity: 1;	
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-top .views_slideshow_controls_text_next{
+    float: right;
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-top .views_slideshow_controls_text_next a{
+	background: url("../images/slider-arrows.png") repeat scroll 30px 0 transparent;
+    display: block;
+    font-size: 0;
+    height: 30px;
+    width: 30px;
+	opacity: 0.8;	
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-top .views_slideshow_controls_text_next a:hover{	
+	opacity: 1;	
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-bottom {    
+    padding-bottom: 25px;
+    padding-top: 23px;
+    text-align: center;
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-bottom .views-slideshow-pager-field-item {
+    display: inline-block;
+    float: none;
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-bottom .views-field-nothing {
+    background: url("../images/variant 6/slide-control.png") no-repeat scroll 2px -20px transparent;
+    height: 16px;
+    margin-right: 5px;
+    padding: 0;
+    position: relative;
+    width: 16px;
+}
+
+#block-views-seven-slideshow-6-block .views-slideshow-controls-bottom .active .views-field-nothing, #block-views-seven-slideshow-6-block .views-slideshow-controls-bottom .views-field-nothing:hover {
+    background: url("../images/variant 6/slide-control.png") no-repeat scroll 2px 1px transparent;    
+}
+
+#block-views-seven-slideshow-6-block .views-field-nothing a {
+    display: none;
+    font-size: 14px;
+    opacity: 1;
+    padding: 7px;
+    text-decoration: none;
+    width: 96px;   
+	-moz-transition: opacity 0.5s ease-out;
+	-o-transition: opacity 0.5s ease-out;
+	-webkit-transition: opacity 0.5s ease-out;
+	transition: opacity 0.5s ease-out;
+}
+
+#block-views-seven-slideshow-6-block .views-field-nothing a:hover {
+    opacity: 0.5;   	
+}
+
+
+/* Home Variant 6 - Backgrounds & Styles */
+
+body.page-home-variant-6 h1{
+	display: none;
+}
+
+body.page-home-variant-6 .breadcrumb{
+	display: none;
+}
+
+body.page-home-variant-6 #content, body.page-home-variant-6 .region-sidebar-first, body.page-home-variant-6 .region-sidebar-second {
+    margin-right: 0;
+    margin-top: 0;
+    padding: 0;
+    width: 480px;
+}
+
+body.page-home-variant-6{
+    background: url("../images/variant 6/slide-background-iphone-landscape.jpg") no-repeat scroll center 189px  transparent;
+	-webkit-background-position: center 187px;
+}
+
+body.page-home-variant-6 #block-views-seven-slideshow-4-block .views-slideshow-controls-bottom .views-slideshow-pager-field-item {    
+    opacity: 0.4;
+}
+
+body.page-home-variant-6 header {
+    border-bottom: none;
+	padding: 30px 0;
+} 
+
+body.page-home-variant-6 #block-views-seven-slideshow-4-block {
+    margin-bottom: 23px;   
+}
+
+body.page-home-variant-6 #block-views-seven-slideshow-4-block .views-slideshow-controls-bottom {
+    border-bottom: none;
+}
+
+
+/* Slideshow 7 */
+
+#block-views-seven-slideshow-7-block {
+    height: 211px;
+    margin-bottom: 25px;
+    margin-top: 19px;
+    padding-top: 0;
+}
+
+#block-views-seven-slideshow-7-block .views-field-nothing {
+    height: 271px;
+    padding: 14px 32px 26px;
+    position: absolute;
+    width: 208px;
+	margin-top: auto;
+}
+
+#block-views-seven-slideshow-7-block .views-field-field-image {
+    bottom: 81px;
+    left: 264px;
+    position: absolute;
+	overflow: hidden;	
+	top: auto;
+}
+
+#block-views-seven-slideshow-7-block .views-field-field-image img {
+    height: auto;
+    margin-left: 0;
+    width: 191px;
+}
+
+#block-views-seven-slideshow-7-block .views-slideshow-cycle-main-frame-row, #block-views-seven-slideshow-7-block .views-slideshow-cycle-main-frame {
+    height: 233px !important;	
+	width: 467px  !important;
+}
+
+#block-views-seven-slideshow-7-block .views-field-nothing h2 {
+    font-size: 17px;
+    line-height: 22px;
+    margin-bottom: 12px;
+    padding-top: 0;
+}
+
+
+#block-views-seven-slideshow-7-block .views-field-nothing a {
+    box-shadow: 1px 1px 2px #000000;
+    display: none;
+    opacity: 1;
+    padding: 7px 7px 9px;
+    text-decoration: none;
+    width: 95px;  
+	-moz-transition: opacity 0.5s ease-out;
+	-o-transition: opacity 0.5s ease-out;
+	-webkit-transition: opacity 0.5s ease-out;
+	transition: opacity 0.5s ease-out;
+}
+
+#block-views-seven-slideshow-7-block .views-field-nothing a:hover {
+    opacity: 0.5;   	
+}
+
+#block-views-seven-slideshow-7-block .views-field-nothing p {
+    font-size: 12px;
+}
+
+#block-views-seven-slideshow-7-block .views-slideshow-controls-bottom {
+    border-bottom: medium none;
+    border-radius: 5px 5px 0 0;
+    float: right;
+    margin-left: auto;
+    margin-right: 65px;
+    margin-top: -76px;
+    padding: 10px 7px;
+    text-align: center;
+    width: auto;
+    z-index: 100;
+	right: 0;
+	position: absolute;
+}
+
+#block-views-seven-slideshow-7-block .views-slideshow-controls-bottom .views-slideshow-pager-field-item {
+    display: inline-block;
+    float: none;
+}
+
+#block-views-seven-slideshow-7-block .views-slideshow-controls-bottom .views-field-nothing {
+    background: url("../images/variant 7/slide-control.png") no-repeat scroll 2px -20px transparent;
+    height: 16px;
+    margin-right: 5px;
+    padding: 0;
+    position: relative;
+    width: 16px;
+}
+
+#block-views-seven-slideshow-7-block .views-slideshow-controls-bottom .active .views-field-nothing, #block-views-seven-slideshow-7-block .views-slideshow-controls-bottom .views-field-nothing:hover {
+    background: url("../images/variant 7/slide-control.png") no-repeat scroll 2px 1px transparent;    
+}
+
+
+/* Home Variant 7 - Backgrounds & Styles */
+
+body.page-home-variant-7 h1{
+	display: none;
+}
+
+body.page-home-variant-7 .breadcrumb{
+	display: none;
+}
+
+body.page-home-variant-7 #content, body.page-home-variant-7 .region-sidebar-first, body.page-home-variant-7 .region-sidebar-second {
+    padding: 0;
+    width: 480px;
+	margin-top: 0;
+}
+
+body.page-home-variant-7 {
+    background: url("../images/variant 7/slide-background-iphone-landscape.jpg") no-repeat scroll center 190px transparent;
+}
+
+body.page-home-variant-7 #block-views-seven-slideshow-4-block .views-slideshow-controls-bottom .views-slideshow-pager-field-item {    
+    opacity: 0.4;
+}
+
+body.page-home-variant-7 header {
+    border-bottom: none;
+	padding: 30px 0;
+} 
+
+body.page-home-variant-7 #block-views-seven-slideshow-4-block {
+    margin-bottom: 23px;   
+}
+
+body.page-home-variant-7 #block-views-seven-slideshow-4-block .views-slideshow-controls-bottom {
+    border-bottom: none;
+}

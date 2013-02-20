@@ -1,0 +1,183 @@
+/*
+ *	7 Seven Premium Theme v1.0
+ *	Common Colors
+ */
+
+/* General Typography */
+ 
+body {
+    color: #333333;    
+}
+
+a{
+	color: #111111;
+}
+
+a:hover, a:focus{
+	color: #777777;
+}
+ 
+header {
+	border-bottom-color: #CCCCCC;
+}
+
+
+/* Main Menu */
+
+
+#block-system-main-menu ul li a:hover, #block-system-main-menu ul li a:focus{
+	color: #111111;
+}
+
+
+/* Our Products */
+
+#block-views-seven-our-products-block .views-row .views-field-body p {
+    color: #666666;    
+}
+
+
+/* Slideshow 1 */
+
+#block-views-seven-slideshow-1-block .views-field-nothing {    
+    color: #FFFFFF;    
+	text-shadow: 1px 1px 1px #000000;
+}
+
+#block-views-seven-slideshow-1-block .views-field-nothing  h2{    
+    color: #FFFFFF;    
+	text-shadow: 1px 1px 1px #000000;
+}
+
+
+/* Slideshow 2 */
+
+#block-views-seven-slideshow-2-block .views-field-nothing {    
+    color: #FFFFFF;    
+	text-shadow: 1px 1px 1px #000000;
+}
+
+#block-views-seven-slideshow-2-block .views-field-nothing  h2{    
+    color: #FFFFFF;    
+	text-shadow: 1px 1px 1px #000000;
+}
+
+#block-views-seven-slideshow-2-block .views-field-nothing a {
+    background-color: #D54C22;
+    box-shadow: 1px 1px 6px #000000;
+    color: #FFFFFF;
+}
+
+
+/* Slideshow 3 */
+
+#block-views-seven-slideshow-4-block .views-field-nothing p {
+    /*color: #FFFFFF;      */
+}
+
+
+/* Slideshow 4 */
+
+#block-views-seven-slideshow-4-block .views-field-nothing h2 {
+    color: #FFFFFF;    
+    text-shadow: 1px 1px 1px #000000;
+}
+
+#block-views-seven-slideshow-4-block .views-field-nothing p {
+    color: #FFFFFF;    
+    text-shadow: 1px 1px 1px #000000;
+}
+
+/* Slideshow 5 */
+
+#block-views-seven-slideshow-5-block .views-field-nothing a{
+    color: #FFFFFF;    
+	background-color: #000000;
+}
+
+
+/* Slideshow 6 */
+
+#block-views-seven-slideshow-6-block .views-field-nothing {    
+    color: #FFFFFF;    
+	text-shadow: 1px 1px 1px #000000;
+}
+
+#block-views-seven-slideshow-6-block .views-field-nothing  h2{    
+    color: #FFFFFF;    
+	text-shadow: 1px 1px 1px #000000;
+}
+
+#block-views-seven-slideshow-6-block .views-field-nothing  p{    
+    color: #FFFFFF;    
+	text-shadow: 1px 1px 1px #000000;
+}
+
+#block-views-seven-slideshow-6-block .views-field-nothing a{
+    color: #FFFFFF;    
+	background-color: #000000;
+}
+
+
+/* Slideshow 7 */
+
+#block-views-seven-slideshow-7-block .views-field-nothing {    
+    color: #FFFFFF;    
+	text-shadow: 1px 1px 1px #000000;
+}
+
+#block-views-seven-slideshow-7-block .views-field-nothing  h2{    
+    color: #FFFFFF;    
+	text-shadow: 1px 1px 1px #000000;
+}
+
+#block-views-seven-slideshow-7-block .views-field-nothing a{
+    color: #FFFFFF;    
+	background-color: #000000;
+}
+
+
+/* Product Portfolio 3 Columns */
+
+.view-seven-products-portfolio-1  .views-row .views-field-body {
+    color: #666666;
+}
+
+
+/* Product Portfolio 2 Columns */
+
+.view-seven-products-portfolio-2 .views-row .views-field-body{	
+	color: #666666;
+}
+
+/* Product Portfolio 1 Columns */
+
+.view-seven-products-portfolio-3 .views-row .views-field-body{	
+	color: #666666;
+}
+
+
+/* Closure */
+
+.closure {
+    background: none repeat scroll 0 0 #333333;
+    color: #DDDDDD;    
+}
+
+.closure a{
+	color: #DDDDDD;    
+}
+
+.closure a{
+	color: #DDDDDD;    
+}
+
+.alpha-resize-indicator {
+    background: url("../images/resize-handle.png") no-repeat scroll 0 0 transparent;
+    bottom: 0;
+    height: 80px;
+    position: fixed;
+    right: 0;
+    width: 80px;
+    z-index: 998;
+  }
