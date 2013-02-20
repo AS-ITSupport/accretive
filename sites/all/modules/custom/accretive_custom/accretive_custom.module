@@ -1,0 +1,31 @@
+<?php
+/**
+ * @file
+ * Customizations for Accretive.
+ */
+
+/**
+ * Implements hook_block_info().
+ */
+function accretive_custom_block_info() {
+  $blocks['copyright'] = array(
+    'info' => t('Accretive Copyright'),
+  );
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function accretive_custom_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'copyright':
+      $block['subject'] = NULL;
+      $block['content'] = t('&copy; Copyright 2013 Accretive Solutions. All rights reserved.');
+      break;
+  }
+  return $block;
+}
