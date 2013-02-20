@@ -1,0 +1,16 @@
+name = Accretive7
+description = Drupal 7 Theme for Accretive Solutions' based off of Seven Theme.
+core = 7.x
+base theme = seven_doublemthemes
+
+regions[help]           = Help
+regions[sidebar_first]  = First sidebar
+regions[sidebar_second] = Second sidebar
+regions[navigation]     = Navigation bar
+regions[highlighted]    = Highlighted
+regions[content]        = Content
+regions[header]         = Header
+regions[footer]         = Footer
+regions[bottom]         = Page bottom
+regions[page_top]       = Page top
+regions[page_bottom]    = Page bottom
